@@ -1,4 +1,4 @@
-<Project Sdk="Microsoft.NET.Sdk.Web">
+﻿<Project Sdk="Microsoft.NET.Sdk.Web">
 
   <PropertyGroup>
     <TargetFramework>net10.0</TargetFramework>
@@ -6,6 +6,13 @@
     <ImplicitUsings>enable</ImplicitUsings>
     <BlazorDisableThrowNavigationException>true</BlazorDisableThrowNavigationException>
   </PropertyGroup>
+
+  <ItemGroup>
+    <Compile Remove="Components\Compartido\**" />
+    <Content Remove="Components\Compartido\**" />
+    <EmbeddedResource Remove="Components\Compartido\**" />
+    <None Remove="Components\Compartido\**" />
+  </ItemGroup>
 
   <ItemGroup>
 
@@ -16,8 +23,6 @@
     <ProjectReference Include="..\TicketFlowBL\TicketFlowBL.csproj" />
     <ProjectReference Include="..\TicketFlowDBManager\TicketFlowDBManager.csproj" />
     <ProjectReference Include="..\TicketFlowModel\TicketFlowModel.csproj" />
-
-    <Folder Include="Components\Compartido\" />
     <Folder Include="Components\Pages\Cliente\" />
     <Folder Include="Components\Pages\Anfitrion\" />
     <Folder Include="Components\Pages\Admin\" />
