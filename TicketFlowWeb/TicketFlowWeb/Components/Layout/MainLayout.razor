@@ -1,15 +1,24 @@
 ﻿@inherits LayoutComponentBase
 
 <div class="page">
-    <div class="sidebar">
-        <NavMenu />
-    </div>
-
     <main>
-        <div class="top-row px-4">
-            <a href="https://learn.microsoft.com/aspnet/core/" target="_blank">About</a>
-        </div>
+        <div class="top-navbar px-4 shadow-sm">
 
+            <div class="nav-left">
+                <a href="/" class="brand-link">
+                    <img src="images/logo_ticketflow.png" alt="Logo TicketFlow" class="brand-logo" />
+                </a>
+            </div>
+
+            <div class="nav-center">
+                <a class="botonDescubrir">DESCUBRIR</a>
+            </div>
+
+            <div class="nav-right">
+                <a class="botonRegistrarse">Regístrate</a>
+                <a class="botonIniciarSesion">Iniciar Sesión</a>
+            </div>
+        </div>
         <article class="content px-4">
             @Body
         </article>
@@ -21,3 +30,7 @@
     <a href="." class="reload">Reload</a>
     <span class="dismiss">🗙</span>
 </div>
+
+@code {
+
+}

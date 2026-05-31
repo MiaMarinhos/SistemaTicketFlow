@@ -7,4 +7,14 @@
     <BlazorDisableThrowNavigationException>true</BlazorDisableThrowNavigationException>
   </PropertyGroup>
 
+  <ItemGroup>
+    <Folder Include="Components\Compartido\" />
+    <Folder Include="Components\Pages\Cliente\" />
+    <Folder Include="Components\Pages\Anfitrion\" />
+    <Folder Include="Components\Pages\Admin\" />
+    <Folder Include="Components\Pages\Auth\" />
+    <Folder Include="Components\Pages\Public\" />
+    <Folder Include="wwwroot\images\" />
+  </ItemGroup>
+
 </Project>
