@@ -58,3 +58,96 @@ h1:focus {
 .form-floating > .form-control-plaintext:focus::placeholder, .form-floating > .form-control:focus::placeholder {
     text-align: start;
 }
+
+/* =========================================
+   BARRA DE NAVEGACIÓN SUPERIOR (TicketFlow)
+   ========================================= */
+
+.top-navbar {
+    background-color: #120e49;
+    height: 70px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    border-bottom: 1px solid #e0e0e0;
+}
+
+.nav-left, .nav-center, .nav-right {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    color: white;
+    padding: 20px 20px;
+    margin 10px;
+}
+
+.nav-left {
+    justify-content: flex-start;
+}
+
+.nav-center {
+    justify-content: center;
+}
+
+.nav-right {
+    justify-content: flex-end;
+}
+
+.brand-link {
+    display: flex;
+    align-items: center;
+    text-decoration: none;
+    color: #333333;
+}
+
+.brand-link:hover {
+    color: #0056b3;
+}
+
+.brand-logo {
+    margin-right: 12px;
+}
+
+.botonDescubrir {
+    color: white;
+    text-decoration: none;
+    margin: 10px;
+    padding: 10px;
+    border-radius: 10px;
+}
+
+.botonDescubrir:hover {
+    color: #231d71;
+    text-decoration: none;
+    background-color: white;
+}
+
+.botonRegistrarse {
+    color: white;
+    text-decoration: none;
+    margin: 5px;
+    padding: 10px;
+    border-radius: 10px;
+}
+
+.botonRegistrarse:hover {
+    color: #231d71;
+    text-decoration: none;
+    background-color: white;
+}
+
+.botonIniciarSesion {
+    color: #120e49;
+    background-color: white;
+    text-decoration: none;
+    margin: 5px;
+    padding: 10px;
+    border-radius: 10px;
+}
+
+.botonIniciarSesion:hover {
+    color: #231d71;
+    text-decoration: none;
+    background-color: white;
+    border: 5px solid solid;
+}
