@@ -1,5 +1,6 @@
 ﻿@page "/cliente/detalle-evento/{Id:int}"
 @using Microsoft.AspNetCore.Components
+@using System.Collections.Generic
 
 <div class="detalle-evento-page">
 
@@ -40,7 +41,10 @@
 
             <div class="acciones">
                 <a href="/cliente/eventos" class="btn-volver">Volver</a>
-                <a href="@($"/cliente/comprar-entrada/{evento.Id}")" class="btn-comprar">Comprar entrada</a>
+
+                <a href="@($"/cliente/resumen-compra/{evento.Id}")" class="btn-comprar">
+                    Comprar entrada
+                </a>
             </div>
         </div>
 
