@@ -8,7 +8,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-<<<<<<< HEAD
+
     <PackageReference Include="BCrypt.Net-Next" Version="4.2.0" />
   </ItemGroup>
 
@@ -16,7 +16,7 @@
     <ProjectReference Include="..\TicketFlowBL\TicketFlowBL.csproj" />
     <ProjectReference Include="..\TicketFlowDBManager\TicketFlowDBManager.csproj" />
     <ProjectReference Include="..\TicketFlowModel\TicketFlowModel.csproj" />
-=======
+
     <Folder Include="Components\Compartido\" />
     <Folder Include="Components\Pages\Cliente\" />
     <Folder Include="Components\Pages\Anfitrion\" />
@@ -24,7 +24,7 @@
     <Folder Include="Components\Pages\Auth\" />
     <Folder Include="Components\Pages\Public\" />
     <Folder Include="wwwroot\images\" />
->>>>>>> f8ebd26735f2496b6c5a13273fa08621bb8027d1
+
   </ItemGroup>
 
 </Project>
