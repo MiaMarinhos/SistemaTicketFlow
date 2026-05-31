@@ -1,4 +1,8 @@
+using Microsoft.AspNetCore.Authentication.Cookies;
+using Microsoft.AspNetCore.Components;
+using TicketFlowDBManager;
 using TicketFlowWeb.Components;
+using TicketFlowWeb.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -6,7 +10,46 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddRazorComponents()
     .AddInteractiveServerComponents();
 
+
+//----------------------------------------------------------
+
+builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
+    .AddCookie(opciones =>
+    {
+        opciones.LoginPath = "/login";
+        opciones.LogoutPath = "/auth/logout";
+        opciones.ExpireTimeSpan = TimeSpan.FromHours(8);
+    });
+
+builder.Services.AddAuthorization();
+builder.Services.AddCascadingAuthenticationState();
+// Servicio de autenticación inyectable.
+builder.Services.AddHttpContextAccessor();
+//Agregamos l autentificacion por sercicio :v
+builder.Services.AddScoped<IServicioSesionAuth, ServicioSesionAuth>();
+
+builder.Services.AddScoped(sp =>
+{
+    var navigationManager = sp.GetRequiredService<NavigationManager>();
+
+    return new HttpClient
+    {
+        BaseAddress = new Uri(navigationManager.BaseUri)
+    };
+});
+
+//-------------------------------------------------------
+
 var app = builder.Build();
+
+//--------------------------------------------------------
+
+string connectionString = builder.Configuration.GetConnectionString("MySqlConnection")
+     ?? throw new Exception("No se pudo obtener la cadena de conexión");
+
+DBManager.Initialize(connectionString);
+
+//-------------------------------------------------------------
 
 // Configure the HTTP request pipeline.
 if (!app.Environment.IsDevelopment())
@@ -21,7 +64,16 @@ app.UseHttpsRedirection();
 app.UseAntiforgery();
 
 app.MapStaticAssets();
+
+//-------------------------------------------------------------
+app.UseAuthentication();
+app.UseAuthorization();
+app.MapAuthEndpoints();
+
+//-------------------------------------------------------------
+
 app.MapRazorComponents<App>()
     .AddInteractiveServerRenderMode();
+
 
 app.Run();

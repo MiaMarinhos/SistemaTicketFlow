@@ -1,3 +1,7 @@
 <Solution>
+  <Project Path="TicketFlowBL/TicketFlowBL.csproj" Id="b72edf83-093e-414a-9f79-b367c0d498ff" />
+  <Project Path="TicketFlowDAO/TicketFlowDAO.csproj" Id="b5032640-2b13-499a-9ebc-edb9fca40019" />
+  <Project Path="TicketFlowDBManager/TicketFlowDBManager.csproj" Id="7c2939d0-8614-485c-8eee-c714ea10e2c0" />
+  <Project Path="TicketFlowModel/TicketFlowModel.csproj" Id="3f0c793e-dd0a-4377-8cdb-8e6af30ac9d3" />
   <Project Path="TicketFlowWeb/TicketFlowWeb.csproj" />
 </Solution>
