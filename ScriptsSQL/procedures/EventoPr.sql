@@ -119,7 +119,7 @@ CREATE PROCEDURE SP_ELIMINAR_EVENTO(
 )
 BEGIN
 UPDATE evento
-SET Estado=true
+SET idEstado_evento=(select idEstado_evento from estado_evento where estado='eliminado')
 WHERE idEvento = p_idEvento;
 END //
 

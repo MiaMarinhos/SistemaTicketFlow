@@ -293,7 +293,6 @@ CREATE TABLE IF NOT EXISTS `ticket_flow`.`evento` (
     `nombre_establecimiento` VARCHAR(45) NOT NULL,
     `img` VARCHAR(450) NOT NULL,
     `precio` DOUBLE NOT NULL,
-	`activo` BOOLEAN NOT NULL,
     `idDistrito` INT NOT NULL,
     `idAnfitrion` INT NOT NULL,
     `idCategoria_evento` INT NOT NULL,
