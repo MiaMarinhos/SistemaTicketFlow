@@ -1,4 +1,5 @@
 ﻿@page "/"
+@using Microsoft.AspNetCore.Components.Authorization
 
 <PageTitle>Home</PageTitle>
 <div class="home">
@@ -9,6 +10,23 @@
     </div>
     <br/>
 </div>
-<h1>TODOS DEBEN DE VER ESTO SIN NECESIDAD DE ESTAR AUTORIZADO</h1>
+
+<AuthorizeView Roles="ANFITRION">
+    @* si la vista esta autorizada para el ANFITRION entonces se vera un mensaje diferentes*@
+    <Authorized Context="authContext">
+        <h1>SOLO LOS ANFITRIONES PUEDEN VER ESTO</h1>
+    </Authorized>
+    <NotAuthorized Context="authContext">
+        @* en el caso que no este autorizado como ANFITRION, se sobre entiende que como CLIENTE
+            y entonces podras navegar por los eventos que ofrece TicketFlow
+        *@
+        @* AQUI SE DEBE DE PONER MAS COSAS QUE SOLO EL CLIENTE PUEDE VER*@
+
+        <h1>SOLO LOS CLIENTES PUEDEN VER ESTO</h1>
+    </NotAuthorized>
+
+
+</AuthorizeView>
+
 
 Welcome to Ticket Flow

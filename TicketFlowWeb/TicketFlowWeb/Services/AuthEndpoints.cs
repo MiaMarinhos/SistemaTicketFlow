@@ -45,7 +45,7 @@ namespace TicketFlowWeb.Services
                     CookieAuthenticationDefaults.AuthenticationScheme
                 );
 
-                return Results.Redirect("/login");
+                return Results.Redirect("/");
             });
 
             return endpoints;

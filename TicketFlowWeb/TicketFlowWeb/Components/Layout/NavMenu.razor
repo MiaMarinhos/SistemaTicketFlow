@@ -1,7 +1,8 @@
 ﻿@using Microsoft.AspNetCore.Components.Authorization
+
 <div class="top-row ps-3 navbar navbar-dark">
     <div class="container-fluid">
-        <a class="navbar-brand" href="">TicketFlowWeb</a>
+        <a class="navbar-brand" href="">TicketFlow Anfitrión</a>
     </div>
 </div>
 
@@ -10,66 +11,41 @@
 <div class="nav-scrollable" onclick="document.querySelector('.navbar-toggler').click()">
     <nav class="nav flex-column">
 
-        <AuthorizeView>
-            <Authorized>
-                <div class="nav-item px-3">
-                    <NavLink class="nav-link" href="" Match="NavLinkMatch.All">
-                        <span class="bi bi-house-door-fill-nav-menu" aria-hidden="true"></span>
-                        Home
-                    </NavLink>
-                </div>
-
-                <div class="nav-item px-3">
-                    <a class="nav-link" href="/auth/logout">
-                        <span class="bi bi-box-arrow-right-nav-menu" aria-hidden="true"></span>
-                        Cerrar Sesión
-                    </a>
-                </div>
-            </Authorized>
-
-            <NotAuthorized>
-                <div class="nav-item px-3">
-                    <NavLink class="nav-link" href="login">
-                        <span class="bi bi-person-nav-menu" aria-hidden="true"></span>
-                        Iniciar Sesión
-                    </NavLink>
-                </div>
-            </NotAuthorized>
-
-        </AuthorizeView>
-
-        <!------------------------------------------------------------>
-        <AuthorizeView Roles="CLIENTE">
-            <Authorized>
-                <div class="nav-item px-3">
-                    <NavLink class="nav-link" href="counter">
-                        <span class="bi bi-plus-square-fill-nav-menu" aria-hidden="true"></span> Gestionar Pacientes
-                    </NavLink>
-                </div>
-                <!--Esto sirve para agregar una opcion en el menu-->
-                <div class="nav-item px-3">
-                    <NavLink class="nav-link" href="weather">
-                        <span class="bi bi-plus-square-fill-nav-menu" aria-hidden="true"></span> Gestionar Odontologos
-                    </NavLink>
-                </div>
-            </Authorized>
-        </AuthorizeView>
-
-        <AuthorizeView Roles="ANFITRION">
-            <Authorized>
-                <div class="nav-item px-3">
-                    <NavLink class="nav-link" href="counter">
-                        <span class="bi bi-plus-square-fill-nav-menu" aria-hidden="true"></span> Registrar Cita
-                    </NavLink>
-                </div>
-            </Authorized>
-        </AuthorizeView>
-
         <div class="nav-item px-3">
             <NavLink class="nav-link" href="" Match="NavLinkMatch.All">
-                <span class="bi bi-house-door-fill-nav-menu" aria-hidden="true"></span> Home
+                <span class="bi bi-house-door-fill-nav-menu" aria-hidden="true"></span> Panel Principal
             </NavLink>
         </div>
+        @* este menu es solo para el ANFITRION*@
+        <AuthorizeView Roles="ANFITRION">
+            @* como esta autorizado, puede poner todos lo que quieres en cada div*@
+            <Authorized>
+                <div class="nav-item px-3">
+                    <NavLink class="nav-link" href="/anfitrion/perfil">
+                        <span class="bi bi-plus-square-fill-nav-menu" aria-hidden="true"></span> Ver Perfil
+                    </NavLink>
+                </div>
+
+                <div class="nav-item px-3">
+                    <NavLink class="nav-link" href="/anfitrion/gestionar-evento">
+                        <span class="bi bi-list-nested-nav-menu" aria-hidden="true"></span> Mis Eventos
+                    </NavLink>
+                </div>
+                <div class="nav-item px-3">
+                    <NavLink class="nav-link" href="/anfitrion/entradas_evento">
+                        <span class="bi bi-plus-square-fill-nav-menu" aria-hidden="true"></span> Pagos
+                    </NavLink>
+                </div>
+
+                <div class="nav-item px-3">
+                    <NavLink class="nav-link" href="/anfitrion/pagos_evento">
+                        <span class="bi bi-list-nested-nav-menu" aria-hidden="true"></span> Mis Eventos
+                    </NavLink>
+                </div>
+            </Authorized>
+        </AuthorizeView>
+
+        
+
     </nav>
 </div>
-

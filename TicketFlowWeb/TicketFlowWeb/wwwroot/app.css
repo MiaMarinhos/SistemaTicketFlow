@@ -151,6 +151,23 @@ h1:focus {
     border: 5px solid solid;
 }
 
+.botonLogout {
+    color: #120e49;
+    background-color: white;
+    text-decoration: none;
+    margin: 5px;
+    padding: 10px;
+    border-radius: 10px;
+}
+
+    .botonLogout:hover {
+        color: #231d71;
+        text-decoration: none;
+        background-color: white;
+        border: 5px solid solid;
+    }
+
+
 .home {
     background-color: #120e49;
     padding: 0px 30px;
