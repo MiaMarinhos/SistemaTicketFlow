@@ -282,8 +282,8 @@ CREATE TABLE IF NOT EXISTS `ticket_flow`.`cliente` (
 DROP TABLE IF EXISTS `ticket_flow`.`evento` ;
 
 CREATE TABLE IF NOT EXISTS `ticket_flow`.`evento` (
-                                                      `idEvento` INT NOT NULL AUTO_INCREMENT,
-                                                      `titulo` VARCHAR(100) NOT NULL,
+    `idEvento` INT NOT NULL AUTO_INCREMENT,
+    `titulo` VARCHAR(100) NOT NULL,
     `descripcion` VARCHAR(250) NULL DEFAULT NULL,
     `capacidad_entradas` INT NOT NULL,
     `fecha` DATE NOT NULL,
@@ -293,6 +293,7 @@ CREATE TABLE IF NOT EXISTS `ticket_flow`.`evento` (
     `nombre_establecimiento` VARCHAR(45) NOT NULL,
     `img` VARCHAR(450) NOT NULL,
     `precio` DOUBLE NOT NULL,
+	`activo` BOOLEAN NOT NULL,
     `idDistrito` INT NOT NULL,
     `idAnfitrion` INT NOT NULL,
     `idCategoria_evento` INT NOT NULL,

@@ -118,7 +118,8 @@ CREATE PROCEDURE SP_ELIMINAR_EVENTO(
     IN p_idEvento INT
 )
 BEGIN
-DELETE FROM evento
+UPDATE evento
+SET Estado=true
 WHERE idEvento = p_idEvento;
 END //
 
