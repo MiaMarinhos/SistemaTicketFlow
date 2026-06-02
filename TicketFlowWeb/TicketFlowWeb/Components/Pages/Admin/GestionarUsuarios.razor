@@ -7,3 +7,93 @@
 <PageTitle>Panel de Usuarios</PageTitle>
 
 <h3>Gestionar Usuarios</h3>
+
+<nav class="navbar bg-body-tertiary">
+    <div class="filtros-pagos">
+        <label>Buscar:</label>
+        <input type="text"
+               class="form-control filtro-input"
+               placeholder="Buscar usuario..."
+               @bind="textoBusqueda"
+               @bind:event="oninput" />
+
+        <button class="btn btn-dark" @onclick="LimpiarFiltros">
+            <i class="bi bi-x-circle"></i>
+        </button>
+    </div>
+</nav>
+
+<div class="mt-4">
+    <table class="table table-bordered table-hover">
+        <thead class="table-primary">
+            <tr>
+                <th>ID Usuario</th>
+                <th>Nombre</th>
+                <th>Correo</th>
+                <th>Tipo</th>
+                <th>Estado</th>
+                <th>Acciones</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td>1</td>
+                <td>Juan Carlos</td>
+                <td>juanCarlos@gmail.com</td>
+                <td>Cliente</td>
+                <td>Activo</td>
+                <td>
+                    <button class="btn btn-outline-dark btn-sm"
+                            data-bs-toggle="modal"
+                            data-bs-target="#detalleUsuario">
+                        <i class="bi bi-eye"></i>
+                    </button>
+                    <button class="btn btn-outline-dark btn-sm"
+                            data-bs-toggle="modal"
+                            data-bs-target="#editarUsuario">
+                        <i class="bi bi-brush"></i>
+                    </button>
+                    <button class="btn btn-outline-dark btn-sm"
+                            data-bs-toggle="modal"
+                            data-bs-target="#bloquearUsuario">
+                        <i class="bi bi-lock"></i>
+                    </button>
+                </td>
+            </tr>
+            <tr>
+                <td>2</td>
+                <td>Andrea Lucía</td>
+                <td>andrea45@gmail.com</td>
+                <td>Cliente</td>
+                <td>Activo</td>
+                <td>
+                    <button class="btn btn-outline-dark btn-sm"
+                            data-bs-toggle="modal"
+                            data-bs-target="#detalleUsuario">
+                        <i class="bi bi-eye"></i>
+                    </button>
+                    <button class="btn btn-outline-dark btn-sm"
+                            data-bs-toggle="modal"
+                            data-bs-target="#editarUsuario">
+                        <i class="bi bi-brush"></i>
+                    </button>
+                    <button class="btn btn-outline-dark btn-sm"
+                            data-bs-toggle="modal"
+                            data-bs-target="#bloquearUsuario">
+                        <i class="bi bi-lock"></i>
+                    </button>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+</div>
+@code{
+    private string textoBusqueda = "";
+    private string estadoFiltro = "";
+
+    private void LimpiarFiltros()
+    {
+        textoBusqueda = "";
+        estadoFiltro = "";
+    }
+}
