@@ -96,3 +96,17 @@ main {
         right: 0.75rem;
         top: 0.5rem;
     }
+
+.nav-link {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+}
+
+    .nav-link .bi {
+        width: 24px;
+        min-width: 24px;
+        text-align: center;
+        font-size: 1.25rem;
+        line-height: 1;
+    }
