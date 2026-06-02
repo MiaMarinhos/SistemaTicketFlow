@@ -1,0 +1,63 @@
+﻿@inherits LayoutComponentBase
+@using Microsoft.AspNetCore.Components.Authorization
+
+<div class="admin-shell">
+
+    <aside class="admin-sidebar">
+
+        <div class="admin-logo-area">
+            <img src="/images/logo_ticketflow.png" alt="TicketFlow" class="admin-logo" />
+        </div>
+        @*FALTA AUTORIZACION*@
+        @*
+            <AuthorizeView>
+                    <Authorized Context="authContext">
+                        <div class="admin-user-card">
+                            <div class="admin-avatar">
+                                <i class="bi bi-person-fill"></i>
+                            </div>
+
+                            <div class="admin-user-info">
+                                <div class="admin-user-name">
+                                    @authContext.User.FindFirst(c => c.Type == "Nombres")?.Value
+                                </div>
+                                <div class="admin-user-role">
+                                    Administrador
+                                </div>
+                            </div>
+                        </div>
+                    </Authorized>
+            </AuthorizeView>
+        *@
+        <div class="admin-user-card">
+            <div class="admin-avatar">
+                <i class="bi bi-person-fill"></i>
+            </div>
+
+            <div class="admin-user-info">
+                <div class="admin-user-name">
+                    Pepito MC
+                </div>
+
+                <div class="admin-user-role">
+                    Administrador
+                </div>
+            </div>
+        </div>
+        
+
+        <div class="admin-divider"></div>
+
+        <AdminNavMenu />
+
+    </aside>
+
+    <main class="admin-main">
+        <div class="admin-topbar"></div>
+
+        <section class="admin-content">
+            @Body
+        </section>
+    </main>
+
+</div>

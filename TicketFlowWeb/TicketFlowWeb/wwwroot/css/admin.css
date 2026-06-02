@@ -1,0 +1,232 @@
+﻿:root {
+    --admin-blue: #17136E;
+    --admin-title-blue: #1A1A6B;
+    --admin-lavender: #F4F0FF;
+    --admin-border: #EAEAEA;
+}
+
+/* Layout general */
+.admin-shell {
+    display: flex;
+    min-height: 100vh;
+    background: #ffffff;
+}
+
+/* Sidebar */
+.admin-sidebar {
+    width: 220px;
+    height: 100vh;
+    position: sticky;
+    top: 0;
+    flex-shrink: 0;
+    background: var(--admin-blue);
+    color: #ffffff;
+}
+
+.admin-logo-area {
+    height: 65px;
+    display: flex;
+    align-items: center;
+    padding-left: 30px;
+    border-bottom: 1px solid rgba(255,255,255,.2);
+}
+
+.admin-logo {
+    width: 120px;
+    background: #ffffff;
+    padding: 4px 8px;
+}
+
+.admin-user-card {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    padding: 28px 24px 16px;
+}
+
+.admin-avatar {
+    font-size: 62px;
+    line-height: 1;
+    color: #ffffff;
+}
+
+.admin-user-name {
+    font-size: 20px;
+    font-weight: 500;
+    line-height: 1.1;
+}
+
+.admin-user-role {
+    font-size: 14px;
+    opacity: .9;
+    margin-top: 4px;
+}
+
+.admin-divider {
+    height: 3px;
+    background: #ffffff;
+    margin: 0 28px 22px;
+}
+
+/* Menú */
+.admin-menu {
+    height: calc(100vh - 190px);
+    display: flex;
+    flex-direction: column;
+    gap: 13px;
+    padding: 0 24px 22px;
+}
+
+.admin-link {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    color: #ffffff;
+    text-decoration: none;
+    font-size: 14px;
+    padding: 6px 0;
+    transition: opacity .2s ease, transform .2s ease;
+}
+
+    .admin-link i {
+        width: 18px;
+        text-align: center;
+        font-size: 16px;
+        color: #ffffff;
+    }
+
+    .admin-link:hover,
+    .admin-link.active {
+        color: #ffffff;
+        opacity: .85;
+        transform: translateX(3px);
+    }
+
+.admin-menu-spacer {
+    flex-grow: 1;
+}
+
+/* Contenido principal */
+.admin-main {
+    flex: 1;
+    min-width: 0;
+    background: #ffffff;
+}
+
+.admin-topbar {
+    height: 65px;
+    background: #F2F2F2;
+}
+
+.admin-content {
+    min-height: calc(100vh - 65px);
+    background: var(--admin-lavender);
+    padding: 0 18px 18px;
+}
+
+/* Página Perfil */
+.admin-page-title {
+    background: #ffffff;
+    color: var(--admin-title-blue);
+    font-size: 34px;
+    font-weight: 800;
+    padding: 25px 30px 18px;
+    margin: 0;
+}
+
+.admin-card {
+    background: #ffffff;
+    min-height: 380px;
+    padding: 42px;
+    box-shadow: none;
+}
+
+.admin-profile-table {
+    width: 470px;
+    max-width: 100%;
+    border-collapse: collapse;
+}
+
+    .admin-profile-table td {
+        border: 1px solid var(--admin-border);
+        padding: 18px 14px;
+        font-size: 14px;
+    }
+
+        .admin-profile-table td:first-child {
+            width: 45%;
+            font-weight: 800;
+            text-transform: uppercase;
+            color: #151515;
+        }
+
+        .admin-profile-table td:last-child {
+            color: #333333;
+        }
+
+/* Tablet */
+@media (max-width: 991px) {
+    .admin-sidebar {
+        width: 80px;
+    }
+
+    .admin-logo-area {
+        padding-left: 0;
+        justify-content: center;
+    }
+
+    .admin-logo {
+        width: 58px;
+        padding: 3px;
+    }
+
+    .admin-user-card {
+        display: flex;
+        align-items: center;
+        gap: 14px;
+        padding: 28px 24px 16px;
+    }
+
+    .admin-user-info,
+    .admin-link span {
+        display: none;
+    }
+
+    .admin-divider {
+        margin: 0 16px 22px;
+    }
+
+    .admin-menu {
+        align-items: center;
+        padding: 0;
+    }
+
+    .admin-link {
+        justify-content: center;
+    }
+}
+
+.admin-avatar {
+    width: 64px;
+    height: 64px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+}
+
+    .admin-avatar i {
+        font-size: 64px;
+        color: #ffffff;
+        line-height: 1;
+    }
+
+.admin-link i {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 20px;
+    min-width: 20px;
+    font-size: 17px;
+    color: #ffffff;
+}
