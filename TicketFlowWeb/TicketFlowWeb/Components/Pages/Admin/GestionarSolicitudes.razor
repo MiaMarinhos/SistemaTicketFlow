@@ -1,0 +1,10 @@
+﻿@page "/admin/solicitudes"
+@using Microsoft.AspNetCore.Authorization
+
+@attribute [Authorize(Roles = "ADMIN")]
+@layout AdminLayout
+
+<PageTitle>Panel de Solicitudes</PageTitle>
+
+<h3>Gestionar Solicitudes de los clientes que quieren ser anfitriones</h3>
+

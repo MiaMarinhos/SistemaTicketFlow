@@ -1,7 +1,6 @@
-﻿@page "/login"
-@using Microsoft.AspNetCore.Components.Authorization
+﻿@page "/loginAdmin"
 
-<PageTitle>Login</PageTitle>
+<PageTitle>LoginAdmin</PageTitle>
 
 <h3>Iniciar Sesion</h3>
 
@@ -17,15 +16,7 @@
         <input name="password" type="password" class="form-control" />
     </div>
 
-        <div class="mb-3">
-            <label>Tipo de Usuario</label>
-            <select name="rol" class="form-select">
-                <option value="CLIENTE">Cliente</option>
-                <option value="ANFITRION">Anfitrión</option>
-            </select>
-        </div>
-
-     <!--  <input type="hidden" name="rol" value="ADMIN" /> -->
+    <input type="hidden" name="rol" value="ADMIN" />
 
     <button type="submit" class="btn btn-primary">Ingresar</button>
 </form>

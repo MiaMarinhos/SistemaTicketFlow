@@ -1,0 +1,9 @@
+﻿@page "/admin/usuarios"
+@using Microsoft.AspNetCore.Authorization
+
+@attribute [Authorize(Roles = "ADMIN")]
+@layout AdminLayout
+
+<PageTitle>Panel de Usuarios</PageTitle>
+
+<h3>Gestionar Usuarios</h3>

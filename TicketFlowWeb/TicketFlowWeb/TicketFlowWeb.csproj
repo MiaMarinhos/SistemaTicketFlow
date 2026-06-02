@@ -23,10 +23,13 @@
     <ProjectReference Include="..\TicketFlowBL\TicketFlowBL.csproj" />
     <ProjectReference Include="..\TicketFlowDBManager\TicketFlowDBManager.csproj" />
     <ProjectReference Include="..\TicketFlowModel\TicketFlowModel.csproj" />
-    <Folder Include="Components\Pages\Admin\" />
     <Folder Include="Components\Pages\Public\" />
     <Folder Include="wwwroot\images\" />
 
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Include="Components\Pages\Admin\GestionarEventosAdmin.razor" />
   </ItemGroup>
 
 </Project>

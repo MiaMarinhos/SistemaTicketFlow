@@ -1,0 +1,10 @@
+﻿@page "/admin"
+@using Microsoft.AspNetCore.Authorization
+
+@attribute [Authorize(Roles = "ADMIN")]
+@layout AdminLayout
+
+<PageTitle>Panel de Administración</PageTitle>
+
+
+<h3>ACA SE PUEDE PONER COSITAS</h3>

@@ -1,25 +1,36 @@
 ﻿@using Microsoft.AspNetCore.Components.Authorization
 
-<div class="top-row ps-3 navbar navbar-dark">
-    <div class="container-fluid">
-        <a class="navbar-brand" href="">TicketFlow Anfitrión</a>
-    </div>
-</div>
-
+<AuthorizeView Roles="ANFITRION">
+    <Authorized>
+        <div class="top-row ps-3 navbar navbar-dark">
+            <div class="container-fluid">
+                <a class="navbar-brand" href="">TicketFlow Anfitrión</a>
+            </div>
+        </div>
+    </Authorized>
+</AuthorizeView>
+<AuthorizeView Roles="ADMIN">
+    <Authorized>
+        <div class="top-row ps-3 navbar navbar-dark">
+            <div class="container-fluid">
+                <a class="navbar-brand" href="admin">TicketFlow Administrador</a>
+            </div>
+        </div>
+    </Authorized>
+</AuthorizeView>
 <input type="checkbox" title="Navigation menu" class="navbar-toggler" />
 
 <div class="nav-scrollable" onclick="document.querySelector('.navbar-toggler').click()">
     <nav class="nav flex-column">
-
-        <div class="nav-item px-3">
-            <NavLink class="nav-link" href="" Match="NavLinkMatch.All">
-                <span class="bi bi-house-door-fill-nav-menu" aria-hidden="true"></span> Panel Principal
-            </NavLink>
-        </div>
         @* este menu es solo para el ANFITRION*@
         <AuthorizeView Roles="ANFITRION">
             @* como esta autorizado, puede poner todos lo que quieres en cada div*@
             <Authorized>
+                <div class="nav-item px-3">
+                    <NavLink class="nav-link" href="" Match="NavLinkMatch.All">
+                        <span class="bi bi-house-door-fill-nav-menu" aria-hidden="true"></span> Panel Principal
+                    </NavLink>
+                </div>
                 <div class="nav-item px-3">
                     <NavLink class="nav-link" href="/anfitrion/perfil">
                         <span class="bi bi-plus-square-fill-nav-menu" aria-hidden="true"></span> Ver Perfil
@@ -44,7 +55,61 @@
                 </div>
             </Authorized>
         </AuthorizeView>
+        @*======================================================================================*@
+        @* este menu es solo para el ADMIN*@
+        <AuthorizeView Roles="ADMIN">
+            @* como esta autorizado, puede poner todos lo que quieres en cada div*@
+            <Authorized>
+                <div class="nav-item px-3">
+                    <NavLink class="nav-link" href="/admin">
+                        <span class="bi bi-house-door-fill-nav-menu" aria-hidden="true"></span> Panel Principal
+                    </NavLink>
+                </div>
+                <div class="nav-item px-3">
+                    <NavLink class="nav-link" href="/admin/perfil">
+                        <span class="bi bi-plus-square-fill-nav-menu" aria-hidden="true"></span> Perfil
+                    </NavLink>
+                </div>
+                <div class="nav-item px-3">
+                    <NavLink class="nav-link" href="/admin/usuarios">
+                        <span class="bi bi-plus-square-fill-nav-menu" aria-hidden="true"></span> Usuarios
+                    </NavLink>
+                </div>
 
+                <div class="nav-item px-3">
+                    <NavLink class="nav-link" href="/admin/eventos">
+                        <span class="bi bi-list-nested-nav-menu" aria-hidden="true"></span> Eventos
+                    </NavLink>
+                </div>
+                <div class="nav-item px-3">
+                    <NavLink class="nav-link" href="/admin/solicitudes">
+                        <span class="bi bi-plus-square-fill-nav-menu" aria-hidden="true"></span> Solicitudes
+                    </NavLink>
+                </div>
+
+                <div class="nav-item px-3">
+                    <NavLink class="nav-link" href="/admin/pagos">
+                        <span class="bi bi-list-nested-nav-menu" aria-hidden="true"></span>Pagos
+                    </NavLink>
+                </div>
+                <div class="nav-item px-3">
+                    <NavLink class="nav-link" href="/admin/ventas">
+                        <span class="bi bi-list-nested-nav-menu" aria-hidden="true"></span> Ventas
+                    </NavLink>
+                </div>
+                <div class="nav-item px-3">
+                    <NavLink class="nav-link" href="/admin/reportes">
+                        <span class="bi bi-list-nested-nav-menu" aria-hidden="true"></span> Reportes
+                    </NavLink>
+                </div>
+                <div class="nav-item px-3">
+                    <NavLink class="nav-link" href="/loginAdmin">
+                        <span class="bi bi-list-nested-nav-menu" aria-hidden="true"></span> Cerrar Sesion
+                    </NavLink>
+                </div>
+
+            </Authorized>
+        </AuthorizeView>
         
 
     </nav>

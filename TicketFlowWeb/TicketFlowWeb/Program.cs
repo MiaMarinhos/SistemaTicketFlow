@@ -19,6 +19,26 @@ builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationSc
         opciones.LoginPath = "/login";
         opciones.LogoutPath = "/auth/logout";
         opciones.ExpireTimeSpan = TimeSpan.FromHours(8);
+
+        // INTERCEPTOR DINÁMICO DE REDIRECCIÓN
+        opciones.Events = new CookieAuthenticationEvents
+        {
+            OnRedirectToLogin = redirectContext =>
+            {
+                // Si la URL a la que intentan entrar empieza con /admin, lo mandamos al login de Admin
+                if (redirectContext.Request.Path.StartsWithSegments("/admin"))
+                {
+                    redirectContext.Response.Redirect("/loginAdmin");
+                }
+                else
+                {
+                    // Si no, lo mandamos al login normal (Clientes / Anfitriones)
+                    redirectContext.Response.Redirect("/login");
+                }
+
+                return Task.CompletedTask;
+            }
+        };
     });
 
 builder.Services.AddAuthorization();

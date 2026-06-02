@@ -25,7 +25,8 @@ namespace TicketFlowWeb.Services
 
                 if (usuario == null)
                 {
-                    return Results.Redirect("/login");
+                    if (login.Rol == "ADMIN") return Results.Redirect("/loginAdmin");
+                    else return Results.Redirect("/login");
                 }
 
                 var principal = servicioSesionAuth.CrearPrincipal(usuario);
@@ -35,7 +36,8 @@ namespace TicketFlowWeb.Services
                     principal
                 );
 
-                return Results.Redirect("/");
+                if (login.Rol == "ADMIN") return Results.Redirect("/admin");
+                else return Results.Redirect("/");
             });
 
             endpoints.MapGet("/auth/logout", async Task<IResult> (
@@ -44,6 +46,7 @@ namespace TicketFlowWeb.Services
                 await context.SignOutAsync(
                     CookieAuthenticationDefaults.AuthenticationScheme
                 );
+
 
                 return Results.Redirect("/");
             });

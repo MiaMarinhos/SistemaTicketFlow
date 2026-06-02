@@ -46,7 +46,12 @@ namespace TicketFlowDAO
                 if (tipo.tipoUsuario == "CLIENTE")
                 {
                     usuario = new Cliente();
-                } else usuario = new Anfitrion();
+                }
+                else if (tipo.tipoUsuario == "ANFITRION")
+                {
+                    usuario = new Anfitrion();
+                }
+                else usuario = new Admin();
 
                 mapearUsuario(reader, usuario, tipo);
 

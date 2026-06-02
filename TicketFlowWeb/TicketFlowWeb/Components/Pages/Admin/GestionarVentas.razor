@@ -1,0 +1,9 @@
+﻿@page "/admin/ventas"
+@using Microsoft.AspNetCore.Authorization
+
+@attribute [Authorize(Roles = "ADMIN")]
+@layout AdminLayout
+
+<PageTitle>Panel de Ventas</PageTitle>
+
+<h3>Gestionar ventas, osea las entradas compradas pe</h3>
