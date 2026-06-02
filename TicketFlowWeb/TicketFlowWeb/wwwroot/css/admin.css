@@ -110,3 +110,20 @@ main {
         font-size: 1.25rem;
         line-height: 1;
     }
+.filtros-pagos {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.filtro-input {
+    width: 250px;
+}
+
+.filtro-fecha {
+    width: 160px;
+}
+
+.filtro-estado {
+    width: 160px;
+}
