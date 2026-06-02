@@ -41,14 +41,19 @@ namespace TicketFlowWeb.Services
             });
 
             endpoints.MapGet("/auth/logout", async Task<IResult> (
-                HttpContext context) =>
+                HttpContext context, string ? deDonde = null) =>
             {
                 await context.SignOutAsync(
                     CookieAuthenticationDefaults.AuthenticationScheme
                 );
+                if (deDonde == "admin")
+                {
+                    return Results.Redirect("/loginAdmin");
+                }
 
-
+                // Para clientes y anfitriones, sigue funcionando igual: los manda al Home
                 return Results.Redirect("/");
+
             });
 
             return endpoints;
