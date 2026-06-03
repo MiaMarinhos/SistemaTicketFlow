@@ -8,7 +8,7 @@
 <div class="crear-evento-page d-flex align-items-center justify-content-center min-vh-100 p-3 p-md-5">
     <div class="evento-card container-fluid p-4 p-md-5 rounded-4 shadow-lg">
 
-        <div class="d-flex justify-content-end mb-4">
+        <div class="d-flex justify-content-end mb-3">
             <button class="btn-regresar d-flex align-items-center justify-content-center" @onclick="VolverAtras" type="button" title="Volver">
                 <span class="flecha-retroceso">&larr;</span>
             </button>
@@ -19,6 +19,10 @@
             <div class="row g-4">
 
                 <div class="col-lg-6 d-flex flex-column gap-3">
+
+                    <div class="mb-2">
+                        <h2 class="subtitulo-explicativo text-uppercase fw-bold text-white-50">Crea tu nuevo evento</h2>
+                    </div>
 
                     <div class="input-contenedor-full">
                         <input type="text" class="custom-input custom-titulo-input" placeholder="Título" @bind="eventoModel.Titulo" required />
@@ -112,6 +116,14 @@
         background: linear-gradient(145deg, #070724 0%, #100f57 45%, #18239c 100%);
         max-width: 1200px;
         border: 1px solid rgba(255, 255, 255, 0.1);
+    }
+
+    /* Estilo del texto explicativo agregado */
+    .subtitulo-explicativo {
+        font-size: 1.1rem;
+        letter-spacing: 2px;
+        color: rgba(255, 255, 255, 0.6) !important;
+        margin: 0;
     }
 
     .btn-regresar {
@@ -232,14 +244,12 @@
         }
     }
 
-    // Propiedad intermedia para blindar que las entradas nunca bajen de cero
     private int NumeroEntradasValidado
     {
         get => eventoModel.NumeroEntradas;
         set => eventoModel.NumeroEntradas = value < 0 ? 0 : value;
     }
 
-    // Propiedad intermedia para el formateo automático de moneda S/.
     private string PrecioFormateado
     {
         get

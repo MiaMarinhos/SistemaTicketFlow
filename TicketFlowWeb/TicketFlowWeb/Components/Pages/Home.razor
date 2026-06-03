@@ -8,13 +8,107 @@
             <h1 class="display-4 fw-bold">TicketFlow</h1>
         </div>
     </div>
-    <br/>
+    <br />
 </div>
 
 <AuthorizeView Roles="ANFITRION">
     @* si la vista esta autorizada para el ANFITRION entonces se vera un mensaje diferentes*@
     <Authorized Context="authContext">
-        <h1>SOLO LOS ANFITRIONES PUEDEN VER ESTO</h1>
+        <!-- MODIFICACIÓN EXCLUSIVA: Dashboard encapsulado sin alterar contenedores globales -->
+        <div class="seccion-anfitrion-interna">
+
+            <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center mb-4 gap-2">
+                <div>
+                    <h2 class="titulo-dash-anf">¡Bienvenido de nuevo, Juan!</h2>
+                    <p class="subtitulo-dash-anf">Resumen y rendimiento de tus espectáculos en TicketFlow.</p>
+                </div>
+                <div>
+                    <a href="/anfitrion/crear-evento" class="btn-publicar-dash-anf">
+                        Publicar Nuevo Evento
+                    </a>
+                </div>
+            </div>
+
+            <!-- Fila de Tarjetas Estadísticas con Clases Únicas -->
+            <div class="row g-4 mb-4">
+                <div class="col-md-4">
+                    <div class="tarjeta-kpi-anf">
+                        <div class="d-flex justify-content-between align-items-center mb-2">
+                            <span class="kpi-titulo-anf">EVENTOS PUBLICADOS</span>
+                            <span>🎭</span>
+                        </div>
+                        <div class="kpi-valor-anf">4</div>
+                        <p class="m-0 text-success small">● Todos los shows activos</p>
+                    </div>
+                </div>
+
+                <div class="col-md-4">
+                    <div class="tarjeta-kpi-anf">
+                        <div class="d-flex justify-content-between align-items-center mb-2">
+                            <span class="kpi-titulo-anf">ENTRADAS VENDIDAS</span>
+                            <span>🎟️</span>
+                        </div>
+                        <div class="kpi-valor-anf">642 <span class="fs-6 text-muted">/ 1200</span></div>
+                        <div class="progress mt-2" style="height: 6px; background-color: #e9e6f5;">
+                            <div class="progress-bar bg-primary" style="width: 53.5%"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-md-4">
+                    <div class="tarjeta-kpi-anf destacada-anf">
+                        <div class="d-flex justify-content-between align-items-center mb-2">
+                            <span class="kpi-titulo-anf">INGRESOS GENERADOS</span>
+                            <span>💰</span>
+                        </div>
+                        <div class="kpi-valor-anf text-primary">S/. 32,150.00</div>
+                        <p class="m-0 text-muted small">📈 +12% esta semana</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Tabla de Espectáculos en Vivo -->
+            <div class="contenedor-tabla-anf">
+                <h4 class="mb-3 fw-bold" style="color: #15095f;">Estado en Vivo de tus Shows</h4>
+                <div class="table-responsive">
+                    <table class="table align-middle m-0" style="color: #333355;">
+                        <thead>
+                            <tr class="text-muted border-bottom">
+                                <th class="pb-2">Espectáculo</th>
+                                <th class="pb-2">Fecha</th>
+                                <th class="pb-2">Progreso Ventas</th>
+                                <th class="pb-2 text-center">Estado</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr class="border-bottom">
+                                <td class="py-2 fw-bold" style="color: #15095f;">Nombre de un Evento muy Interesante (FRÍOS)</td>
+                                <td class="py-2 text-muted">15 Mar 2026</td>
+                                <td class="py-2">
+                                    <span class="small text-muted d-block mb-1">210 / 300 vendidas</span>
+                                    <div class="progress" style="height: 5px; background-color: #e9e6f5;">
+                                        <div class="progress-bar bg-success" style="width: 70%"></div>
+                                    </div>
+                                </td>
+                                <td class="py-2 text-center"><span class="badge bg-success text-white rounded-pill px-3">Activo</span></td>
+                            </tr>
+                            <tr>
+                                <td class="py-2 fw-bold" style="color: #15095f;">Poemax (Stand-up Comedy)</td>
+                                <td class="py-2 text-muted">07 May 2026</td>
+                                <td class="py-2">
+                                    <span class="small text-muted d-block mb-1">300 / 300 vendidas</span>
+                                    <div class="progress" style="height: 5px; background-color: #e9e6f5;">
+                                        <div class="progress-bar bg-danger" style="width: 100%"></div>
+                                    </div>
+                                </td>
+                                <td class="py-2 text-center"><span class="badge bg-danger text-white rounded-pill px-3">Agotado</span></td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+        </div>
     </Authorized>
     <NotAuthorized Context="authContext">
         @* en el caso que no este autorizado como ANFITRION, se sobre entiende que como CLIENTE
@@ -410,6 +504,82 @@
                     }
         </style>
     </NotAuthorized>
-
-
 </AuthorizeView>
+
+<style>
+    /* 🔴 ESTILOS AISLADOS Y EXCLUSIVOS PARA LA SECCIÓN INTERNA DEL ANFITRIÓN
+           Diseñados con colores que respetan el contenedor blanco del Layout de tu compañero.
+        */
+    .seccion-anfitrion-interna {
+        padding: 30px;
+        background-color: #ffffff; /* Respeta el color de fondo general de la ventana */
+        font-family: Arial, sans-serif;
+    }
+
+    .titulo-dash-anf {
+        color: #15095f !important;
+        font-size: 32px;
+        font-weight: bold;
+        margin: 0;
+    }
+
+    .subtitulo-dash-anf {
+        color: #555577;
+        font-size: 16px;
+        margin-top: 4px;
+    }
+
+    .btn-publicar-dash-anf {
+        display: inline-block;
+        background-color: #15095f;
+        color: white !important;
+        text-decoration: none;
+        padding: 12px 28px;
+        border-radius: 25px;
+        font-weight: bold;
+        font-size: 15px;
+        transition: background-color 0.2s;
+    }
+
+        .btn-publicar-dash-anf:hover {
+            background-color: #241080;
+        }
+
+    /* Tarjetas KPI Claras para combinar con el entorno de la página */
+    .tarjeta-kpi-anf {
+        background: #ffffff;
+        border: 1px solid #e1dbf5;
+        border-radius: 14px;
+        padding: 24px;
+        box-shadow: 0 4px 15px rgba(21, 9, 95, 0.04);
+    }
+
+        .tarjeta-kpi-anf.destacada-anf {
+            background: linear-gradient(135deg, #ffffff 0%, #f7f5ff 100%);
+            border: 1px solid #c3b6f2;
+        }
+
+    .kpi-titulo-anf {
+        font-size: 13px;
+        letter-spacing: 1px;
+        color: #666688;
+        font-weight: bold;
+    }
+
+    .kpi-valor-anf {
+        font-size: 32px;
+        font-weight: bold;
+        color: #15095f;
+        margin: 5px 0;
+    }
+
+    /* Caja contenedora para la grilla de control de shows */
+    .contenedor-tabla-anf {
+        background: #ffffff;
+        border: 1px solid #e1dbf5;
+        border-radius: 14px;
+        padding: 24px;
+        margin-top: 25px;
+        box-shadow: 0 4px 15px rgba(21, 9, 95, 0.04);
+    }
+</style>
