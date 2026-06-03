@@ -8,7 +8,6 @@
 <div class="crear-evento-page d-flex align-items-center justify-content-center min-vh-100 p-3 p-md-5">
     <div class="evento-card container-fluid p-4 p-md-5 rounded-4 shadow-lg">
 
-        <!-- Fila de Cabecera: Botón Regresar alineado a la derecha -->
         <div class="d-flex justify-content-end mb-3">
             <button class="btn-regresar d-flex align-items-center justify-content-center" @onclick="VolverAtras" type="button" title="Volver">
                 <span class="flecha-retroceso">&larr;</span>
@@ -19,10 +18,8 @@
 
             <div class="row g-4">
 
-                <!-- COLUMNA IZQUIERDA: Campos Principales -->
                 <div class="col-lg-6 d-flex flex-column gap-3">
 
-                    <!-- TEXTO DE EXPLICACIÓN AGREGADO (Coherencia con Crear Evento) -->
                     <div class="mb-2">
                         <h2 class="subtitulo-explicativo text-uppercase fw-bold text-white-50">Edita tu evento</h2>
                     </div>
@@ -55,7 +52,6 @@
 
                 </div>
 
-                <!-- COLUMNA DERECHA: Bloques de Etiquetas Fijas -->
                 <div class="col-lg-6 d-flex flex-column gap-3 justify-content-between">
 
                     <div class="fila-formulario-derecha">
@@ -102,7 +98,7 @@
 
             </div>
 
-            <!-- BOTÓN DE ACCIÓN INFERIOR -->
+
             <div class="text-center mt-5">
                 <button type="submit" class="btn-crear-evento fw-bold text-uppercase">
                     Editar Evento
@@ -126,7 +122,6 @@
         border: 1px solid rgba(255, 255, 255, 0.1);
     }
 
-    /* Estilo del texto explicativo */
     .subtitulo-explicativo {
         font-size: 1.1rem;
         letter-spacing: 2px;
@@ -236,13 +231,12 @@
 
     protected override void OnInitialized()
     {
-        // Simulamos la carga del objeto tal cual sale en tu captura para la Obra Hamlet
         eventoModel = new EventoViewModel
         {
             Titulo = "Obra de Teatro: Hamlet",
             Descripcion = "Presentación teatral inspirada en Hamlet. Una puesta en escena dramática con actores locales y producción moderna.",
             NumeroEntradas = 300,
-            Precio = 120.00m, // Sincronizado con tus otras tablas de S/. 120.00
+            Precio = 120.00m, 
             ImagenRuta = "Subir Imagen",
             Fecha = new DateTime(2026, 5, 31),
             HoraInicio = "10:30 am",
