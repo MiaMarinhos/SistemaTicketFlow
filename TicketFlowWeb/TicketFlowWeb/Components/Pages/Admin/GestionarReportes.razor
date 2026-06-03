@@ -4,10 +4,104 @@
 @attribute [Authorize(Roles = "ADMIN")]
 @layout AdminLayout
 
-<PageTitle>Panel de Rerportes</PageTitle>
+<PageTitle>Panel de Reportes</PageTitle>
 
-<h3>Generar reportes</h3>
+<h3>Gestión de Reportes</h3>
+
+<div class="mt-4">
+    <table class="table table-bordered table-hover">
+        <thead class="table-primary">
+            <tr>
+                <th>Reporte</th>
+                <th>Descripción</th>
+                <th>Acción</th>
+            </tr>
+        </thead>
+
+        <tbody>
+            @foreach (var reporte in reportes)
+            {
+                <tr>
+                    <td>@reporte.Nombre</td>
+                    <td>@reporte.Descripcion</td>
+                    <td>
+                        <button class="btn btn-outline-dark btn-sm"
+                                data-bs-toggle="modal"
+                                data-bs-target="#reporteModal"
+                                @onclick="() => SeleccionarReporte(reporte)">
+                            Generar
+                        </button>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+</div>
+
+<div class="modal fade" id="reporteModal" tabindex="-1">
+    <div class="modal-dialog modal-dialog-centered modal-lg">
+        <div class="modal-content">
+
+            <div class="modal-header bg-primary text-white">
+                <h5 class="modal-title">
+                    <i class="bi bi-file-earmark-bar-graph me-2"></i>
+                    Reporte
+                </h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+            </div>
+
+            <div class="modal-body">
+                @if (reporteSeleccionado != null)
+                {
+                    <h5>@reporteSeleccionado.Nombre</h5>
+                    <p class="text-muted">@reporteSeleccionado.Descripcion</p>
+
+                    <div class="border rounded p-4 text-center text-muted">
+                        Contenido del reporte pendiente.
+                    </div>
+                }
+            </div>
+
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                    Cerrar
+                </button>
+            </div>
+
+        </div>
+    </div>
+</div>
 
 @code {
+    private Reporte? reporteSeleccionado;
 
+    private List<Reporte> reportes = new()
+    {
+        new Reporte
+        {
+            Nombre = "Ventas Totales",
+            Descripcion = "Ventas por categoría y fechas"
+        },
+        new Reporte
+        {
+            Nombre = "Fidelización",
+            Descripcion = "Usuarios con más puntos acumulados y canjeados"
+        },
+        new Reporte
+        {
+            Nombre = "Ocupación de Eventos",
+            Descripcion = "Eventos con mayor y menor ocupación"
+        }
+    };
+
+    private void SeleccionarReporte(Reporte reporte)
+    {
+        reporteSeleccionado = reporte;
+    }
+
+    public class Reporte
+    {
+        public string Nombre { get; set; } = "";
+        public string Descripcion { get; set; } = "";
+    }
 }
