@@ -1,31 +1,45 @@
 ﻿@page "/login"
 @using Microsoft.AspNetCore.Components.Authorization
 
-<PageTitle>Login</PageTitle>
+<PageTitle>Login - TicketFlow</PageTitle>
 
-<h3>Iniciar Sesion</h3>
+<div class="login-screen">
+    <div class="login-wrapper">
 
-<form method="post" action="/auth/login">
-    <!-- el auth login manda un endpoint de autorizacion-->
-    <div class="mb-3">
-        <label>Usuario</label>
-        <input name="usuario" class="form-control" />
-    </div>
+        <div class="login-image-side" style="background-image: url('../images/logoLogin.png');">
+        </div>
+            
+        <div class="login-form-side">
+            <h3 class="login-title">Iniciar Sesión</h3>
 
-    <div class="mb-3">
-        <label>Contraseña</label>
-        <input name="password" type="password" class="form-control" />
-    </div>
+            <form method="post" action="/auth/login">
+                <AntiforgeryToken />
 
-        <div class="mb-3">
-            <label>Tipo de Usuario</label>
-            <select name="rol" class="form-select">
-                <option value="CLIENTE">Cliente</option>
-                <option value="ANFITRION">Anfitrión</option>
-            </select>
+                <div class="mb-3">
+                    <label class="form-label-custom">Usuario</label>
+                    <input name="usuario" class="form-input-custom" placeholder="correo@ejemplo.com" required />
+                </div>
+
+                <div class="mb-3">
+                    <label class="form-label-custom">Contraseña</label>
+                    <input name="password" type="password" class="form-input-custom" placeholder="••••••••" required />
+                </div>
+
+                <div class="mb-4">
+                    <label class="form-label-custom">Tipo de Usuario</label>
+                    <select name="rol" class="form-input-custom" required>
+                        <option value="CLIENTE">Cliente</option>
+                        <option value="ANFITRION">Anfitrión</option>
+                    </select>
+                </div>
+
+                <button type="submit" class="btn-ticketflow">Ingresar</button>
+
+                <div class="text-center mt-3">
+                    <p class="small text-muted">¿No tienes una cuenta? <a href="/register" class="text-decoration-none text-primary fw-medium">Registrate aquí</a></p>
+                </div>
+            </form>
         </div>
 
-     <!--  <input type="hidden" name="rol" value="ADMIN" /> -->
-
-    <button type="submit" class="btn btn-primary">Ingresar</button>
-</form>
+    </div>
+</div>

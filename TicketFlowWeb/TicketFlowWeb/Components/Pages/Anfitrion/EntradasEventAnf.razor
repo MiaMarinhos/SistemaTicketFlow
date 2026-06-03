@@ -1,4 +1,7 @@
 ﻿@page "/anfitrion/entradas_evento"
+@using Microsoft.AspNetCore.Authorization
+
+@attribute [Authorize(Roles = "ANFITRION")]
 @using TicketFlowWeb.Models
 @inject NavigationManager NavigationManager
 

@@ -1,4 +1,8 @@
 ﻿@page "/anfitrion/perfil"
+@using Microsoft.AspNetCore.Authorization
+
+@attribute [Authorize(Roles = "ANFITRION")]
+
 @using TicketFlowWeb.Models
 
 <PageTitle>TicketFlow - Perfil de Anfitrión</PageTitle>
