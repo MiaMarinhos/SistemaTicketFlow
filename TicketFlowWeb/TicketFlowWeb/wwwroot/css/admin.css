@@ -153,3 +153,12 @@ main {
 .ms-n3 {
     margin-left: -1rem !important;
 }
+
+.top-row .navbar-brand {
+    height: 100%;
+}
+
+    .top-row .navbar-brand i {
+        display: flex;
+        align-items: center;
+    }
