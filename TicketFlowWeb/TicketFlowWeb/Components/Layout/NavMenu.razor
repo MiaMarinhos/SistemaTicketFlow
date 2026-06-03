@@ -11,13 +11,25 @@
 </AuthorizeView>
 <AuthorizeView Roles="ADMIN">
     <Authorized>
-        <div class="top-row ps-3 navbar navbar-dark">
+        <div class="top-row navbar navbar-dark bg-dark shadow-sm px-4">
+
             <div class="container-fluid">
-                <a class="navbar-brand" href="admin">TicketFlow Administrador</a>
+
+                <a class="navbar-brand d-flex align-items-center justify-content-center gap-3 m-0"
+                       href="/admin">
+
+                    <i class="bi bi-ticket-perforated-fill text-info fs-4"></i>
+
+                    <span class="fw-bold">
+                        TicketFlow Admin
+                    </span>
+
+                </a>
+
             </div>
+
         </div>
     </Authorized>
-</AuthorizeView>
 <input type="checkbox" title="Navigation menu" class="navbar-toggler" />
 
 <div class="nav-scrollable" onclick="document.querySelector('.navbar-toggler').click()">
