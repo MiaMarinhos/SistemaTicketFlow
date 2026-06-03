@@ -338,3 +338,17 @@ h1:focus {
 .grid-item.empty {
     background-color: transparent;
 }
+
+.saludoPerfil {
+    color: white;
+    text-decoration: none;
+    padding: 10px 12px;
+    border-radius: 10px;
+    display: inline-block;
+}
+
+.saludoPerfil:hover {
+        color: #120e49;
+        background-color: white;
+        text-decoration: none;
+}

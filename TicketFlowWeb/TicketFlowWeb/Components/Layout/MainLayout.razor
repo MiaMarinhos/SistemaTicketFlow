@@ -90,9 +90,10 @@
                                 <a href="/login" class="botonIniciarSesion">Iniciar Sesión</a>
                             </NotAuthorized>
                             <Authorized Context="authContext">
-                                <span class="fw-medium">
+                                <a href="/cliente/perfil" class="saludoPerfil fw-medium">
                                     ¡Hola, @authContext.User.FindFirst(c => c.Type == "Nombres")?.Value!
-                                </span>
+                                </a>
+
                                 <a href="/auth/logout" class="botonLogout">Cerrar Sesión</a>
                             </Authorized>
                         </AuthorizeView>

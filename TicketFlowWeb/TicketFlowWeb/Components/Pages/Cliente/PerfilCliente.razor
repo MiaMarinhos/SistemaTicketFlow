@@ -1,4 +1,7 @@
 ﻿@page "/cliente/perfil"
+@using Microsoft.AspNetCore.Components.Authorization
+@using System.Security.Claims
+@inject AuthenticationStateProvider AuthenticationStateProvider
 
 <div class="perfil-cliente-page">
 
@@ -9,7 +12,7 @@
             </div>
 
             <div class="usuario-info">
-                <h3>Luis RG</h3>
+                <h3>@nombreCliente</h3>
                 <p>Cliente</p>
             </div>
         </div>
@@ -32,7 +35,7 @@
                 Mis Entradas
             </a>
 
-            <a href="/cliente/inicio" class="menu-item logout">
+            <a href="/auth/logout" class="menu-item logout">
                 <span>↩</span>
                 LogOut
             </a>
@@ -56,7 +59,7 @@
 
                 <div class="fila-perfil">
                     <div class="campo">NOMBRE:</div>
-                    <div class="valor">Luis</div>
+                    <div class="valor">@nombreCliente</div>
                 </div>
 
                 <div class="fila-perfil">
@@ -76,7 +79,7 @@
 
                 <div class="fila-perfil">
                     <div class="campo">CORREO:</div>
-                    <div class="valor">luis.ramirez@gmail.com</div>
+                    <div class="valor">@correoCliente</div>
                 </div>
 
                 <div class="fila-perfil">
@@ -106,6 +109,23 @@
     </main>
 
 </div>
+
+@code {
+    private string nombreCliente = "Juan";
+    private string correoCliente = "juan@gmail.com";
+
+    protected override async Task OnInitializedAsync()
+    {
+        var authState = await AuthenticationStateProvider.GetAuthenticationStateAsync();
+        var usuario = authState.User;
+
+        if (usuario.Identity != null && usuario.Identity.IsAuthenticated)
+        {
+            nombreCliente = usuario.FindFirst("Nombres")?.Value ?? "Juan";
+            correoCliente = usuario.FindFirst(ClaimTypes.Name)?.Value ?? "juan@gmail.com";
+        }
+    }
+}
 
 <style>
     .perfil-cliente-page {
