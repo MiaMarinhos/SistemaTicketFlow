@@ -23,7 +23,6 @@
     <ProjectReference Include="..\TicketFlowBL\TicketFlowBL.csproj" />
     <ProjectReference Include="..\TicketFlowDBManager\TicketFlowDBManager.csproj" />
     <ProjectReference Include="..\TicketFlowModel\TicketFlowModel.csproj" />
-    <Folder Include="Components\Pages\Public\" />
     <Folder Include="wwwroot\images\" />
 
   </ItemGroup>

@@ -47,9 +47,41 @@
                         </a>
                     </div>
 
-                    <div class="nav-center">
-                        <a class="botonDescubrir btn btn-link text-decoration-none">DESCUBRIR</a>
-                    </div>
+    <div class="nav-center-wrapper">
+    <button class="botonDescubrir @(isDropdownOpen ? "active" : "")" @onclick="ToggleDropdown">
+        <span class="texto-descubrir">DESCUBRIR</span>
+        <div class="badge-flecha">
+            <span class="arrow">@(isDropdownOpen ? "↑" : "↓")</span>
+        </div>
+    </button>
+
+    @if (isDropdownOpen)
+    {
+        <div class="ticketflow-dropdown">
+            <div class="dropdown-header-row">
+                                    <a href="/public/descubrir" class="dropdown-link-main" @onclick="ToggleDropdown">
+                    VER TODAS LAS CATEGORIAS 
+                    <span class="arrow-circle">→</span>
+                </a>
+            </div>
+
+            <div class="dropdown-grid">
+                                    <div class="grid-item"><a href="/public/descubrir/Deportes" @onclick="ToggleDropdown">Deportes</a><span class="arrow-circle">→</span></div>
+                                    <div class="grid-item"><a href="/public/descubrir/Conciertos" @onclick="ToggleDropdown">Conciertos</a><span class="arrow-circle">→</span></div>
+                                    <div class="grid-item"><a href="/public/descubrir/Teatro" @onclick="ToggleDropdown">Teatro</a><span class="arrow-circle">→</span></div>
+
+                                    <div class="grid-item"><a href="/public/descubrir/Etrenamiento" @onclick="ToggleDropdown">Entretenimiento</a><span class="arrow-circle">→</span></div>
+                                    <div class="grid-item"><a href="/public/descubrir/Seminarios y o conferencias" @onclick="ToggleDropdown">Seminarios y/o Conferencias</a><span class="arrow-circle">→</span></div>
+                                    <div class="grid-item"><a href="/public/descubrir/Cursos y o Talleres" @onclick="ToggleDropdown">Cursos y/o Talleres</a><span class="arrow-circle">→</span></div>
+
+                                    <div class="grid-item"><a href="/public/descubrir/Party" @onclick="ToggleDropdown">Party</a><span class="arrow-circle">→</span></div>
+                                    <div class="grid-item"><a href="/public/descubrir/Stand_Up_Comedy" @onclick="ToggleDropdown">Stand Up Comedy</a><span class="arrow-circle">→</span></div>
+                <div class="grid-item empty"></div>
+            </div>
+        </div>
+    }
+    </div>
+
 
                     <div class="nav-right d-flex align-items-center gap-3">
                         <AuthorizeView Roles="CLIENTE">
@@ -82,3 +114,12 @@
     <a href="." class="reload">Reload</a>
     <span class="dismiss">🗙</span>
 </div>
+@code {
+    // Lógica en C# para abrir y cerrar el menú
+    private bool isDropdownOpen = false;
+
+    private void ToggleDropdown()
+    {
+        isDropdownOpen = !isDropdownOpen;
+    }
+}

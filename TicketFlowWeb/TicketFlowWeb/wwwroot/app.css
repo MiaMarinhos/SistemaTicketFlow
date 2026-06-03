@@ -107,13 +107,54 @@ h1:focus {
     margin-right: 12px;
 }
 
+/* Pestaña DESCUBRIR estilo sobre con bordes redondeados arriba */
 .botonDescubrir {
-    color: white;
-    text-decoration: none;
-    margin: 10px;
-    padding: 10px;
-    border-radius: 10px;
+    background-color: #a2b9d6 !important; /* Volvemos al color gris azulado de tu diseño original */
+    color: #000000 !important;
+    border: none !important;
+    padding: 12px 24px 22px 24px !important;
+    font-size: 1rem;
+    font-weight: 700;
+    letter-spacing: 0.5px;
+    cursor: pointer;
+    position: relative;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    text-transform: uppercase;
+    height: auto;
+    align-self: flex-end; /* Lo obliga a quedarse pegado al piso del navbar */
+    margin-bottom: 0 !important;
 }
+
+.texto-descubrir {
+    display: inline-block;
+    text-align: center;
+}
+
+/* El círculo de la flecha que rompe sutilmente hacia abajo */
+.badge-flecha {
+    position: absolute;
+    bottom: -15px;
+    left: 50%;
+    transform: translateX(-50%);
+    background-color: #000000; /* Círculo negro idéntico a tu referencia */
+    color: #ffffff;
+    width: 30px;
+    height: 30px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0px 3px 6px rgba(0, 0, 0, 0.3);
+    z-index: 1005;
+}
+
+    .badge-flecha .arrow {
+        font-size: 0.9rem;
+        font-weight: bold;
+        line-height: 1;
+    }
 
 .botonDescubrir:hover {
     color: #231d71;
@@ -192,4 +233,108 @@ h1:focus {
     color: white;
     padding: 0 20px;
     
+}
+
+/* Contenedor principal */
+/*.nav-container {
+    position: relative;
+    display: inline-block;
+    width: 100%;
+    margin: 0;
+    padding: 0;
+}
+*/
+/* Forzamos a que el centro de la nav no deje margen abajo */
+/* Asegurar que la sección central no deje espacios abajo */
+.nav-center-wrapper {
+    display: inline-flex;
+    justify-content: center;
+    align-items: flex-end;
+    height: 100%;
+    margin: 0 auto;
+    padding: 0;
+    position: relative;
+}
+.ticketflow-dropdown {
+    position: fixed;
+    left: 0;
+    right: 0;
+    width: 100vw;
+    /* Usa un cálculo exacto basado en la altura estándar del navbar */
+    top: 56px;
+    background-color: #d6e4f0;
+    border-top: 2px solid #000000;
+    box-shadow: 0px 8px 20px rgba(0,0,0,0.4);
+    z-index: 999; /* Justo debajo del círculo de la flecha */
+    font-family: sans-serif;
+    box-sizing: border-box;
+}
+
+/* Estructura interna de la tabla */
+.dropdown-header-row {
+    padding: 15px 40px;
+    border-bottom: 2px solid #000000;
+    background-color: #d6e4f0;
+}
+
+.dropdown-link-main {
+    color: #000000;
+    text-decoration: none;
+    font-weight: 700;
+    font-size: 1.05rem;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.dropdown-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    width: 100%;
+    background-color: #d6e4f0;
+}
+
+.grid-item {
+    padding: 20px 40px;
+    border-bottom: 1px solid #000000;
+    border-right: 1px solid #000000;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    box-sizing: border-box;
+}
+
+    .grid-item:nth-child(3n) {
+        border-right: none;
+    }
+
+    .grid-item:nth-child(n+7) {
+        border-bottom: none;
+    }
+
+    .grid-item a {
+        color: #000000;
+        text-decoration: none;
+        font-weight: 500;
+    }
+
+    .grid-item:hover a {
+        text-decoration: underline;
+    }
+
+/* Círculos con flecha dentro de la tabla */
+.arrow-circle {
+    border: 1px solid #000000;
+    border-radius: 50%;
+    width: 22px;
+    height: 22px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.8rem;
+    font-weight: bold;
+}
+
+.grid-item.empty {
+    background-color: transparent;
 }
