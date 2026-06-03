@@ -1,6 +1,7 @@
 ﻿@page "/public/detalle-evento/"
 
 @using Microsoft.AspNetCore.Components
+@using Microsoft.AspNetCore.Components.Authorization
 @using System.Collections.Generic
 
 <div class="detalle-evento-page">
@@ -43,9 +44,19 @@
             <div class="acciones">
                 <a href="/" class="btn-volver">Volver</a>
 
-                <a href="@($"/login")" class="btn-comprar">
-                    Comprar entrada
-                </a>
+                <AuthorizeView>
+                    <Authorized>
+                        <a href="@($"/cliente/resumen-compra/{evento.Id}")" class="btn-comprar">
+                            Comprar entrada
+                        </a>
+                    </Authorized>
+
+                    <NotAuthorized>
+                        <a href="/login" class="btn-comprar">
+                            Comprar entrada
+                        </a>
+                    </NotAuthorized>
+                </AuthorizeView>
             </div>
         </div>
 
@@ -170,6 +181,7 @@
     .acciones {
         display: flex;
         justify-content: flex-end;
+        align-items: center;
         gap: 20px;
         margin-top: 45px;
     }
