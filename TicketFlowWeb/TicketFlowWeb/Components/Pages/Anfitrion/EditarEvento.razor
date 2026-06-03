@@ -8,7 +8,8 @@
 <div class="crear-evento-page d-flex align-items-center justify-content-center min-vh-100 p-3 p-md-5">
     <div class="evento-card container-fluid p-4 p-md-5 rounded-4 shadow-lg">
 
-        <div class="d-flex justify-content-end mb-4">
+        <!-- Fila de Cabecera: Botón Regresar alineado a la derecha -->
+        <div class="d-flex justify-content-end mb-3">
             <button class="btn-regresar d-flex align-items-center justify-content-center" @onclick="VolverAtras" type="button" title="Volver">
                 <span class="flecha-retroceso">&larr;</span>
             </button>
@@ -18,33 +19,43 @@
 
             <div class="row g-4">
 
+                <!-- COLUMNA IZQUIERDA: Campos Principales -->
                 <div class="col-lg-6 d-flex flex-column gap-3">
 
+                    <!-- TEXTO DE EXPLICACIÓN AGREGADO (Coherencia con Crear Evento) -->
+                    <div class="mb-2">
+                        <h2 class="subtitulo-explicativo text-uppercase fw-bold text-white-50">Edita tu evento</h2>
+                    </div>
+
+                    <!-- Título -->
                     <div class="input-contenedor-full">
                         <input type="text" class="custom-input custom-titulo-input" placeholder="Título" @bind="eventoModel.Titulo" required />
                     </div>
 
+                    <!-- Descripción -->
                     <div class="input-contenedor-full flex-grow-1 d-flex flex-column">
                         <textarea class="custom-input custom-textarea flex-grow-1" rows="8" placeholder="Descripcion..." @bind="eventoModel.Descripcion" required></textarea>
                     </div>
 
+                    <!-- N Entradas y Precio -->
                     <div class="d-flex gap-3 mt-2">
                         <div class="d-flex align-items-center gap-2 flex-grow-1">
                             <span class="etiqueta-fija text-center">N Entradas</span>
                             <div class="w-100">
-                                <input type="number" min="0" class="custom-input text-white" @bind="NumeroEntradasValidado" required />
+                                <input type="number" min="0" class="custom-input text-white" @bind="NumeroEntradasValidado" placeholder="300" required />
                             </div>
                         </div>
                         <div class="d-flex align-items-center gap-2 flex-grow-1">
                             <span class="etiqueta-fija text-center">Precio</span>
                             <div class="w-100">
-                                <input type="text" class="custom-input text-white" @bind="PrecioFormateado" required />
+                                <input type="text" class="custom-input text-white" @bind="PrecioFormateado" placeholder="S/. 50.00" required />
                             </div>
                         </div>
                     </div>
 
                 </div>
 
+                <!-- COLUMNA DERECHA: Bloques de Etiquetas Fijas -->
                 <div class="col-lg-6 d-flex flex-column gap-3 justify-content-between">
 
                     <div class="fila-formulario-derecha">
@@ -91,6 +102,7 @@
 
             </div>
 
+            <!-- BOTÓN DE ACCIÓN INFERIOR -->
             <div class="text-center mt-5">
                 <button type="submit" class="btn-crear-evento fw-bold text-uppercase">
                     Editar Evento
@@ -112,6 +124,14 @@
         background: linear-gradient(145deg, #070724 0%, #100f57 45%, #18239c 100%);
         max-width: 1200px;
         border: 1px solid rgba(255, 255, 255, 0.1);
+    }
+
+    /* Estilo del texto explicativo */
+    .subtitulo-explicativo {
+        font-size: 1.1rem;
+        letter-spacing: 2px;
+        color: rgba(255, 255, 255, 0.6) !important;
+        margin: 0;
     }
 
     .btn-regresar {
@@ -152,6 +172,10 @@
         font-size: 1rem;
         outline: none;
     }
+
+        .custom-input::placeholder {
+            color: rgba(255, 255, 255, 0.5);
+        }
 
         .custom-input:focus {
             border-color: #ffffff;
@@ -207,50 +231,36 @@
 </style>
 
 @code {
-    [Parameter]
-    public int Id { get; set; }
-
+    [Parameter] public int Id { get; set; }
     private EventoViewModel eventoModel = new EventoViewModel();
 
     protected override void OnInitialized()
     {
-        // Datos quemados para poblar la maqueta inicial
-        if (Id > 0)
+        // Simulamos la carga del objeto tal cual sale en tu captura para la Obra Hamlet
+        eventoModel = new EventoViewModel
         {
-            eventoModel = new EventoViewModel
-            {
-                Titulo = "Obra de Teatro: Hamlet",
-                Descripcion = "Presentación teatral inspirada en Hamlet. Una puesta en escena dramática con actores locales y producción moderna.",
-                NumeroEntradas = 300,
-                Precio = 50.00m,
-                ImagenRuta = "Subir Imagen",
-                Fecha = new DateTime(2026, 5, 31),
-                HoraInicio = "10:30 am",
-                HoraFin = "12:30 am",
-                Ubicacion = "Pasaje Porta 132. Miraflores",
-                SitioEvento = "El Teatro Teatral",
-                Distrito = "Miraflores",
-                Region = "Lima"
-            };
-        }
+            Titulo = "Obra de Teatro: Hamlet",
+            Descripcion = "Presentación teatral inspirada en Hamlet. Una puesta en escena dramática con actores locales y producción moderna.",
+            NumeroEntradas = 300,
+            Precio = 120.00m, // Sincronizado con tus otras tablas de S/. 120.00
+            ImagenRuta = "Subir Imagen",
+            Fecha = new DateTime(2026, 5, 31),
+            HoraInicio = "10:30 am",
+            HoraFin = "12:30 am",
+            Ubicacion = "Pasaje Porta 132. Miraflores",
+            SitioEvento = "El Teatro Teatral",
+            Distrito = "Miraflores",
+            Region = "Lima"
+        };
     }
 
     private string FechaFormateada
     {
-        get
-        {
-            return eventoModel.Fecha?.ToString("dd/MM/yyyy") ?? DateTime.Today.ToString("dd/MM/yyyy");
-        }
+        get => eventoModel.Fecha?.ToString("dd/MM/yyyy") ?? DateTime.Today.ToString("dd/MM/yyyy");
         set
         {
             if (DateTime.TryParseExact(value, "dd/MM/yyyy", null, System.Globalization.DateTimeStyles.None, out DateTime fechaParsed))
-            {
                 eventoModel.Fecha = fechaParsed;
-            }
-            else if (DateTime.TryParse(value, out DateTime fechaFlexible))
-            {
-                eventoModel.Fecha = fechaFlexible;
-            }
         }
     }
 
@@ -267,19 +277,17 @@
         {
             string limpio = value.Replace("S/.", "").Replace("S/", "").Replace(" ", "").Trim();
             if (decimal.TryParse(limpio, out decimal resultado))
-            {
                 eventoModel.Precio = resultado < 0 ? 0 : resultado;
-            }
         }
     }
 
     private void ActualizarEvento()
     {
-        NavigationManager.NavigateTo("/");
+        NavigationManager.NavigateTo("/anfitrion/gestionar-evento");
     }
 
     private void VolverAtras()
     {
-        NavigationManager.NavigateTo("/");
+        NavigationManager.NavigateTo("/anfitrion/gestionar-evento");
     }
 }
