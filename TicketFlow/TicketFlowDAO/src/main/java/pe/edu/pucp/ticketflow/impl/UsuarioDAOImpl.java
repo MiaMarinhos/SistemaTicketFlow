@@ -14,7 +14,7 @@ public class UsuarioDAOImpl implements IUsuarioDAO {
 
     @Override
     public Usuario create(Usuario t) {
-        String sql = "{CALL SP_INSERTAR_USUARIO(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)}";
+        String sql = "{CALL SP_INSERTAR_USUARIO(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)}";
         try (Connection con = DBManager.getInstance().getConnection();
              CallableStatement cs = con.prepareCall(sql)) {
 
@@ -24,13 +24,15 @@ public class UsuarioDAOImpl implements IUsuarioDAO {
             cs.setString(4, t.getApellidoPaterno());
             cs.setString(5, t.getApellidoMaterno());
             cs.setString(6, t.getTelefono());
-            cs.setString(7, t.getCorreoElectronico());
-            cs.setString(8, t.getContrasena());
-            cs.setDate(9, t.getFechaRegistro());
-            cs.setDate(10, t.getFechaNacimiento());
-            cs.setInt(11, t.getDistrito().getIdDistrito());
-            cs.setInt(12, t.getEstado().getIdEstadoUsuario());
-            cs.setInt(13, t.getTipo().getIdTipoUsuario());
+            cs.setInt(7, t.getEdad());
+            cs.setInt(8, t.getGenero().getIdGenero());
+            cs.setString(9, t.getCorreoElectronico());
+            cs.setString(10, t.getContrasena());
+            cs.setDate(11, t.getFechaRegistro());
+            cs.setDate(12, t.getFechaNacimiento());
+            cs.setInt(13, t.getDistrito().getIdDistrito());
+            cs.setInt(14, t.getEstado().getIdEstadoUsuario());
+            cs.setInt(15, t.getTipo().getIdTipoUsuario());
 
             cs.execute();
             t.setIdUsuario(cs.getInt(1));

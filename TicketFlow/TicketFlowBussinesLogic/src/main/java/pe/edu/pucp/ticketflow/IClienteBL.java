@@ -6,7 +6,6 @@ import pe.edu.pucp.ticketflow.usuario.model.Cliente;
 import java.util.List;
 
 public interface IClienteBL extends IUsuarioBL{
-    Cliente registrarCliente(Cliente cliente) throws BusinessLogicException;
 
     Cliente buscarClientePorId(Integer idCliente) throws BusinessLogicException;
 

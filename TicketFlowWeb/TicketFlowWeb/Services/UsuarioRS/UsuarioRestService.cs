@@ -1,5 +1,6 @@
 ﻿using System.Net.Http.Json;
 using TicketFlowWeb.Models;
+using static System.Net.WebRequestMethods;
 
 namespace TicketFlowWeb.Services.UsuarioRS
 {
@@ -8,9 +9,12 @@ namespace TicketFlowWeb.Services.UsuarioRS
         private readonly HttpClient _httpClient;
 
         // Inyectamos el HttpClient que configuraste en Program.cs apuntando a Java
-        public UsuarioRestService(HttpClient httpClient)
+        public UsuarioRestService(HttpClient http)
         {
-            _httpClient = httpClient;
+            _httpClient = http;
+            _httpClient.DefaultRequestHeaders.Accept.Clear();
+            _httpClient.DefaultRequestHeaders.Accept.Add(
+                new System.Net.Http.Headers.MediaTypeWithQualityHeaderValue("application/json"));
         }
 
         public async Task<Usuario?> IniciarSesionAsync(string correo, string password, string rol)
@@ -46,5 +50,36 @@ namespace TicketFlowWeb.Services.UsuarioRS
                 return null;
             }
         }
+
+        public async Task RegistrarAsyncCliente(ClienteViewModel cliente)
+        {
+            try
+            {
+                HttpResponseMessage response =
+                await _httpClient.PostAsJsonAsync("ClienteRS/Register", cliente);
+
+                response.EnsureSuccessStatusCode();
+            }
+            catch (Exception ex)
+            {
+                // Loguear el error si es necesario
+                Console.WriteLine($"Error conectando a Java: {ex.Message}");
+            }
+        }
+
+        public async Task<List<Distrito>> ObtenerDistritosAsync()
+        {
+            try
+            {
+                // El BaseAddress ya apunta a http://localhost:8080/TicketFlow/api/
+                var lista = await _httpClient.GetFromJsonAsync<List<Distrito>>("DistritoRS/listar");
+                return lista ?? new List<Distrito>();
+            }
+            catch (Exception)
+            {
+                return new List<Distrito>(); // Si falla, devuelve lista vacía para no romper el front
+            }
+        }
+
     }
 }

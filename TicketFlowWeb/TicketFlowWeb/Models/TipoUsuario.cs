@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Text;
 
-namespace TicketFlowModel.Usuario
+namespace TicketFlowWeb.Models
 {
     public class TipoUsuario
     {

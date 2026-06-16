@@ -1,6 +1,7 @@
 package pe.edu.pucp.ticketflow.impl;
 
 import pe.edu.pucp.ticketflow.*;
+import pe.edu.pucp.ticketflow.administrador.model.Administrador;
 import pe.edu.pucp.ticketflow.evento.model.Evento;
 import pe.edu.pucp.ticketflow.exception.BusinessLogicException;
 import pe.edu.pucp.ticketflow.solicitud.model.Solicitud;
@@ -24,22 +25,27 @@ public class UsuarioBLImpl implements IUsuarioBL {
     @Override
     public Usuario registrarUsuario(Usuario usuario) throws BusinessLogicException{
         try{
-            Distrito distrito = distritoDAO.read(usuario.getIdDistrito());
-            usuario.setDistrito(distrito);
+
+//            Distrito distrito = distritoDAO.read(usuario.getIdDistrito());
+//            usuario.setDistrito(distrito);
 
             String nombreTipo = "";
             if (usuario instanceof Cliente) {
                 nombreTipo = "CLIENTE";
             } else if (usuario instanceof Anfitrion) {
                 nombreTipo = "ANFITRION";
+            }else if (usuario instanceof Administrador) {
+                nombreTipo = "ADMIN";
             }
 
             TipoUsuario tipo = tipoUsuarioDAO.buscarTipoUsuarioPorTipo(nombreTipo);
             usuario.setTipo(tipo);
+
             /*
             *   1 : Activo
             *   2 : Eliminado
             * */
+
             EstadoUsuario estadoUsuario = estadoUsuarioDAO.read(1);
             usuario.setEstado(estadoUsuario);
 
@@ -57,19 +63,25 @@ public class UsuarioBLImpl implements IUsuarioBL {
     }
 
     @Override
-    public Cliente registrarCliente(Cliente cliente) throws BusinessLogicException {
+    public String registrarCliente(Cliente cliente) throws BusinessLogicException {
         try {
+            if (cliente == null) {
+                throw new BusinessLogicException("El cliente no puede ser nulo.");
+            }
+            if (cliente.getPuntosBonus() < 0) {
+                throw new BusinessLogicException("Los puntos bonus no pueden ser negativos.");
+            }
             registrarUsuario(cliente);
+            cliente.setPuntosBonus(50); //puntos gratis por ser new
+            clienteDAO.create(cliente);
 
-            /*int idUsuario = user.getIdUsuario();
-            cliente.setIdUsuario(idUsuario);*/
+            return "Cliente registrado correctamente";
 
-            cliente.setPuntosBonus(0);
-            return clienteDAO.create(cliente);
-        }
-        catch (Exception ex) {
-            if (ex instanceof BusinessLogicException) throw (BusinessLogicException) ex;
-            else throw new BusinessLogicException(ex);
+
+        } catch (BusinessLogicException e) {
+            throw e;
+        } catch (Exception e) {
+            throw new BusinessLogicException("Error al registrar cliente: " + e.getMessage());
         }
     }
 

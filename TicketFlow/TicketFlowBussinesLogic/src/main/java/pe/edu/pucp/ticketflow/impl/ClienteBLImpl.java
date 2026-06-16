@@ -14,29 +14,6 @@ public class ClienteBLImpl extends UsuarioBLImpl implements IClienteBL {
         this.clienteDAO = new ClienteDAOImpl();
     }
 
-    @Override
-    public Cliente registrarCliente(Cliente cliente) throws BusinessLogicException {
-        try {
-            if (cliente == null) {
-                throw new BusinessLogicException("El cliente no puede ser nulo.");
-            }
-
-            if (cliente.getIdUsuario() <= 0) {
-                throw new BusinessLogicException("Primero debe crearse el usuario antes de registrar el cliente.");
-            }
-
-            if (cliente.getPuntosBonus() < 0) {
-                throw new BusinessLogicException("Los puntos bonus no pueden ser negativos.");
-            }
-
-            return clienteDAO.create(cliente);
-
-        } catch (BusinessLogicException e) {
-            throw e;
-        } catch (Exception e) {
-            throw new BusinessLogicException("Error al registrar cliente: " + e.getMessage());
-        }
-    }
 
     @Override
     public Cliente buscarClientePorId(Integer idCliente) throws BusinessLogicException {

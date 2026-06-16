@@ -49,3 +49,4 @@ INSERT INTO `usuario_x_tipo` VALUES (1,3);
 select * from usuario;
 select * from usuario_x_tipo;
 select * from tipo_usuario;
+select * from cliente;

@@ -173,18 +173,22 @@ public abstract class Usuario {
         this.idDistrito = idDistrito;
         this.tipo = tipo;
     }
-    public Usuario(int idUsuario, String dni, String nombre, String apellidoPaterno,
-                   String apellidoMaterno, String telefono, String correoElectronico,
-                   String contrasena, Date fechaNacimiento, int idDistrito){
-        this.idUsuario = idUsuario;
+    public Usuario(String dni, String nombre, String apellidoPaterno,
+                   String apellidoMaterno, String telefono, int edad,
+                   Genero genero, String correoElectronico,
+                   String contrasena, Date fechaNacimiento, Distrito distrito,
+                   int idDistrito){
         this.dni = dni;
         this.nombre = nombre;
         this.apellidoPaterno = apellidoPaterno;
         this.apellidoMaterno = apellidoMaterno;
         this.telefono = telefono;
+        this.edad = edad;
+        this.genero = genero;
         this.correoElectronico = correoElectronico;
         this.contrasena = contrasena;
         this.fechaNacimiento = fechaNacimiento;
+        this.distrito = distrito;
         this.idDistrito = idDistrito;
     }
     public Usuario(int idUsuario, String correoElectronico,
