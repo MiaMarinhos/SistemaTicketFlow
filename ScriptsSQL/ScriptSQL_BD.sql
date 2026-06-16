@@ -95,7 +95,7 @@ CREATE TABLE IF NOT EXISTS `ticket_flow`.`usuario` (
   `apellido_paterno` VARCHAR(45) NOT NULL,
   `apellido_materno` VARCHAR(45) NOT NULL,
   `telefono` VARCHAR(45) NOT NULL,
-  `edad` VARCHAR(45) NOT NULL,
+  `edad` INT NOT NULL,
   `correo_electronico` VARCHAR(45) NOT NULL,
   `contrasena` VARCHAR(45) NOT NULL,
   `fecha_registro` DATE NOT NULL,

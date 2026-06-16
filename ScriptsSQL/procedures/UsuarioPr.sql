@@ -557,6 +557,9 @@ CREATE PROCEDURE SP_LEER_USUARIO_POR_ROL(
 BEGIN
  SELECT 
      u.idUsuario,
+     u.nombre,
+     u.apellido_paterno,
+     u.apellido_materno,
      u.correo_electronico,
      u.contrasena,
      t.idTipo_usuario,
@@ -579,8 +582,11 @@ CREATE PROCEDURE SP_COMPROBAR_USUARIO(
 BEGIN
 	SELECT u.idUsuario
 	FROM usuario u, usuario_x_tipo x, tipo_usuario t 
-	WHERE u.correo_electronico = @correo AND t.nombre = @rol
+	WHERE u.correo_electronico = p_correo AND t.nombre = p_rol
     AND u.idUsuario = x.idUsuario AND t.idTipo_usuario = x.idTipo_usuario;
 END //
 
 DELIMITER ;
+
+CALL SP_COMPROBAR_USUARIO('juan@gmail.com', 'ADMIN');
+CALL SP_LEER_USUARIO_POR_ROL(1, 'ADMIN');

@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Components;
 using TicketFlowDBManager;
 using TicketFlowWeb.Components;
 using TicketFlowWeb.Services;
+using TicketFlowWeb.Services.UsuarioRS;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -10,8 +11,17 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddRazorComponents()
     .AddInteractiveServerComponents();
 
+//--------------------------------
+
+builder.Services.AddHttpClient<UsuarioRestService>(client =>
+{
+    client.BaseAddress = new Uri("http://localhost:8080/TicketFlow/api/");
+});
 
 //----------------------------------------------------------
+
+builder.Services.AddScoped<IServicioSesionAuth, ServicioSesionAuth>();
+builder.Services.AddHttpContextAccessor();
 
 builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
     .AddCookie(opciones =>
@@ -43,10 +53,6 @@ builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationSc
 
 builder.Services.AddAuthorization();
 builder.Services.AddCascadingAuthenticationState();
-// Servicio de autenticación inyectable.
-builder.Services.AddHttpContextAccessor();
-//Agregamos l autentificacion por sercicio :v
-builder.Services.AddScoped<IServicioSesionAuth, ServicioSesionAuth>();
 
 builder.Services.AddScoped(sp =>
 {
@@ -63,12 +69,12 @@ builder.Services.AddScoped(sp =>
 var app = builder.Build();
 
 //--------------------------------------------------------
-
+/*
 string connectionString = builder.Configuration.GetConnectionString("MySqlConnection")
      ?? throw new Exception("No se pudo obtener la cadena de conexión");
 
 DBManager.Initialize(connectionString);
-
+*/
 //-------------------------------------------------------------
 
 // Configure the HTTP request pipeline.

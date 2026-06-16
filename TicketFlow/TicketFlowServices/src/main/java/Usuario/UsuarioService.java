@@ -32,7 +32,7 @@ public class UsuarioService {
     public Response IniciarSesion(LoginRequest request) { // <--- Recibe el objeto completo
         try {
             // Sacamos los datos de adentro del objeto request
-            Usuario user = usuarioBL.iniciarSesion(request.getCorreo(), request.getRol());
+            Usuario user = usuarioBL.iniciarSesion(request.getCorreo(), request.getPassword(), request.getRol());
 
             if (user == null) {
                 return Response.status(Response.Status.NOT_FOUND)

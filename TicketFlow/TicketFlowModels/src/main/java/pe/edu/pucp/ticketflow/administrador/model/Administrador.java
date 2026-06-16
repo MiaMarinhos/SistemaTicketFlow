@@ -31,6 +31,15 @@ public class Administrador extends Usuario {
         this.monto_total = monto_total;
         this.monto_neto = monto_neto;
     }
+    public Administrador(int idUsuario, String correoElectronico,
+                         String contrasena, TipoUsuario tipo,
+                         String img, double monto_total, double monto_neto, double monto_disponible) {
+        super(idUsuario,correoElectronico, contrasena, tipo);
+        this.img = img;
+        this.monto_disponible = monto_disponible;
+        this.monto_total = monto_total;
+        this.monto_neto = monto_neto;
+    }
 
     public String getImg() {
         return img;

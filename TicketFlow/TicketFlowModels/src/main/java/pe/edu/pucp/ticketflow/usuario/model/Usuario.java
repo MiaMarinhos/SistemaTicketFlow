@@ -187,4 +187,11 @@ public abstract class Usuario {
         this.fechaNacimiento = fechaNacimiento;
         this.idDistrito = idDistrito;
     }
+    public Usuario(int idUsuario, String correoElectronico,
+                   String contrasena, TipoUsuario tipo ){
+        this.idUsuario = idUsuario;
+        this.correoElectronico = correoElectronico;
+        this.contrasena = contrasena;
+        this.tipo = tipo;
+    }
 }

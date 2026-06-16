@@ -23,7 +23,7 @@ public interface IUsuarioBL {
     void enviarSolicitud(Solicitud solicitud) throws BusinessLogicException;
 
     //void iniciarSesion();
-    public Usuario iniciarSesion(String correo, String rol) throws BusinessLogicException;
+    public Usuario iniciarSesion(String correo, String password, String rol) throws BusinessLogicException;
 
 
 }

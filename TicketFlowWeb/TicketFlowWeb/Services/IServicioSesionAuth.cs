@@ -1,5 +1,4 @@
 ﻿using System.Security.Claims;
-using TicketFlowModel.Usuario;
 using TicketFlowWeb.Models;
 
 namespace TicketFlowWeb.Services

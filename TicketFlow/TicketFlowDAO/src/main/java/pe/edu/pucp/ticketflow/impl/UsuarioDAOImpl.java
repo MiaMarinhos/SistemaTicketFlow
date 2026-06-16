@@ -2,6 +2,7 @@ package pe.edu.pucp.ticketflow.impl;
 
 import pe.edu.pucp.ticketflow.IDistritoDAO;
 import pe.edu.pucp.ticketflow.IUsuarioDAO;
+import pe.edu.pucp.ticketflow.administrador.model.Administrador;
 import pe.edu.pucp.ticketflow.ubicacion.model.Distrito;
 import pe.edu.pucp.ticketflow.usuario.model.*;
 import pe.edu.pucp.ticketflow.dao.manager.DBManager;
@@ -305,10 +306,13 @@ public class UsuarioDAOImpl implements IUsuarioDAO {
                     switch (tipo) {
                         case 1: u = new Cliente(); break;
                         case 2: u = new Anfitrion(); break;
-                        default: u = new Cliente();
+                        default: u = new Administrador();
                     }
 
                     u.setIdUsuario(rs.getInt("idUsuario"));
+                    u.setNombre(rs.getString("nombre"));
+                    u.setApellidoPaterno(rs.getString("apellido_paterno"));
+                    u.setApellidoMaterno(rs.getString("apellido_materno"));
                     u.setCorreoElectronico(rs.getString("correo_electronico"));
                     u.setContrasena(rs.getString("contrasena"));
                     TipoUsuario tipoUsuario = new TipoUsuario();
