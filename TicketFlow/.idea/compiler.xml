@@ -9,6 +9,7 @@
         <module name="TicketFlowDAO" />
         <module name="TicketFlowModels" />
         <module name="TicketFlowDBManager" />
+        <module name="TicketFlowServices" />
         <module name="TicketFlowApp" />
         <module name="TicketFlowBussinesLogic" />
       </profile>

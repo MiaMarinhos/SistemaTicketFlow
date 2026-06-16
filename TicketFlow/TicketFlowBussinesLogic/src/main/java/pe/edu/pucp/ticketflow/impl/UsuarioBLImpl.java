@@ -171,4 +171,23 @@ public class UsuarioBLImpl implements IUsuarioBL {
         }
     }
 
+    @Override
+    public Usuario iniciarSesion(String correo, String rol) throws BusinessLogicException {
+        try{
+            //validad existencia del usuario.
+            int existencia = usuarioDAO.ComprobarTipoUsuario(correo, rol);
+            if(existencia != -1){
+                Usuario u = usuarioDAO.ObtenerUsuarioPorRol(existencia, rol);
+
+            }
+        }catch (Exception ex){
+            if (ex instanceof BusinessLogicException) {
+                throw (BusinessLogicException)ex;
+            } else {
+                throw new BusinessLogicException(ex);
+            }
+        }
+        return null;
+    }
+
 }

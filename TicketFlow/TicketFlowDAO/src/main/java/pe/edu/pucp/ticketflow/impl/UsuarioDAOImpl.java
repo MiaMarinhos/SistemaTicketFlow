@@ -289,6 +289,61 @@ public class UsuarioDAOImpl implements IUsuarioDAO {
         }
     }
 
+    @Override
+    public Usuario ObtenerUsuarioPorRol(Integer id, String rol) {
+        String sql = "{CALL SP_LEER_USUARIO_POR_ROL(?, ?)}";
+        try (Connection con = DBManager.getInstance().getConnection();
+             CallableStatement cs = con.prepareCall(sql)) {
+
+            cs.setInt(1, id);
+            cs.setString(2, rol);
+            try (ResultSet rs = cs.executeQuery()) {
+                if (rs.next()) {
+                    Usuario u;
+                    int tipo = rs.getInt("idTipo_usuario");
+
+                    switch (tipo) {
+                        case 1: u = new Cliente(); break;
+                        case 2: u = new Anfitrion(); break;
+                        default: u = new Cliente();
+                    }
+
+                    u.setIdUsuario(rs.getInt("idUsuario"));
+                    u.setCorreoElectronico(rs.getString("correo_electronico"));
+                    u.setContrasena(rs.getString("contrasena"));
+                    TipoUsuario tipoUsuario = new TipoUsuario();
+                    tipoUsuario.setIdTipoUsuario(rs.getInt("idTipo_usuario"));
+                    tipoUsuario.setTipoUsuario(rs.getString("nombre_rol"));
+                    u.setTipo(tipoUsuario);
+
+                    return u;
+                }
+            }
+        } catch (SQLException e) {
+            throw new RuntimeException("Error al leer usuario", e);
+        }
+        return null;
+    }
+
+    @Override
+    public int ComprobarTipoUsuario(String correo, String rol) {
+        String sql = "{CALL SP_COMPROBAR_USUARIO(?, ?)}";
+        try (Connection con = DBManager.getInstance().getConnection();
+             CallableStatement cs = con.prepareCall(sql)) {
+
+            cs.setString(1, correo);
+            cs.setString(2, rol);
+            try (ResultSet rs = cs.executeQuery()) {
+                if (rs.next()) {
+                    return rs.getInt("idUsuario");
+                }
+            }
+        } catch (SQLException e) {
+            throw new RuntimeException("Error al leer usuario", e);
+        }
+        return -1;
+    }
+
     private void mapearUsuario(ResultSet rs, Usuario u) throws SQLException {
         u.setIdUsuario(rs.getInt("idUsuario"));
         u.setDni(rs.getString("dni"));

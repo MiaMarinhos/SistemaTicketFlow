@@ -46,12 +46,12 @@ public class Anfitrion extends Usuario{
     public Anfitrion(){}
 
     public Anfitrion(int idUsuario, String dni, String nombre, String apellidoPaterno,
-                     String apellidoMaterno, String telefono, String correoElectronico,
+                     String apellidoMaterno, String telefono, int edad, Genero genero, String correoElectronico,
                      String contrasena, Date fechaRegistro, Date fechaNacimiento,
                      EstadoUsuario estado, Distrito distrito, int idDistrito, TipoUsuario tipo, String razonSocial, String ruc,
                      String cuentaBancaria, Banco banco) {
         super(idUsuario, dni, nombre, apellidoPaterno, apellidoMaterno, telefono,
-                correoElectronico, contrasena, fechaRegistro, fechaNacimiento, estado,
+                edad, genero, correoElectronico, contrasena, fechaRegistro, fechaNacimiento, estado,
                 distrito, idDistrito, tipo);
         this.razonSocial = razonSocial;
         this.ruc = ruc;

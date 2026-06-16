@@ -3,6 +3,7 @@ package pe.edu.pucp.ticketflow.impl;
 import pe.edu.pucp.ticketflow.IClienteDAO;
 import pe.edu.pucp.ticketflow.dao.manager.DBManager;
 import pe.edu.pucp.ticketflow.usuario.model.Cliente;
+import pe.edu.pucp.ticketflow.usuario.model.Genero;
 
 import java.sql.CallableStatement;
 import java.sql.Connection;
@@ -171,6 +172,7 @@ public class ClienteDAOImpl implements IClienteDAO {
         cliente.setApellidoPaterno(rs.getString("apellido_paterno"));
         cliente.setApellidoMaterno(rs.getString("apellido_materno"));
         cliente.setTelefono(rs.getString("telefono"));
+        cliente.setEdad(rs.getInt("edad"));
         cliente.setCorreoElectronico(rs.getString("correo_electronico"));
         cliente.setContrasena(rs.getString("contrasena"));
 
@@ -185,6 +187,10 @@ public class ClienteDAOImpl implements IClienteDAO {
         }
 
         cliente.setIdDistrito(rs.getInt("idDistrito"));
+        Genero genero = new Genero();
+        genero.setIdGenero(rs.getInt("idGenero"));
+        cliente.setGenero(genero);
+
         cliente.setPuntosBonus(rs.getInt("puntos_bonus"));
 
         return cliente;

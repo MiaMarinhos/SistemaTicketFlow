@@ -14,6 +14,8 @@ CREATE PROCEDURE SP_INSERTAR_USUARIO(
     IN p_apellido_paterno VARCHAR(45),
     IN p_apellido_materno VARCHAR(45),
     IN p_telefono VARCHAR(45),
+	IN p_edad INT,
+	IN p_idGenero INT,
     IN p_correo_electronico VARCHAR(45),
     IN p_contrasena VARCHAR(45),
     IN p_fecha_registro DATE,
@@ -25,13 +27,13 @@ CREATE PROCEDURE SP_INSERTAR_USUARIO(
 BEGIN
 INSERT INTO usuario (
     dni, nombre, apellido_paterno, apellido_materno,
-    telefono, correo_electronico, contrasena,
+    telefono, edad, idGenero, correo_electronico, contrasena,
     fecha_registro, fecha_nacimiento,
     idDistrito, idEstado
 )
 VALUES (
            p_dni, p_nombre, p_apellido_paterno, p_apellido_materno,
-           p_telefono, p_correo_electronico, p_contrasena,
+           p_telefono, p_edad, p_idGenero, p_correo_electronico, p_contrasena,
            p_fecha_registro, p_fecha_nacimiento,
            p_idDistrito, p_idEstado
        );
@@ -91,6 +93,8 @@ CREATE PROCEDURE SP_ACTUALIZAR_USUARIO(
     IN p_apellido_paterno VARCHAR(45),
     IN p_apellido_materno VARCHAR(45),
     IN p_telefono VARCHAR(45),
+	IN p_edad INT,
+	IN p_idGenero INT,
     IN p_correo_electronico VARCHAR(45),
     IN p_contrasena VARCHAR(45),
     IN p_fecha_nacimiento DATE,
@@ -105,6 +109,8 @@ SET
     apellido_paterno = p_apellido_paterno,
     apellido_materno = p_apellido_materno,
     telefono = p_telefono,
+	edad = p_edad,
+	idGenero = p_idGenero,
     correo_electronico = p_correo_electronico,
     contrasena = p_contrasena,
     fecha_nacimiento = p_fecha_nacimiento,
@@ -277,7 +283,7 @@ END$$
 
 DELIMITER ;
 
------------------------------------
+--------------------------------------------------------------------------------------------------------------------------------------------
 --CLIENTE
 -----------------------------------
 -- CREATE
@@ -319,6 +325,8 @@ SELECT
     u.apellido_paterno,
     u.apellido_materno,
     u.telefono,
+	u.edad,
+	u.idGenero,
     u.correo_electronico,
     u.contrasena,
     u.fecha_registro,
@@ -384,6 +392,8 @@ SELECT
     u.apellido_paterno,
     u.apellido_materno,
     u.telefono,
+	u.edad,
+	u.idGenero,
     u.correo_electronico,
     u.contrasena,
     u.fecha_registro,
@@ -409,32 +419,26 @@ DELIMITER //
 DROP PROCEDURE IF EXISTS SP_INSERTAR_ADMINISTRADOR //
 
 CREATE PROCEDURE SP_INSERTAR_ADMINISTRADOR(
-    IN p_idAdministrador INT,
-    IN p_codigo VARCHAR(45),
-    IN p_nombre VARCHAR(45),
-    IN p_apellido_paterno VARCHAR(45),
-    IN p_apellido_materno VARCHAR(45),
-    IN p_dni VARCHAR(45),
-    IN p_contrasena VARCHAR(45)
+    IN p_id_usuario INT,
+	IN p_img VARCHAR(450),
+	IN p_monto_total DOUBLE,
+	IN p_monto_neto DOUBLE,
+	IN p_monto_disponible DOUBLE
 )
 BEGIN
 INSERT INTO administrador (
     idAdministrador,
-    codigo,
-    nombre,
-    apellido_paterno,
-    apellido_materno,
-    dni,
-    contrasena
+    img_qr,
+	monto_total,
+	monto_neto,
+	monto_disponible
 )
 VALUES (
-           p_idAdministrador,
-           p_codigo,
-           p_nombre,
-           p_apellido_paterno,
-           p_apellido_materno,
-           p_dni,
-           p_contrasena
+           p_id_usuario,
+           p_img,
+		   p_monto_total,
+		   p_monto_neto,
+		   p_monto_disponible
        );
 END //
 
@@ -447,19 +451,33 @@ DELIMITER //
 DROP PROCEDURE IF EXISTS SP_LEER_ADMINISTRADOR //
 
 CREATE PROCEDURE SP_LEER_ADMINISTRADOR(
-    IN p_idAdministrador INT
+    IN p_idUsuario INT
 )
 BEGIN
 SELECT
-    idAdministrador,
-    codigo,
-    nombre,
-    apellido_paterno,
-    apellido_materno,
-    dni,
-    contrasena
-FROM administrador
-WHERE idAdministrador = p_idAdministrador;
+    u.idUsuario,
+    u.dni,
+    u.nombre,
+    u.apellido_paterno,
+    u.apellido_materno,
+    u.telefono,
+	u.edad,
+	u.idGenero,
+    u.correo_electronico,
+    u.contrasena,
+    u.fecha_registro,
+    u.fecha_nacimiento,
+    u.idDistrito,
+    u.idEstado,
+    a.idAdmin,
+    a.img_qr,
+	a.monto_total,
+	a.monto_neto,
+	a.monto_disponible
+FROM administrador a
+         INNER JOIN usuario u
+                    ON a.idAdmin = u.idUsuario
+WHERE a.idAdmin = p_idUsuario;
 END //
 
 DELIMITER ;
@@ -472,22 +490,18 @@ DROP PROCEDURE IF EXISTS SP_ACTUALIZAR_ADMINISTRADOR //
 
 CREATE PROCEDURE SP_ACTUALIZAR_ADMINISTRADOR(
     IN p_idAdministrador INT,
-    IN p_codigo VARCHAR(45),
-    IN p_nombre VARCHAR(45),
-    IN p_apellido_paterno VARCHAR(45),
-    IN p_apellido_materno VARCHAR(45),
-    IN p_dni VARCHAR(45),
-    IN p_contrasena VARCHAR(45)
+    IN p_img VARCHAR(450),
+	IN p_monto_total DOUBLE,
+	IN p_monto_neto DOUBLE,
+	IN p_monto_disponible DOUBLE
 )
 BEGIN
 UPDATE administrador
 SET
-    codigo = p_codigo,
-    nombre = p_nombre,
-    apellido_paterno = p_apellido_paterno,
-    apellido_materno = p_apellido_materno,
-    dni = p_dni,
-    contrasena = p_contrasena
+    img_qr = p_img,
+    monto_total = p_monto_total,
+    monto_neto = p_monto_neto,
+    monto_disponible = p_monto_disponible
 WHERE idAdministrador = p_idAdministrador;
 END //
 
@@ -531,3 +545,42 @@ END //
 
 DELIMITER ;
 
+-- READ ROL
+DELIMITER //
+
+DROP PROCEDURE IF EXISTS SP_LEER_USUARIO_POR_ROL //
+
+CREATE PROCEDURE SP_LEER_USUARIO_POR_ROL(
+    IN p_idUsuario INT,
+	IN p_rol VARCHAR(45)
+)
+BEGIN
+ SELECT 
+     u.idUsuario,
+     u.correo_electronico,
+     u.contrasena,
+     t.idTipo_usuario,
+     t.nombre AS nombre_rol
+ FROM usuario u, tipo_usuario t 
+ WHERE u.idUsuario = p_idUsuario AND t.nombre = p_rol;
+END //
+
+DELIMITER ;
+
+-- READ COMPROBACION
+DELIMITER //
+
+DROP PROCEDURE IF EXISTS SP_COMPROBAR_USUARIO //
+
+CREATE PROCEDURE SP_COMPROBAR_USUARIO(
+    IN p_correo VARCHAR(45),
+	IN p_rol VARCHAR(45)
+)
+BEGIN
+	SELECT u.idUsuario
+	FROM usuario u, usuario_x_tipo x, tipo_usuario t 
+	WHERE u.correo_electronico = @correo AND t.nombre = @rol
+    AND u.idUsuario = x.idUsuario AND t.idTipo_usuario = x.idTipo_usuario;
+END //
+
+DELIMITER ;

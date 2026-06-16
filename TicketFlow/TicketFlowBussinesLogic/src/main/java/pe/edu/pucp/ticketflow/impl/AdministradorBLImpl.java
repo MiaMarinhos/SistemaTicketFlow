@@ -511,42 +511,42 @@ public class AdministradorBLImpl implements IAdministradorBL {
             throw new BusinessLogicException("El administrador no puede ser nulo.");
         }
 
-        if (administrador.getIdAdministrador() <= 0) {
-            throw new BusinessLogicException("El ID del administrador debe ser mayor a 0.");
-        }
-
-        if (administrador.getCodigo() == null || administrador.getCodigo().trim().isEmpty()) {
-            throw new BusinessLogicException("El código del administrador es obligatorio.");
-        }
-
-        if (administrador.getNombre() == null || administrador.getNombre().trim().isEmpty()) {
-            throw new BusinessLogicException("El nombre del administrador es obligatorio.");
-        }
-
-        if (administrador.getApellidoPaterno() == null || administrador.getApellidoPaterno().trim().isEmpty()) {
-            throw new BusinessLogicException("El apellido paterno del administrador es obligatorio.");
-        }
-
-        if (administrador.getApellidoMaterno() == null || administrador.getApellidoMaterno().trim().isEmpty()) {
-            throw new BusinessLogicException("El apellido materno del administrador es obligatorio.");
-        }
-
-        if (administrador.getDni() == null || administrador.getDni().trim().isEmpty()) {
-            throw new BusinessLogicException("El DNI del administrador es obligatorio.");
-        }
-
-        if (administrador.getContrasena() == null || administrador.getContrasena().trim().isEmpty()) {
-            throw new BusinessLogicException("La contraseña del administrador es obligatoria.");
-        }
-
-        if (administrador.getCodigo().length() > 45 ||
-                administrador.getNombre().length() > 45 ||
-                administrador.getApellidoPaterno().length() > 45 ||
-                administrador.getApellidoMaterno().length() > 45 ||
-                administrador.getDni().length() > 45 ||
-                administrador.getContrasena().length() > 45) {
-            throw new BusinessLogicException("Los campos del administrador no pueden superar 45 caracteres.");
-        }
+//        if (administrador.getIdAdministrador() <= 0) {
+//            throw new BusinessLogicException("El ID del administrador debe ser mayor a 0.");
+//        }
+//
+//        if (administrador.getCodigo() == null || administrador.getCodigo().trim().isEmpty()) {
+//            throw new BusinessLogicException("El código del administrador es obligatorio.");
+//        }
+//
+//        if (administrador.getNombre() == null || administrador.getNombre().trim().isEmpty()) {
+//            throw new BusinessLogicException("El nombre del administrador es obligatorio.");
+//        }
+//
+//        if (administrador.getApellidoPaterno() == null || administrador.getApellidoPaterno().trim().isEmpty()) {
+//            throw new BusinessLogicException("El apellido paterno del administrador es obligatorio.");
+//        }
+//
+//        if (administrador.getApellidoMaterno() == null || administrador.getApellidoMaterno().trim().isEmpty()) {
+//            throw new BusinessLogicException("El apellido materno del administrador es obligatorio.");
+//        }
+//
+//        if (administrador.getDni() == null || administrador.getDni().trim().isEmpty()) {
+//            throw new BusinessLogicException("El DNI del administrador es obligatorio.");
+//        }
+//
+//        if (administrador.getContrasena() == null || administrador.getContrasena().trim().isEmpty()) {
+//            throw new BusinessLogicException("La contraseña del administrador es obligatoria.");
+//        }
+//
+//        if (administrador.getCodigo().length() > 45 ||
+//                administrador.getNombre().length() > 45 ||
+//                administrador.getApellidoPaterno().length() > 45 ||
+//                administrador.getApellidoMaterno().length() > 45 ||
+//                administrador.getDni().length() > 45 ||
+//                administrador.getContrasena().length() > 45) {
+//            throw new BusinessLogicException("Los campos del administrador no pueden superar 45 caracteres.");
+//        }
     }
 
     private void validarDatosUsuario(Usuario usuario) {

@@ -11,4 +11,6 @@ public interface IUsuarioDAO extends IBaseDAO <Usuario, Integer >{
     List<Usuario> filtrarPorEstado(Integer idEstado);
     Usuario bloquearUsuario(Integer idUsuario);
     Usuario desbloquearUsuario(Integer idUsuario);
+    public Usuario ObtenerUsuarioPorRol(Integer idUsuario, String rol);
+    public int ComprobarTipoUsuario(String correo, String rol);
 }

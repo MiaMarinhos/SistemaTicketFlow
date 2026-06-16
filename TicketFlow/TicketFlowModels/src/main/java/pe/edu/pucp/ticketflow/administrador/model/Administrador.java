@@ -1,88 +1,75 @@
 package pe.edu.pucp.ticketflow.administrador.model;
 
-public class Administrador {
-    private int idAdministrador;
-    private String codigo;
-    private String nombre;
-    private String apellidoPaterno;
-    private String apellidoMaterno;
-    private String dni;
-    private String contrasena;
+import pe.edu.pucp.ticketflow.ubicacion.model.Distrito;
+import pe.edu.pucp.ticketflow.usuario.model.EstadoUsuario;
+import pe.edu.pucp.ticketflow.usuario.model.Genero;
+import pe.edu.pucp.ticketflow.usuario.model.TipoUsuario;
+import pe.edu.pucp.ticketflow.usuario.model.Usuario;
+
+import java.sql.Date;
+
+public class Administrador extends Usuario {
+    private String img;
+    private double monto_total;
+    private double monto_neto;
+    private double monto_disponible;
 
     public Administrador(){
 
     }
 
-    public Administrador(int idAdministrador, String codigo, String nombre, String apellidoPaterno,
-                         String apellidoMaterno, String dni, String contrasena){
-        this.idAdministrador = idAdministrador;
-        this.codigo = codigo;
-        this.nombre = nombre;
-        this.apellidoPaterno = apellidoPaterno;
-        this.apellidoMaterno = apellidoMaterno;
-        this.dni = dni;
-        this.contrasena = contrasena;
+    public Administrador(int idUsuario, String dni, String nombre, String apellidoPaterno,
+                         String apellidoMaterno, String telefono, int edad, Genero genero, String correoElectronico,
+                         String contrasena, Date fechaRegistro, Date fechaNacimiento,
+                         EstadoUsuario estado, Distrito distrito, int idDistrito, TipoUsuario tipo,
+                         String img, double monto_total, double monto_neto, double monto_disponible) {
+        super(idUsuario, dni, nombre, apellidoPaterno, apellidoMaterno, telefono,
+                edad, genero, correoElectronico, contrasena, fechaRegistro, fechaNacimiento, estado,
+                distrito, idDistrito, tipo);
+        this.img = img;
+        this.monto_disponible = monto_disponible;
+        this.monto_total = monto_total;
+        this.monto_neto = monto_neto;
     }
 
-    public int getIdAdministrador() {
-        return idAdministrador;
+    public String getImg() {
+        return img;
     }
 
-    public void setIdAdministrador(int idAdministrador) {
-        this.idAdministrador = idAdministrador;
+    public void setImg(String img) {
+        this.img = img;
     }
 
-    public String getCodigo() {
-        return codigo;
+    public double getMonto_total() {
+        return monto_total;
     }
 
-    public void setCodigo(String codigo) {
-        this.codigo = codigo;
+    public void setMonto_total(double monto_total) {
+        this.monto_total = monto_total;
     }
 
-    public String getNombre() {
-        return nombre;
+    public double getMonto_neto() {
+        return monto_neto;
     }
 
-    public void setNombre(String nombre) {
-        this.nombre = nombre;
+    public void setMonto_neto(double monto_neto) {
+        this.monto_neto = monto_neto;
     }
 
-    public String getApellidoPaterno() {
-        return apellidoPaterno;
+    public double getMonto_disponible() {
+        return monto_disponible;
     }
 
-    public void setApellidoPaterno(String apellidoPaterno) {
-        this.apellidoPaterno = apellidoPaterno;
+    public void setMonto_disponible(double monto_disponible) {
+        this.monto_disponible = monto_disponible;
     }
 
-    public String getApellidoMaterno() {
-        return apellidoMaterno;
-    }
 
-    public void setApellidoMaterno(String apellidoMaterno) {
-        this.apellidoMaterno = apellidoMaterno;
-    }
-
-    public String getDni() {
-        return dni;
-    }
-
-    public void setDni(String dni) {
-        this.dni = dni;
-    }
-
-    public String getContrasena() {
-        return contrasena;
-    }
-
-    public void setContrasena(String contrasena) {
-        this.contrasena = contrasena;
-    }
-
+    /*
     @Override
     public String toString(){
         return idAdministrador + " - " + codigo + " - " + nombre + " "
                 + apellidoPaterno + " " + apellidoMaterno + " - " + dni;
     }
+     */
 }

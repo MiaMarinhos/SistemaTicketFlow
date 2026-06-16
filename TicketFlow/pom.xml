@@ -14,6 +14,7 @@
         <module>TicketFlowDAO</module>
         <module>TicketFlowDBManager</module>
         <module>TicketFlowBussinesLogic</module>
+        <module>TicketFlowServices</module>
     </modules>
 
     <dependencies>

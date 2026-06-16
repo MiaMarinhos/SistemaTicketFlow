@@ -26,7 +26,7 @@ public class DBManager {
         String host = properties.getProperty("host");
         String port = properties.getProperty("port");
         String database = properties.getProperty("database");
-        this.url = "jdbc:mysql://" + host + ":" + port + "/" + database;
+        this.url = "jdbc:mysql://" + host + ":" + port + "/" + database + "?useSSL=false&allowPublicKeyRetrieval=true";
         this.user = properties.getProperty("user");
         this.password = properties.getProperty("password");
     }

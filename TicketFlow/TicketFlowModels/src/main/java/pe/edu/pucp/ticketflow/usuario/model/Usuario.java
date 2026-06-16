@@ -11,6 +11,8 @@ public abstract class Usuario {
     private String apellidoPaterno;
     private String apellidoMaterno;
     private String telefono;
+    private int edad;
+    private Genero genero;
     private String correoElectronico;
     private String contrasena;
     private Date fechaRegistro;
@@ -20,7 +22,25 @@ public abstract class Usuario {
     private int idDistrito;
     private TipoUsuario tipo;
 
+
+    public int getEdad() {
+        return edad;
+    }
+
+    public void setEdad(int edad) {
+        this.edad = edad;
+    }
+
+    public Genero getGenero() {
+        return genero;
+    }
+
+    public void setGenero(Genero genero) {
+        this.genero = genero;
+    }
+
     public int getIdDistrito(){return idDistrito;}
+
     public void setIdDistrito(int idDistrito) {
         this.idDistrito = idDistrito;
     }
@@ -132,7 +152,8 @@ public abstract class Usuario {
     public Usuario(){}
 
     public Usuario(int idUsuario, String dni, String nombre, String apellidoPaterno,
-                   String apellidoMaterno, String telefono, String correoElectronico,
+                   String apellidoMaterno, String telefono, int edad, Genero genero,
+                   String correoElectronico,
                    String contrasena, Date fechaRegistro, Date fechaNacimiento,
                    EstadoUsuario estado, Distrito distrito, int idDistrito, TipoUsuario tipo){
         this.idUsuario = idUsuario;
@@ -143,6 +164,8 @@ public abstract class Usuario {
         this.telefono = telefono;
         this.correoElectronico = correoElectronico;
         this.contrasena = contrasena;
+        this.edad = edad;
+        this.genero = genero;
         this.fechaRegistro = fechaRegistro;
         this.fechaNacimiento = fechaNacimiento;
         this.estado = estado;

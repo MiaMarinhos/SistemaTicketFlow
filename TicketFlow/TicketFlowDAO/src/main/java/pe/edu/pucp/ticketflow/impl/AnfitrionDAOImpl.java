@@ -4,6 +4,7 @@ import pe.edu.pucp.ticketflow.IAnfitrionDAO;
 import pe.edu.pucp.ticketflow.banco.model.Banco;
 import pe.edu.pucp.ticketflow.dao.manager.DBManager;
 import pe.edu.pucp.ticketflow.usuario.model.Anfitrion;
+import pe.edu.pucp.ticketflow.usuario.model.Genero;
 
 import java.sql.CallableStatement;
 import java.sql.Connection;
@@ -172,6 +173,7 @@ public class AnfitrionDAOImpl implements IAnfitrionDAO {
         anfitrion.setApellidoPaterno(rs.getString("apellido_paterno"));
         anfitrion.setApellidoMaterno(rs.getString("apellido_materno"));
         anfitrion.setTelefono(rs.getString("telefono"));
+        anfitrion.setEdad(rs.getInt("edad"));
         anfitrion.setCorreoElectronico(rs.getString("correo_electronico"));
         anfitrion.setContrasena(rs.getString("contrasena"));
 
@@ -186,6 +188,10 @@ public class AnfitrionDAOImpl implements IAnfitrionDAO {
         }
 
         anfitrion.setIdDistrito(rs.getInt("idDistrito"));
+        Genero genero = new Genero();
+        genero.setIdGenero(rs.getInt("idGenero"));
+        anfitrion.setGenero(genero);
+
         anfitrion.setRazonSocial(rs.getString("razon_social"));
         anfitrion.setRuc(rs.getString("ruc"));
         anfitrion.setCuentaBancaria(rs.getString("cuenta_bancaria"));
