@@ -1,6 +1,9 @@
-﻿@page "/public/descubrir"
+﻿@using Newtonsoft.Json;
+
+@page "/public/descubrir"
 
 @inject NavigationManager Navigation
+
 
 <h1 class="main-page-title">Descubre un evento</h1>
 
@@ -215,6 +218,7 @@
         }
 </style>
 
+
 @code {
     private List<categoriaEvento> ListaDeCategorias = new List<categoriaEvento>();
 
@@ -240,14 +244,6 @@
 
         // 🛠️ LA SOLUCIÓN: Cada objeto guarda su propio estado de movimiento
         public int PosicionActual { get; set; } = 0;
-    }
-
-    public class Evento
-    {
-        public string Titulo { get; set; } = "";
-        public string Fecha { get; set; } = "";
-        public string Hora { get; set; } = "";
-        public double Precio { get; set; }
     }
 
     protected override void OnInitialized()

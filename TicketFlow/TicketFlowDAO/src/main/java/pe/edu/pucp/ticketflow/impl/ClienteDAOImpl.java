@@ -51,6 +51,7 @@ public class ClienteDAOImpl implements IClienteDAO {
             return null;
 
         } catch (SQLException e) {
+            e.printStackTrace();
             throw new RuntimeException("Error al leer cliente", e);
         }
     }

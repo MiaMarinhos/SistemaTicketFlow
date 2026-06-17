@@ -1,20 +1,57 @@
 package pe.edu.pucp.ticketflow;
 
 
+import pe.edu.pucp.ticketflow.evento.model.Evento;
 import pe.edu.pucp.ticketflow.exception.BusinessLogicException;
 import pe.edu.pucp.ticketflow.impl.ClienteBLImpl;
+import pe.edu.pucp.ticketflow.impl.EventoBLImpl;
+import pe.edu.pucp.ticketflow.impl.EventoDAOImpl;
 import pe.edu.pucp.ticketflow.impl.UsuarioDAOImpl;
 import pe.edu.pucp.ticketflow.ubicacion.model.Distrito;
 import pe.edu.pucp.ticketflow.usuario.model.Cliente;
 import pe.edu.pucp.ticketflow.usuario.model.EstadoUsuario;
 import pe.edu.pucp.ticketflow.usuario.model.TipoUsuario;
 
+import java.awt.*;
 import java.sql.Date;
 import java.util.List;
 public class PruebasBL {
     static void main(){
         try {
-            UsuarioDAOImpl usuarioDAO = new UsuarioDAOImpl();
+            ClienteBLImpl clienteBL = new ClienteBLImpl();
+
+            EstadoUsuario estado = new EstadoUsuario();
+            estado.setIdEstadoUsuario(1); // ACTIVO
+
+            TipoUsuario tipo = new TipoUsuario();
+            tipo.setIdTipoUsuario(1); // CLIENTE
+
+            Distrito distrito = new Distrito();
+            distrito.setIdDistrito(1); // San Miguel
+
+            Cliente cliente = new Cliente();
+
+            System.out.println("=== BUSCANDO CLIENTE DESDE BL ===");
+            Cliente encontrado = clienteBL.buscarClientePorId(1);
+            System.out.println("ID: " + encontrado.getIdUsuario());
+            System.out.println("Nombre: " + encontrado.getNombre());
+            System.out.println("Correo: " + encontrado.getCorreoElectronico());
+            System.out.println("Puntos: " + encontrado.getPuntosBonus());
+
+            IEventoBL eventoBL= new EventoBLImpl();
+
+            List<Evento> lista = eventoBL.verTodosLosEventos();
+
+            for(Evento e : lista){
+                System.out.println(
+                        "ID: " + e.getIdEvento() +
+                                ", Titulo: " + e.getTitulo() +
+                                ", Precio: " + e.getPrecio() +
+                                ", Fecha: " + e.getFecha()
+                );
+            }
+
+           /* UsuarioDAOImpl usuarioDAO = new UsuarioDAOImpl();
             ClienteBLImpl clienteBL = new ClienteBLImpl();
 
             EstadoUsuario estado = new EstadoUsuario();
@@ -94,7 +131,7 @@ public class PruebasBL {
             System.out.println("Cliente eliminado correctamente.");
 
             System.out.println("=== PRUEBA BL CLIENTE TERMINADA ===");
-
+*/
         } catch (BusinessLogicException e) {
             System.out.println("Error de lógica de negocio: " + e.getMessage());
         } catch (Exception e) {
