@@ -1,0 +1,273 @@
+﻿.page {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+}
+
+main {
+    flex: 1;
+}
+
+.sidebar {
+    background-image: linear-gradient(180deg, rgb(5, 39, 103) 0%, #3a0647 70%);
+}
+
+.top-row {
+    background-color: #f7f7f7;
+    border-bottom: 1px solid #d6d5d5;
+    justify-content: flex-end;
+    height: 3.5rem;
+    display: flex;
+    align-items: center;
+}
+
+    .top-row ::deep a, .top-row ::deep .btn-link {
+        white-space: nowrap;
+        margin-left: 1.5rem;
+        text-decoration: none;
+    }
+
+        .top-row ::deep a:hover, .top-row ::deep .btn-link:hover {
+            text-decoration: underline;
+        }
+
+        .top-row ::deep a:first-child {
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+@media (max-width: 640.98px) {
+    .top-row {
+        justify-content: space-between;
+    }
+
+        .top-row ::deep a, .top-row ::deep .btn-link {
+            margin-left: 0;
+        }
+}
+
+@media (min-width: 641px) {
+    .page {
+        flex-direction: row;
+    }
+
+    .sidebar {
+        width: 250px;
+        height: 100vh;
+        position: sticky;
+        top: 0;
+    }
+
+    .top-row {
+        position: sticky;
+        top: 0;
+        z-index: 1;
+    }
+
+        .top-row.auth ::deep a:first-child {
+            flex: 1;
+            text-align: right;
+            width: 0;
+        }
+
+    .top-row, article {
+        padding-left: 2rem !important;
+        padding-right: 1.5rem !important;
+    }
+}
+
+#blazor-error-ui {
+    color-scheme: light only;
+    background: lightyellow;
+    bottom: 0;
+    box-shadow: 0 -1px 2px rgba(0, 0, 0, 0.2);
+    box-sizing: border-box;
+    display: none;
+    left: 0;
+    padding: 0.6rem 1.25rem 0.7rem 1.25rem;
+    position: fixed;
+    width: 100%;
+    z-index: 1000;
+}
+
+    #blazor-error-ui .dismiss {
+        cursor: pointer;
+        position: absolute;
+        right: 0.75rem;
+        top: 0.5rem;
+    }
+
+.nav-link {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+}
+
+    .nav-link .bi {
+        width: 24px;
+        min-width: 24px;
+        text-align: center;
+        font-size: 1.25rem;
+        line-height: 1;
+    }
+.filtros-pagos {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.filtro-input {
+    width: 250px;
+}
+
+.filtro-fecha {
+    width: 160px;
+}
+
+.filtro-estado {
+    width: 160px;
+}
+
+.admin-card {
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    border-radius: 12px;
+}
+
+    .admin-card:hover {
+        transform: translateY(-8px); /* Levanta la tarjeta hacia arriba */
+        box-shadow: 0 10px 20px rgba(0,0,0,0.1) !important; /* Aumenta la sombra */
+    }
+
+/* Estilo para los iconos circulares */
+.icon-circle {
+    width: 70px;
+    height: 70px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 2rem; /* Tamaño del icono */
+}
+
+/* Ajuste fino para la "campanita" roja de notificaciones */
+.ms-n3 {
+    margin-left: -1rem !important;
+}
+
+.top-row .navbar-brand {
+    height: 100%;
+}
+
+    .top-row .navbar-brand i {
+        display: flex;
+        align-items: center;
+    }
+
+/*----------------------LOGIN-----------------------------------------*/
+/* Contenedor principal que ocupa toda la pantalla y centra la tarjeta */
+.login-screen {
+    background: linear-gradient(135deg, #0f0c31 0%, #191452 100%);
+    min-height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 20px;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+/* Tarjeta dividida en dos columnas */
+.login-wrapper {
+    display: flex;
+    background: #ffffff;
+    border-radius: 20px;
+    box-shadow: 0 15px 35px rgba(0, 0, 0, 0.3);
+    width: 100%;
+    max-width: 900px; /* Ancho óptimo para las dos columnas */
+    overflow: hidden; /* Mantiene los bordes redondeados */
+    min-height: 550px;
+}
+
+/* Columna Izquierda: Imagen de fondo */
+.login-image-side {
+    flex: 1;
+    background-color: #120e49; /* Color de respaldo mientras carga la imagen */
+    background-position: center;
+    background-size: cover;
+    background-repeat: no-repeat;
+    display: block;
+}
+
+/* Columna Derecha: Formulario */
+.login-form-side {
+    flex: 1;
+    padding: 50px 40px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+}
+
+/* Estilos de los elementos del formulario */
+.login-title {
+    color: #120e49;
+    font-weight: 700;
+    font-size: 28px;
+    margin-bottom: 30px;
+}
+
+.form-label-custom {
+    color: #495057;
+    font-size: 14px;
+    font-weight: 600;
+    margin-bottom: 8px;
+    display: block;
+}
+
+.form-input-custom {
+    width: 100%;
+    padding: 12px 16px;
+    border: 2px solid #e2e8f0;
+    border-radius: 10px;
+    background-color: #f8fafc;
+    transition: all 0.3s ease;
+}
+
+    .form-input-custom:focus {
+        outline: none;
+        border-color: #120e49;
+        background-color: #ffffff;
+        box-shadow: 0 0 0 3px rgba(18, 14, 73, 0.15);
+    }
+
+.btn-ticketflow {
+    width: 100%;
+    padding: 14px;
+    font-size: 16px;
+    font-weight: 600;
+    color: #ffffff;
+    background-color: #120e49;
+    border: none;
+    border-radius: 10px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+    margin-top: 15px;
+}
+
+    .btn-ticketflow:hover {
+        background-color: #1c166d;
+    }
+
+/* Responsivo: En celulares la imagen se oculta y queda solo el login */
+@media (max-width: 768px) {
+    .login-wrapper {
+        flex-direction: column;
+        max-width: 450px;
+    }
+
+    .login-image-side {
+        display: none;
+    }
+
+    .login-form-side {
+        padding: 40px 30px;
+    }
+}

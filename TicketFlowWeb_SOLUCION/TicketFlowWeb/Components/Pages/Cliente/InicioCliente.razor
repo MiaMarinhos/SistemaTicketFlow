@@ -1,0 +1,389 @@
+﻿@page "/cliente/inicio"
+
+<div class="inicio-cliente-page">
+
+    <section class="hero-cliente">
+        <div class="hero-content">
+            <h1>Ticket Flow</h1>
+            <p>Da clic aquí si quieres organizar tus propios eventos</p>
+            <a href="/solicitud-anfitrion" class="btn-anfitrion">Quiero ser anfitrión</a>
+        </div>
+    </section>
+
+    <section class="shows-section">
+        <h2>ÚLTIMOS SHOWS</h2>
+
+        <div class="shows-grid">
+
+            <div class="show-card">
+                <div class="show-img show-img-uno">
+                    <span>FRÍOS</span>
+                </div>
+
+                <div class="show-info">
+                    <h3>TÍTULO 1</h3>
+                    <p class="autor">---------- AUTOR 1</p>
+                    <p><strong>Fecha:</strong> 11/11/2026</p>
+                    <p><strong>Hora:</strong> 2:00 pm</p>
+                    <p><strong>Lugar:</strong> Av. No sé 123</p>
+                    <p class="precio">S/. 50.00</p>
+
+                    <a href="/cliente/detalle-evento" class="btn-detalle">Ver detalle</a>
+                </div>
+            </div>
+
+            <div class="show-card">
+                <div class="show-img show-img-dos">
+                    <span>POEMAX</span>
+                </div>
+
+                <div class="show-info">
+                    <h3>TÍTULO 2</h3>
+                    <p class="autor">---------- AUTOR 2</p>
+                    <p><strong>Fecha:</strong> 07/05/2026</p>
+                    <p><strong>Hora:</strong> 10:30 pm</p>
+                    <p><strong>Lugar:</strong> Pasaje Porta 132, Miraflores</p>
+                    <p class="precio">S/. 50.00</p>
+
+                    <a href="/cliente/detalle-evento" class="btn-detalle">Ver detalle</a>
+                </div>
+            </div>
+
+        </div>
+
+        <div class="puntos">
+            <span></span>
+            <span></span>
+            <span></span>
+            <span></span>
+        </div>
+    </section>
+
+    <section class="testimonios-section">
+        <h2>TESTIMONIOS DE USUARIOS</h2>
+
+        <div class="testimonios-grid">
+
+            <div class="testimonio">
+                <div class="avatar">A</div>
+                <div class="globo">
+                    <h4>Andrea R.</h4>
+                    <p>"Compré mis entradas y todo fue súper fluido. Me encantó la rapidez de TicketFlow."</p>
+                </div>
+            </div>
+
+            <div class="testimonio">
+                <div class="avatar">M</div>
+                <div class="globo">
+                    <h4>María E.</h4>
+                    <p>"Siempre busco qué hacer los fines de semana y aquí encuentro buenas opciones."</p>
+                </div>
+            </div>
+
+            <div class="testimonio">
+                <div class="avatar">C</div>
+                <div class="globo">
+                    <h4>Carlos T.</h4>
+                    <p>"Lo que más me gusta de TicketFlow es la seguridad."</p>
+                </div>
+            </div>
+
+            <div class="testimonio">
+                <div class="avatar">J</div>
+                <div class="globo">
+                    <h4>Jorge L.</h4>
+                    <p>"Excelente plataforma. Transparente con los precios y muy intuitiva."</p>
+                </div>
+            </div>
+
+        </div>
+    </section>
+
+    <section class="conocenos-section">
+        <div class="conocenos-texto">
+            <h2>CONÓCENOS UN POCO</h2>
+
+            <p>
+                Somos TicketFlow, una plataforma dedicada a transformar la manera en que conectas
+                con el entretenimiento y la cultura en nuestra ciudad.
+            </p>
+
+            <p>
+                Nuestra misión es facilitar el acceso a las mejores experiencias mediante un sistema
+                de gestión integral, seguro y transparente.
+            </p>
+
+            <p>
+                Nos apasiona potenciar el talento de los organizadores locales brindándoles herramientas
+                para la administración de sus eventos, mientras garantizamos a cada asistente un proceso
+                de compra rápido y confiable.
+            </p>
+        </div>
+
+        <div class="conocenos-imagen">
+            <div class="cuadro-red">
+                <h3>TicketFlow</h3>
+                <span>Eventos</span>
+                <span>Usuarios</span>
+                <span>Pagos</span>
+                <span>Entradas</span>
+            </div>
+        </div>
+    </section>
+
+</div>
+
+<style>
+    .inicio-cliente-page {
+        min-height: 100vh;
+        background: linear-gradient(180deg, #7fdce8 0%, #83edf3 45%, #17094f 100%);
+        font-family: Arial, Helvetica, sans-serif;
+        color: #09082d;
+    }
+
+    .hero-cliente {
+        min-height: 320px;
+        background: linear-gradient(rgba(14, 7, 60, 0.35), rgba(14, 7, 60, 0.65)), radial-gradient(circle at center, #5141bd 0%, #26136f 50%, #0c073d 100%);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        text-align: center;
+        color: white;
+        padding: 40px 20px;
+    }
+
+    .hero-content h1 {
+        font-size: 64px;
+        font-weight: bold;
+        margin-bottom: 25px;
+    }
+
+    .hero-content p {
+        font-size: 22px;
+        margin-bottom: 25px;
+    }
+
+    .btn-anfitrion {
+        display: inline-block;
+        color: white;
+        border: 3px solid white;
+        border-radius: 30px;
+        padding: 12px 40px;
+        text-decoration: none;
+        font-weight: bold;
+        font-size: 18px;
+    }
+
+    .shows-section,
+    .testimonios-section {
+        padding: 45px 60px;
+    }
+
+        .shows-section h2,
+        .testimonios-section h2,
+        .conocenos-section h2 {
+            font-size: 42px;
+            font-weight: bold;
+            letter-spacing: 8px;
+            margin-bottom: 35px;
+            color: #0b0b3d;
+        }
+
+    .shows-grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 35px;
+    }
+
+    .show-card {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        background-color: rgba(255, 255, 255, 0.35);
+        border: 3px solid #111;
+        min-height: 280px;
+    }
+
+    .show-img {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: white;
+        font-size: 36px;
+        font-weight: bold;
+        text-align: center;
+    }
+
+    .show-img-uno {
+        background: linear-gradient(135deg, #111, #555);
+    }
+
+    .show-img-dos {
+        background: linear-gradient(135deg, #000, #2d235c);
+    }
+
+    .show-info {
+        padding: 22px;
+    }
+
+        .show-info h3 {
+            font-size: 25px;
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+
+    .autor {
+        font-weight: bold;
+        margin-bottom: 15px;
+    }
+
+    .precio {
+        font-size: 24px;
+        font-weight: bold;
+        margin-top: 10px;
+    }
+
+    .btn-detalle {
+        display: inline-block;
+        background-color: #12075a;
+        color: white;
+        text-decoration: none;
+        padding: 10px 28px;
+        border-radius: 25px;
+        margin-top: 10px;
+        font-weight: bold;
+    }
+
+    .puntos {
+        display: flex;
+        justify-content: center;
+        gap: 8px;
+        margin-top: 30px;
+    }
+
+        .puntos span {
+            width: 18px;
+            height: 18px;
+            background-color: #110846;
+            border-radius: 50%;
+            display: block;
+        }
+
+    .testimonios-grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 28px 60px;
+    }
+
+    .testimonio {
+        display: flex;
+        align-items: center;
+        gap: 18px;
+    }
+
+    .avatar {
+        width: 70px;
+        height: 70px;
+        background-color: #eeeeee;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: #12075a;
+        font-size: 28px;
+        font-weight: bold;
+        flex-shrink: 0;
+    }
+
+    .globo {
+        background-color: #e6f3ff;
+        border-radius: 25px;
+        padding: 14px 20px;
+        min-height: 90px;
+    }
+
+        .globo h4 {
+            font-weight: bold;
+            margin-bottom: 6px;
+        }
+
+        .globo p {
+            margin: 0;
+        }
+
+    .conocenos-section {
+        background-color: #110846;
+        color: white;
+        display: grid;
+        grid-template-columns: 1.3fr 0.7fr;
+        gap: 35px;
+        padding: 50px 60px;
+    }
+
+        .conocenos-section h2 {
+            color: white;
+        }
+
+    .conocenos-texto p {
+        font-size: 18px;
+        line-height: 1.6;
+    }
+
+    .conocenos-imagen {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .cuadro-red {
+        width: 300px;
+        min-height: 230px;
+        border: 2px solid #78f3ff;
+        border-radius: 20px;
+        padding: 25px;
+        text-align: center;
+        box-shadow: 0 0 25px rgba(120, 243, 255, 0.5);
+    }
+
+        .cuadro-red h3 {
+            font-size: 30px;
+            color: #78f3ff;
+            margin-bottom: 20px;
+        }
+
+        .cuadro-red span {
+            display: inline-block;
+            border: 1px solid #78f3ff;
+            border-radius: 20px;
+            padding: 8px 15px;
+            margin: 8px;
+        }
+
+    @@media (max-width: 900px) {
+        .hero-content h1 {
+            font-size: 42px;
+        }
+
+        .shows-grid,
+        .testimonios-grid,
+        .conocenos-section {
+            grid-template-columns: 1fr;
+        }
+
+        .show-card {
+            grid-template-columns: 1fr;
+        }
+
+        .shows-section,
+        .testimonios-section,
+        .conocenos-section {
+            padding: 35px 25px;
+        }
+
+            .shows-section h2,
+            .testimonios-section h2,
+            .conocenos-section h2 {
+                font-size: 30px;
+                letter-spacing: 4px;
+            }
+    }
+</style>

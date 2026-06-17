@@ -1,0 +1,237 @@
+﻿@page "/anfitrion/perfil"
+@using Microsoft.AspNetCore.Authorization
+
+@attribute [Authorize(Roles = "ANFITRION")]
+
+@using TicketFlowWeb.Models
+
+<PageTitle>TicketFlow - Perfil de Anfitrión</PageTitle>
+
+<div class="perfil-anfitrion-contenedor">
+    <main class="contenido-perfil">
+
+        <section class="titulo-section">
+            <h1>Perfil Organizador</h1>
+        </section>
+
+        <section class="tarjeta-perfil">
+            <div class="tabla-perfil">
+
+                <div class="fila-perfil">
+                    <div class="campo">CÓDIGO EMPRESA:</div>
+                    <div class="valor">@perfilModel.Codigo</div>
+                </div>
+
+                <div class="fila-perfil">
+                    <div class="campo">RAZÓN SOCIAL:</div>
+                    <div class="valor puntos">@perfilModel.RazonSocial</div>
+                </div>
+
+                <div class="fila-perfil">
+                    <div class="campo">RUC:</div>
+                    <div class="valor">@perfilModel.Ruc</div>
+                </div>
+
+                <div class="fila-perfil">
+                    <div class="campo">REPRESENTANTE:</div>
+                    <div class="valor">@perfilModel.Nombre @perfilModel.ApellidoPaterno @perfilModel.ApellidoMaterno</div>
+                </div>
+
+                <div class="fila-perfil">
+                    <div class="campo">DNI REPRESENTANTE:</div>
+                    <div class="valor">@perfilModel.Dni</div>
+                </div>
+
+                <div class="fila-perfil">
+                    <div class="campo">CORREO CORPORATIVO:</div>
+                    <div class="valor">@perfilModel.Correo</div>
+                </div>
+
+                <div class="fila-perfil">
+                    <div class="campo">TELÉFONO CONTACTO:</div>
+                    <div class="valor">@perfilModel.Telefono</div>
+                </div>
+
+                <div class="fila-perfil">
+                    <div class="campo">CUENTA BANCARIA:</div>
+                    <div class="valor text-muted">@perfilModel.CuentaBancaria</div>
+                </div>
+
+            </div>
+
+            <div class="acciones-perfil">
+                <a href="/anfitrion/gestionar-evento" class="btn-perfil secundario">
+                    Ver mis eventos
+                </a>
+
+                <a href="/anfitrion/crear-evento" class="btn-perfil principal">
+                    Publicar Evento
+                </a>
+            </div>
+        </section>
+
+    </main>
+</div>
+
+<style>
+    .perfil-anfitrion-contenedor {
+        min-height: 100vh;
+        background-color: #f2edff;
+        font-family: Arial, Helvetica, sans-serif;
+        color: #110846;
+    }
+
+    .contenido-perfil {
+        padding: 40px 50px;
+    }
+
+    .titulo-section {
+        background-color: white;
+        padding: 35px 42px;
+        margin-bottom: 25px;
+        border-radius: 8px;
+    }
+
+        .titulo-section h1 {
+            margin: 0;
+            font-size: 38px;
+            font-weight: bold;
+            letter-spacing: 2px;
+            color: #15095f;
+        }
+
+    .tarjeta-perfil {
+        background-color: white;
+        padding: 45px 50px;
+        border-radius: 8px;
+        min-height: 520px;
+    }
+
+    .tabla-perfil {
+        max-width: 760px;
+        border: 1px solid #f0edf5;
+    }
+
+    .fila-perfil {
+        display: grid;
+        grid-template-columns: 300px 1fr;
+        min-height: 68px;
+        border-bottom: 1px solid #f0edf5;
+    }
+
+        .fila-perfil:last-child {
+            border-bottom: none;
+        }
+
+    .campo,
+    .valor {
+        display: flex;
+        align-items: center;
+        padding: 0 22px;
+        font-size: 17px;
+    }
+
+    .campo {
+        font-weight: bold;
+        background-color: #fffefa;
+        color: #111;
+    }
+
+    .valor {
+        background-color: white;
+        color: #333;
+    }
+
+    .puntos {
+        font-weight: bold;
+        color: #15095f;
+    }
+
+    .acciones-perfil {
+        display: flex;
+        gap: 20px;
+        margin-top: 35px;
+        max-width: 760px;
+        justify-content: flex-end;
+    }
+
+    .btn-perfil {
+        text-decoration: none;
+        padding: 14px 30px;
+        border-radius: 28px;
+        font-size: 17px;
+        font-weight: bold;
+    }
+
+        .btn-perfil.secundario {
+            color: #15095f;
+            border: 3px solid #15095f;
+            background-color: white;
+        }
+
+        .btn-perfil.principal {
+            color: white;
+            border: 3px solid #15095f;
+            background-color: #15095f;
+        }
+
+        .btn-perfil.secundario:hover {
+            background-color: #f2edff;
+        }
+
+        .btn-perfil.principal:hover {
+            background-color: #241080;
+        }
+
+    @@media (max-width: 900px) {
+        .contenido-perfil {
+            padding: 25px 15px;
+        }
+
+        .titulo-section h1 {
+            font-size: 28px;
+        }
+
+        .tarjeta-perfil {
+            padding: 25px 15px;
+        }
+
+        .fila-perfil {
+            grid-template-columns: 1fr;
+        }
+
+        .campo,
+        .valor {
+            min-height: 52px;
+        }
+
+        .acciones-perfil {
+            flex-direction: column;
+        }
+
+        .btn-perfil {
+            text-align: center;
+        }
+    }
+</style>
+
+@code {
+    private PerfilAnfitrionViewModel perfilModel = new PerfilAnfitrionViewModel();
+
+    protected override void OnInitialized()
+    {
+        perfilModel = new PerfilAnfitrionViewModel
+        {
+            Codigo = "ANF-9842",
+            RazonSocial = "Producciones Entretenimiento Perú S.A.C.",
+            Ruc = "20765432101",
+            Nombre = "Luis",
+            ApellidoPaterno = "Ramírez",
+            ApellidoMaterno = "Gómez",
+            Dni = "76543210",
+            Correo = "contacto@entretenimiento.pe",
+            Telefono = "987 654 321",
+            CuentaBancaria = "BCP - 191-XXXXXXXX-X-XX"
+        };
+    }
+}

@@ -1,0 +1,136 @@
+﻿@page "/register"
+@using TicketFlowWeb.Models
+
+<div class="register-container d-flex justify-content-center align-items-center min-vh-100">
+    <div class="card register-card shadow-lg border-0 p-4 m-3 animate-fade-in">
+        <div class="text-center mb-4">
+            <img src="images/logo_ticketflow.png" alt="Logo TicketFlow" class="register-logo mb-2" />
+            <h3 class="fw-bold text-dark">Crea tu cuenta</h3>
+            <p class="text-muted small">Únete a TicketFlow y vive las mejores experiencias</p>
+        </div>
+
+        @if (!string.IsNullOrEmpty(Error))
+        {
+            <div class="alert alert-danger small py-2">@Error</div>
+        }
+
+        <EditForm Model="Cliente" OnValidSubmit="Registrar">
+            <AntiforgeryToken />
+            <DataAnnotationsValidator />
+
+            <ValidationSummary class="alert alert-danger small py-2 mb-3" />
+
+            <h5 class="section-title mb-3">Datos Personales</h5>
+            <div class="row">
+                <div class="col-md-6 mb-3">
+                    <label class="form-label font-medium">DNI</label>
+                    <InputText @bind-Value="Cliente.dni"
+                               class="form-control custom-input"
+                               placeholder="Ingresa tu DNI"
+                               maxlength="45" />
+                </div>
+                <div class="col-md-6 mb-3">
+                    <label class="form-label font-medium">Nombre</label>
+                    <InputText @bind-Value="Cliente.nombre"
+                               class="form-control custom-input"
+                               placeholder="Tu nombre"
+                               maxlength="45" />
+                </div>
+            </div>
+
+            <div class="row">
+                <div class="col-md-6 mb-3">
+                    <label class="form-label font-medium">Apellido Paterno</label>
+                    <InputText @bind-Value="Cliente.apellidoPaterno"
+                               class="form-control custom-input"
+                               placeholder="Apellido paterno"
+                               maxlength="45" />
+                </div>
+                <div class="col-md-6 mb-3">
+                    <label class="form-label font-medium">Apellido Materno</label>
+                    <InputText @bind-Value="Cliente.apellidoMaterno"
+                               class="form-control custom-input"
+                               placeholder="Apellido materno"
+                               maxlength="45" />
+                </div>
+            </div>
+
+            <div class="row">
+                <div class="col-md-6 mb-3">
+                    <label class="form-label font-medium">Teléfono</label>
+                    <InputText @bind-Value="Cliente.telefono"
+                               class="form-control custom-input"
+                               placeholder="Ej: 987654321"
+                               maxlength="45" />
+                </div>
+                <div class="col-md-3 mb-3">
+                    <label class="form-label font-medium">Género</label>
+                    <InputSelect @bind-Value="Cliente.idGeneroForm" class="form-select custom-input">
+                        <option value="0" disabled selected>Elegir...</option>
+                        <option value="1">Masculino</option>
+                        <option value="2">Femenino</option>
+                    </InputSelect>
+                </div>
+                <div class="col-md-3 mb-3">
+                    <label class="form-label font-medium">Edad</label>
+                    <InputNumber @bind-Value="Cliente.edad" class="form-control custom-input" />
+                </div>
+            </div>
+
+            <div class="row">
+                <div class="row align-items-end">
+
+                    <div class="col-md-4 mb-3">
+                        <label class="form-label font-medium">Fecha de Nacimiento</label>
+                        <InputDate @bind-Value="Cliente.fechaNacimiento"
+                                   class="form-control custom-input"
+                                   min="@FechaMinima"
+                                   max="@FechaMaxima" />
+                    </div>
+
+                    <div class="col-md-5 mb-3">
+                        <label class="form-label font-medium">Distrito</label>
+                        <select value="@Cliente.idDistritoForm" @onchange="ActualizarRegion" class="form-select custom-input">
+                            <option value="0" disabled selected>Selecciona tu distrito</option>
+                                @foreach (var dist in ListaDistritos)
+                                {
+                                    <option value="@dist.idDistrito">@dist.nombre</option>
+                                }
+                        </select>
+                    </div>
+
+                    <div class="col-md-3 mb-3">
+                        <label class="form-label font-medium">Región</label>
+                        <input type="text" class="form-control custom-input bg-light"
+                               value="@RegionSeleccionada"
+                               disabled readonly
+                               placeholder="---" />
+                    </div>
+
+                </div>
+            </div>
+
+            <hr class="my-4 text-muted" />
+            <h5 class="section-title mb-3">Datos de Cuenta</h5>
+
+            <div class="mb-3">
+                <label class="form-label font-medium">Correo Electrónico</label>
+                <InputText @bind-Value="Cliente.correoElectronico" type="email" class="form-control custom-input" placeholder="ejemplo@correo.com" maxlength="45" />
+            </div>
+
+            <div class="mb-4">
+                <label class="form-label font-medium">Contraseña</label>
+                <InputText @bind-Value="Cliente.contrasena" type="password" class="form-control custom-input" placeholder="Crea una contraseña segura" maxlength="45" />
+            </div>
+
+            <div class="text-center mt-3">
+                <button type="submit" class="btn btn-primary w-100 py-2 fw-bold btn-register shadow-sm">Registrar</button>
+            </div>
+
+            <div class="text-center mt-3">
+                <button type="button" @onclick="Cancelar" class="btn btn-secondary w-100 py-2 fw-bold mb-2">Cancelar</button>
+                <p class="small text-muted">¿Ya tienes una cuenta? <a href="/login" class="text-decoration-none text-primary fw-medium">Inicia Sesión</a></p>
+            </div>
+        </EditForm>
+    </div>
+</div>

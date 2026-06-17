@@ -1,0 +1,335 @@
+﻿@page "/anfitrion/gestionar-evento"
+@using Microsoft.AspNetCore.Authorization
+
+@attribute [Authorize(Roles = "ANFITRION")]
+@using TicketFlowWeb.Models
+@inject NavigationManager NavigationManager
+
+<PageTitle>TicketFlow - Mis Eventos</PageTitle>
+
+<div class="gestionar-eventos-contenedor">
+    <main class="contenido-perfil">
+
+        <section class="titulo-section mb-4">
+            <h1>Mis Eventos</h1>
+        </section>
+
+        <section class="tarjeta-control mb-4 p-4 rounded-4 bg-white shadow-sm">
+            <div class="d-flex flex-column flex-sm-row justify-content-between align-items-sm-center gap-3">
+
+                <div class="d-flex align-items-center gap-3 flex-grow-1" style="max-width: 480px;">
+                    <label class="fs-5 fw-bold text-dark m-0">Buscar:</label>
+                    <input type="text" class="form-control buscador-input" placeholder="Escribe el título del evento..." @bind="criterioBusqueda" @bind:event="oninput" />
+                </div>
+
+                <div>
+                    <a href="/anfitrion/crear-evento" class="btn-publicar-evento-lista text-uppercase fw-bold text-decoration-none">
+                        ➕ Publicar Evento
+                    </a>
+                </div>
+
+            </div>
+        </section>
+
+        <section class="tarjeta-perfil p-4 rounded-4 bg-white shadow-sm">
+            <div class="table-responsive">
+                <table class="table table-striped table-hover align-middle m-0 Custom-tabla-anf">
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Título</th>
+                            <th>Fecha</th>
+                            <th>Ubicación</th>
+                            <th>Precio</th>
+                            <th>Estado</th>
+                            <th class="text-center">Acciones</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var ev in EventosFiltrados)
+                        {
+                            <tr>
+                                <td class="fw-bold text-muted" style="width: 50px;">@ev.Id</td>
+                                <td class="fw-bold text-indigo">@ev.Titulo</td>
+                                <td><span class="badge-fecha">@ev.FechaTexto</span></td>
+                                <td class="text-secondary custom-truncate">@ev.Ubicacion</td>
+                                <td class="fw-bold">S/. @ev.Precio.ToString("0.00")</td>
+                                <td>
+                                    <span class="badge-estado @ev.ClaseEstado">
+                                        @ev.Estado
+                                    </span>
+                                </td>
+                                <td class="text-center">
+                                    <div class="d-flex justify-content-center gap-2">
+                                        <button class="btn-accion-icono btn-ver" title="Ver Detalle" @onclick="() => VerDetalle(ev.Id)">
+                                            👁️
+                                        </button>
+                                        <button class="btn-accion-icono btn-editar" title="Editar Evento" @onclick="() => IrAEditar(ev.Id)">
+                                            ✏️
+                                        </button>
+
+                                        @if (ev.Estado == "Pendiente")
+                                        {
+                                            <button class="btn-accion-icono btn-aprobar" title="Aprobar" @onclick="() => CambiarEstado(ev.Id, 'P')">
+                                                ✅
+                                            </button>
+                                            <button class="btn-accion-icono btn-rechazar" title="Rechazar" @onclick="() => CambiarEstado(ev.Id, 'R')">
+                                                ❌
+                                            </button>
+                                        }
+                                        else
+                                        {
+                                            <button class="btn-accion-icono btn-eliminar" title="Eliminar Evento" @onclick="() => EliminarEvento(ev.Id)">
+                                                🗑️
+                                            </button>
+                                        }
+                                    </div>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </section>
+
+    </main>
+</div>
+
+<style>
+    .gestionar-eventos-contenedor {
+        min-height: 100vh;
+        background-color: #f2edff;
+        font-family: Arial, Helvetica, sans-serif;
+        color: #110846;
+    }
+
+    .contenido-perfil {
+        padding: 40px 50px;
+    }
+
+    .titulo-section {
+        background-color: white;
+        padding: 35px 42px;
+        border-radius: 8px;
+    }
+
+        .titulo-section h1 {
+            margin: 0;
+            font-size: 38px;
+            font-weight: bold;
+            letter-spacing: 2px;
+            color: #15095f;
+        }
+
+    .buscador-input {
+        background-color: #d1e8ff !important;
+        border: 1px solid #a3c7f5 !important;
+        border-radius: 6px !important;
+        padding: 8px 14px;
+        color: #333 !important;
+    }
+
+    .btn-publicar-evento-lista {
+        display: inline-block;
+        background-color: #15095f;
+        color: white !important;
+        padding: 10px 24px;
+        border-radius: 6px;
+        font-size: 14px;
+        transition: all 0.2s ease-in-out;
+    }
+
+        .btn-publicar-evento-lista:hover {
+            background-color: #241080;
+            transform: translateY(-1px);
+        }
+
+    .Custom-tabla-anf {
+        border: 1px solid #f0edf5;
+    }
+
+        .Custom-tabla-anf thead {
+            background-color: #d1e8ff !important;
+        }
+
+            .Custom-tabla-anf thead th {
+                color: #0c2775 !important;
+                font-weight: bold;
+                padding: 14px;
+                font-size: 16px;
+                border-bottom: 2px solid #b8d5f5;
+            }
+
+        .Custom-tabla-anf tbody tr {
+            transition: background-color 0.2s;
+        }
+
+        .Custom-tabla-anf tbody td {
+            padding: 14px;
+            font-size: 15px;
+            color: #333;
+        }
+
+    .text-indigo {
+        color: #15095f;
+    }
+
+    .custom-truncate {
+        max-width: 250px;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+
+    .badge-fecha {
+        background-color: #cbdcf7;
+        color: #0c2775;
+        padding: 6px 14px;
+        border-radius: 15px;
+        font-weight: 500;
+        font-size: 14px;
+    }
+
+    .badge-estado {
+        padding: 6px 14px;
+        border-radius: 6px;
+        font-size: 14px;
+        font-weight: 500;
+        display: inline-block;
+        text-align: center;
+        min-width: 100px;
+    }
+
+        .badge-estado.publicado {
+            background-color: #e2fadc;
+            color: #287a1d;
+        }
+
+        .badge-estado.finalizado {
+            background-color: #f7f7f7;
+            color: #666666;
+        }
+
+        .badge-estado.pendiente {
+            background-color: #fff3cd;
+            color: #856404;
+        }
+
+    .btn-accion-icono {
+        width: 36px;
+        height: 36px;
+        border-radius: 50%;
+        border: 1px solid #ccc;
+        background-color: #ffffff;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+        transition: all 0.2s;
+        font-size: 16px;
+        box-shadow: 0 2px 5px rgba(0,0,0,0.08);
+    }
+
+        .btn-accion-icono:hover {
+            transform: scale(1.1);
+        }
+
+    .btn-ver:hover {
+        background-color: #f0f4ff;
+        border-color: #15095f;
+    }
+
+    .btn-editar:hover {
+        background-color: #fffbeb;
+        border-color: #ffc107;
+    }
+
+    .btn-eliminar:hover {
+        background-color: #fff5f5;
+        border-color: #dc3545;
+    }
+
+    .btn-aprobar:hover {
+        background-color: #e2fadc;
+        border-color: #287a1d;
+    }
+
+    .btn-rechazar:hover {
+        background-color: #fff5f5;
+        border-color: #dc3545;
+    }
+
+    @@media (max-width: 900px) {
+        .contenido-perfil {
+            padding: 20px 15px;
+        }
+
+        .titulo-section h1 {
+            font-size: 28px;
+        }
+    }
+</style>
+
+@code {
+    private string criterioBusqueda = string.Empty;
+
+    private List<EventoFilaDto> listadoEventos = new()
+    {
+        new EventoFilaDto(1, "Concierto Rock", "15/6/2026", "Anfiteatro del Parque de la Exposición", 85.00m, "Publicado"),
+        new EventoFilaDto(2, "Feria Gastronómica \"Sabores Limeños\"", "20/6/2026", "Parque de la Reserva (Circuito Mágico)", 20.00m, "Publicado"),
+        new EventoFilaDto(3, "Obra de Teatro: Hamlet", "12/7/2026", "Teatro Municipal de Lima", 120.00m, "Publicado"),
+        new EventoFilaDto(4, "Maratón Lima 42K", "24/5/2026", "Av. Larco, Miraflores", 60.00m, "Finalizado"),
+        new EventoFilaDto(5, "Festival de Cine Independiente", "5/8/2026", "Centro Cultural PUCP, San Isidro", 35.00m, "Pendiente"),
+        new EventoFilaDto(6, "Noche de Salsa y Sabor", "30/5/2026", "Centro de Convenciones Barranco", 45.00m, "Publicado")
+    };
+
+    private IEnumerable<EventoFilaDto> EventosFiltrados =>
+        listadoEventos.Where(e => string.IsNullOrEmpty(criterioBusqueda) ||
+                                  e.Titulo.Contains(criterioBusqueda, StringComparison.OrdinalIgnoreCase));
+
+    private void VerDetalle(int id)
+    {
+        NavigationManager.NavigateTo($"/cliente/detalle-evento/{id}");
+    }
+
+    private void IrAEditar(int id)
+    {
+        NavigationManager.NavigateTo($"/anfitrion/editar-evento/{id}");
+    }
+
+    private void EliminarEvento(int id)
+    {
+        var item = listadoEventos.FirstOrDefault(e => e.Id == id);
+        if (item != null) listadoEventos.Remove(item);
+    }
+
+    private void CambiarEstado(int id, char accion)
+    {
+        var item = listadoEventos.FirstOrDefault(e => e.Id == id);
+        if (item != null)
+        {
+            item.Estado = accion == 'P' ? "Publicado" : "Finalizado";
+        }
+    }
+
+    private class EventoFilaDto
+    {
+        public int Id { get; set; }
+        public string Titulo { get; set; }
+        public string FechaTexto { get; set; }
+        public string Ubicacion { get; set; }
+        public decimal Precio { get; set; }
+        public string Estado { get; set; }
+        public string ClaseEstado => Estado.ToLower();
+
+        public EventoFilaDto(int id, string titulo, string fechaTexto, string ubicacion, decimal precio, string estado)
+        {
+            Id = id;
+            Titulo = titulo;
+            FechaTexto = fechaTexto;
+            Ubicacion = ubicacion;
+            Precio = precio;
+            Estado = estado;
+        }
+    }
+}
