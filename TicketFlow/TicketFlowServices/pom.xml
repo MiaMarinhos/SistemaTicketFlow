@@ -18,6 +18,11 @@
   </properties>
 
   <dependencies>
+      <dependency>
+          <groupId>com.mysql</groupId>
+          <artifactId>mysql-connector-j</artifactId>
+          <version>9.1.0</version>
+      </dependency>
 <dependency>
       <groupId>jakarta.ws.rs</groupId>
       <artifactId>jakarta.ws.rs-api</artifactId>

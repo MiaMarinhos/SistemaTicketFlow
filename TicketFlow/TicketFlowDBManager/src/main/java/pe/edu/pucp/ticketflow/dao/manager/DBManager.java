@@ -39,7 +39,10 @@ public class DBManager {
 
     public Connection getConnection() {
         try {
+            Class.forName("com.mysql.cj.jdbc.Driver");
             return DriverManager.getConnection(url, user, password);
+        } catch (ClassNotFoundException e) {
+            throw new RuntimeException("No se encontró el driver de MySQL. Revisa mysql-connector-j en el pom.xml.", e);
         } catch (SQLException e) {
             throw new RuntimeException(e);
         }
