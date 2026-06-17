@@ -1,68 +1,80 @@
-﻿@page "/public/detalle-evento/"
+﻿@page "/public/detalle-evento/{Id:int}"
 
 @using Microsoft.AspNetCore.Components
 @using Microsoft.AspNetCore.Components.Authorization
 @using System.Collections.Generic
+@using TicketFlowWeb.Models.DTO
+@using TicketFlowWeb.Services.EventoRS
+@inject EventoRestService EventoService
 
-<div class="detalle-evento-page">
 
-    <div class="detalle-contenedor">
+@if (evento == null)
+{
+    <p>Cargando...</p>
+}
+else
+{
+    <div class="detalle-evento-page">
 
-        <div class="poster-evento @evento.ClasePoster">
-            <div class="poster-contenido">
-                <p class="poster-fecha">@evento.FechaPoster</p>
-                <h2>@evento.TituloPoster</h2>
-                <p>@evento.SubtituloPoster</p>
-                <p class="poster-lugar">@evento.Ubicacion</p>
-            </div>
-        </div>
+        <div class="detalle-contenedor">
 
-        <div class="info-evento">
-            <h1>@evento.Titulo</h1>
-
-            <div class="descripcion">
-                @evento.Descripcion
-            </div>
-
-            <div class="datos-evento">
-                <div class="fila-dato">
-                    <label>Fecha</label>
-                    <span>@evento.Fecha</span>
-                </div>
-
-                <div class="fila-dato">
-                    <label>Ubicación</label>
-                    <span>@evento.Ubicacion</span>
-                </div>
-
-                <div class="fila-dato">
-                    <label>Precio</label>
-                    <span>@evento.Precio</span>
+            <div class="poster-evento @evento.categoria">
+                <div class="poster-contenido">
+                    <p class="poster-fecha">@evento.fecha</p>
+                    <h2>@evento.titulo</h2>
+                    <p class="poster-lugar">@evento.ubicacion</p>
                 </div>
             </div>
 
-            <div class="acciones">
-                <a href="/" class="btn-volver">Volver</a>
+            <div class="info-evento">
+                <h1>@evento.titulo</h1>
 
-                <AuthorizeView>
-                    <Authorized>
-                        <a href="@($"/cliente/resumen-compra/{evento.Id}")" class="btn-comprar">
-                            Comprar entrada
-                        </a>
-                    </Authorized>
+                <div class="descripcion">
+                    @evento.descripcion;
+                </div>
 
-                    <NotAuthorized>
-                        <a href="/login" class="btn-comprar">
-                            Comprar entrada
-                        </a>
-                    </NotAuthorized>
-                </AuthorizeView>
+                <div class="datos-evento">
+                    <div class="fila-dato">
+                        <label>Fecha</label>
+                        <span>@evento.fecha</span>
+                    </div>
+
+                    <div class="fila-dato">
+                        <label>Ubicación</label>
+                        <span>@evento.ubicacion</span>
+                    </div>
+
+                    <div class="fila-dato">
+                        <label>Precio</label>
+                        <span>@evento.precio</span>
+                    </div>
+                </div>
+
+                <div class="acciones">
+                    <a href="/" class="btn-volver">Volver</a>
+
+                    <AuthorizeView>
+                        <Authorized>
+                            <a href="@($"/cliente/resumen-compra/{evento.idEvento}")" class="btn-comprar">
+                                Comprar entrada
+                            </a>
+                        </Authorized>
+
+                        <NotAuthorized>
+                            <a href="/login" class="btn-comprar">
+                                Comprar entrada
+                            </a>
+                        </NotAuthorized>
+                    </AuthorizeView>
+                </div>
             </div>
+
         </div>
 
     </div>
+}
 
-</div>
+
 
 <style>
     .detalle-evento-page {
@@ -259,119 +271,10 @@
     [Parameter]
     public int Id { get; set; }
 
-    private EventoDetalle evento = new EventoDetalle(
-        1,
-        "Nombre de un Evento muy Interesante",
-        "FRÍOS",
-        "1ra Temporada",
-        "15 MARZO   8:00 PM",
-        "Av. No sé 123, San Miguel",
-        "15/03/2026 - 8:00 a 10:00 pm",
-        "S/. 45.00",
-        "Un show de comedia en vivo con invitados especiales. Una noche ligera, divertida y perfecta para pasarla con amigos.",
-        "poster-frio"
-    );
+    private EventoDTO? evento;
 
-    private List<EventoDetalle> eventos = new List<EventoDetalle>
+    protected override async Task OnInitializedAsync()
     {
-        new EventoDetalle(
-            1,
-            "Nombre de un Evento muy Interesante",
-            "FRÍOS",
-            "1ra Temporada",
-            "15 MARZO   8:00 PM",
-            "Av. No sé 123, San Miguel",
-            "15/03/2026 - 8:00 a 10:00 pm",
-            "S/. 45.00",
-            "Un show de comedia en vivo con invitados especiales. Una noche ligera, divertida y perfecta para pasarla con amigos.",
-            "poster-frio"
-        ),
-
-        new EventoDetalle(
-            2,
-            "Poemax",
-            "POEMAX",
-            "Stand-up comedy y poesía",
-            "07 MAYO   10:30 PM",
-            "Pasaje Porta 132, Miraflores",
-            "07/05/2026 - 10:30 a 11:30 pm",
-            "S/. 50.00",
-            "Evento que combina humor, poesía y una experiencia cultural distinta para disfrutar una noche diferente.",
-            "poster-poemax"
-        ),
-
-        new EventoDetalle(
-            3,
-            "Obra de Teatro: Hamlet",
-            "HAMLET",
-            "Obra teatral",
-            "12 JULIO   7:30 PM",
-            "Teatro Municipal de Lima",
-            "12/07/2026 - 7:30 a 9:30 pm",
-            "S/. 90.00",
-            "Presentación teatral inspirada en Hamlet. Una puesta en escena dramática con actores locales y producción moderna.",
-            "poster-teatro"
-        ),
-
-        new EventoDetalle(
-            4,
-            "Concierto Rock Nocturno",
-            "ROCK",
-            "Música en vivo",
-            "20 AGOSTO   9:00 PM",
-            "Av. La Marina 456, Pueblo Libre",
-            "20/08/2026 - 9:00 a 11:00 pm",
-            "S/. 75.00",
-            "Concierto de bandas locales con música en vivo, ambiente nocturno y una experiencia pensada para fanáticos del rock.",
-            "poster-concierto"
-        )
-    };
-
-    protected override void OnParametersSet()
-    {
-        evento = ObtenerEvento(Id);
-    }
-
-    private EventoDetalle ObtenerEvento(int id)
-    {
-        foreach (EventoDetalle item in eventos)
-        {
-            if (item.Id == id)
-            {
-                return item;
-            }
-        }
-
-        return eventos[0];
-    }
-
-    private class EventoDetalle
-    {
-        public int Id { get; set; }
-        public string Titulo { get; set; }
-        public string TituloPoster { get; set; }
-        public string SubtituloPoster { get; set; }
-        public string FechaPoster { get; set; }
-        public string Ubicacion { get; set; }
-        public string Fecha { get; set; }
-        public string Precio { get; set; }
-        public string Descripcion { get; set; }
-        public string ClasePoster { get; set; }
-
-        public EventoDetalle(int id, string titulo, string tituloPoster, string subtituloPoster,
-            string fechaPoster, string ubicacion, string fecha, string precio,
-            string descripcion, string clasePoster)
-        {
-            Id = id;
-            Titulo = titulo;
-            TituloPoster = tituloPoster;
-            SubtituloPoster = subtituloPoster;
-            FechaPoster = fechaPoster;
-            Ubicacion = ubicacion;
-            Fecha = fecha;
-            Precio = precio;
-            Descripcion = descripcion;
-            ClasePoster = clasePoster;
-        }
+        evento = await EventoService.BuscarEventoAsync(Id);
     }
 }

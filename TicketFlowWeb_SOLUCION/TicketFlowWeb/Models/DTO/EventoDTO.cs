@@ -9,4 +9,6 @@ public class EventoDTO
     public string hora_fin { get; set; } = "";
     public double precio { get; set; }
     public string categoria { get; set; } = "";
+    public string descripcion { get; set; } = "";
+    public string ubicacion { get; set; } = "";
 }

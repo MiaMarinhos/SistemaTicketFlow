@@ -136,7 +136,7 @@ public class EventoDAOImpl implements IEventoDAO {
                 while (rs.next()) {
 
                     Evento evento = new Evento();
-                    mapearEvento(rs, evento);
+                    mapearEventoListar(rs, evento);
                     eventos.add(evento);
                 }
 
@@ -263,7 +263,7 @@ public class EventoDAOImpl implements IEventoDAO {
         }
     }
 
-    private void mapearEvento(ResultSet rs, Evento evento) throws SQLException {
+    private void mapearEventoListar(ResultSet rs, Evento evento) throws SQLException {
 
         evento.setIdEvento(rs.getInt("idEvento"));
         evento.setTitulo(rs.getString("titulo"));
@@ -283,6 +283,37 @@ public class EventoDAOImpl implements IEventoDAO {
         categoria_evento cat = new categoria_evento();
         cat.setNombre(rs.getString("categoria"));
         evento.setCategoria(cat);
+
+        evento.setFK_idEstadoPublicacion(
+                rs.getInt("idEstado_publicacion")
+        );
+
+        evento.setFK_idEstadoEvento(
+                rs.getInt("idEstado_evento")
+        );
+
+        evento.setFK_idDistrito(
+                rs.getInt("idDistrito")
+        );
+    }
+    private void mapearEvento(ResultSet rs, Evento evento) throws SQLException {
+
+        evento.setIdEvento(rs.getInt("idEvento"));
+        evento.setTitulo(rs.getString("titulo"));
+        evento.setDescripcion(rs.getString("descripcion"));
+        evento.setCapacidad_entradas(rs.getInt("capacidad_entradas"));
+        evento.setFecha(rs.getDate("fecha"));
+        evento.setHora_inicio(rs.getTime("hora_inicio"));
+        evento.setHora_fin(rs.getTime("hora_fin"));
+        evento.setUbicacion(rs.getString("ubicacion"));
+        evento.setNombre_establecimiento(
+                rs.getString("nombre_establecimiento")
+        );
+        evento.setImg(rs.getString("img"));
+        evento.setPrecio(rs.getDouble("precio"));
+        evento.setIdAnfitrion(rs.getInt("idAnfitrion"));
+
+        evento.setFK_idCategoria_evento(rs.getInt("idCategoria_evento"));
 
         evento.setFK_idEstadoPublicacion(
                 rs.getInt("idEstado_publicacion")

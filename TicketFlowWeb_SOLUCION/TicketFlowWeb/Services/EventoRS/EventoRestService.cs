@@ -40,5 +40,24 @@ namespace TicketFlowWeb.Services.EventoRS
                 return new List<EventoDTO>();
             }
         }
+        public async Task<EventoDTO> BuscarEventoAsync(int id)
+        {
+            try
+            {
+                var evento = await _httpClient.GetFromJsonAsync<EventoDTO>(
+                    $"EventoRS/{id}",
+                    JsonOptions
+                );
+
+                return evento ?? new EventoDTO();
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error obteniendo evento: {ex.Message}");
+                return new EventoDTO();
+            }
+
+
+        }
     }
 }

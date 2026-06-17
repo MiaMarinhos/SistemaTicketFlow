@@ -36,7 +36,7 @@ public class EventoBLImpl implements IEventoBL {
             Evento evento = new Evento();
             evento = eventoDAO.read(id);
             evento.setDistrito(distritoDAO.read(evento.getFK_idDistrito()));
-            evento.setAnfitrion(anfitrionDAO.read(evento.getIdAnfitrion()));
+            //evento.setAnfitrion(anfitrionDAO.read(evento.getIdAnfitrion()));
             evento.setCategoria(categoriaEventoDAO.read(evento.getFK_idCategoria_evento()));
             evento.setEstadoPublicacion(estadoPublicacionDAO.read(evento.getFK_idEstadoPublicacion()));
             evento.setEstadoEvento(estadoEventoDAO.read(evento.getFK_idEstadoEvento()));

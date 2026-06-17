@@ -68,7 +68,7 @@ public class EventoService {
                         .build();
             }
 
-            return Response.ok(evento).build();
+            return Response.ok(convertirDTO(evento)).build();
         }
         catch (pe.edu.pucp.ticketflow.exception.BusinessLogicException e) {
             return Response.status(Response.Status.BAD_REQUEST).entity(Map.of("error", e.getMessage())).build();

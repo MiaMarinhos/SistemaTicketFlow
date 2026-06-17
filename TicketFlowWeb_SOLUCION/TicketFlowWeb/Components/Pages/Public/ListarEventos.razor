@@ -11,7 +11,6 @@
 @using Newtonsoft.Json;
 
 <h1 class="main-page-title">Descubre un evento</h1>
-<p>Categorias: @ListaDeCategorias.Count</p>
 @foreach (var eventosaux in ListaDeCategorias)
 {
     <div class="portal-container">
@@ -278,6 +277,6 @@
     private void RedirigirADetalles(EventoDTO evento)
     {
 
-        Navigation.NavigateTo($"/public/detalle-evento/");
+        Navigation.NavigateTo($"/public/detalle-evento/"+evento.idEvento);
     }
 }
