@@ -12,7 +12,7 @@ import pe.edu.pucp.ticketflow.evento.model.EstadoEvento;
 import pe.edu.pucp.ticketflow.evento.model.Evento;
 import pe.edu.pucp.ticketflow.exception.BusinessLogicException;
 import pe.edu.pucp.ticketflow.impl.EventoBLImpl;
-import pe.edu.pucp.ticketflow.evento.DTO.EventoDTO;
+
 
 import java.util.ArrayList;
 import java.util.List;
@@ -161,7 +161,7 @@ public class EventoService {
         dto.ubicacion = e.getUbicacion();
         dto.nombre_establecimiento = e.getNombre_establecimiento();
         dto.precio = e.getPrecio();
-
+        dto.categoria = e.getCategoria().getNombre();
         return dto;
     }
 }

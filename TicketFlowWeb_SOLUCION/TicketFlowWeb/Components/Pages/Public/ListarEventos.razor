@@ -1,9 +1,17 @@
 ﻿@page "/public/descubrir"
 
 @inject NavigationManager Navigation
+@inject HttpClient Http
+
+@using TicketFlowWeb.Services.EventoRS
+@inject EventoRestService EventoService
+
+@using TicketFlowWeb.Models.DTO;
+
+@using Newtonsoft.Json;
 
 <h1 class="main-page-title">Descubre un evento</h1>
-
+<p>Categorias: @ListaDeCategorias.Count</p>
 @foreach (var eventosaux in ListaDeCategorias)
 {
     <div class="portal-container">
@@ -24,18 +32,18 @@
             <div class="slider-wrapper">
                 <div class="events-slider" style="transform: translateX(-@(eventosaux.PosicionActual)px);">
 
-                    @foreach (var evento in eventosaux.eventos)
+                    @foreach (var EventoDTO in eventosaux.eventos)
                     {
                         <div class="event-card">
                             <div class="card-image-placeholder">
-                                <span class="placeholder-text">[Imagen: @evento.Titulo]</span>
+                                <span class="placeholder-text">[Imagen: @EventoDTO.titulo]</span>
                             </div>
                             <div class="card-body">
-                                <h3 class="event-name">@evento.Titulo</h3>
-                                <p class="event-info">Fecha: @evento.Fecha</p>
-                                <p class="event-info">Hora: @evento.Hora</p>
-                                <p class="event-info">Precio: S/ @evento.Precio.ToString("F2")</p>
-                                <button class="btn-comprar" @onclick="() => RedirigirADetalles(evento)">MAS INFORMACION</button>
+                                <h3 class="event-name">@EventoDTO.titulo</h3>
+                                <p class="event-info">Fecha: @EventoDTO.fecha</p>
+                                <p class="event-info">Hora: @EventoDTO.hora_inicio</p>
+                                <p class="event-info">Precio: S/ @EventoDTO.precio.ToString("F2")</p>
+                                <button class="btn-comprar" @onclick="() => RedirigirADetalles(EventoDTO)">MAS INFORMACION</button>
                             </div>
                         </div>
                     }
@@ -216,6 +224,7 @@
 </style>
 
 @code {
+
     private List<categoriaEvento> ListaDeCategorias = new List<categoriaEvento>();
 
     private const int anchoTarjeta = 365; // Ancho de tarjeta (340px) + gap (25px)
@@ -235,142 +244,38 @@
 
     public class categoriaEvento
     {
-        public List<Evento> eventos { get; set; } = null;
+        public List<EventoDTO> eventos { get; set; } = new();
         public string Categoria { get; set; } = "";
-
-        // 🛠️ LA SOLUCIÓN: Cada objeto guarda su propio estado de movimiento
         public int PosicionActual { get; set; } = 0;
     }
 
-    public class Evento
+    protected override async Task OnInitializedAsync()
     {
-        public string Titulo { get; set; } = "";
-        public string Fecha { get; set; } = "";
-        public string Hora { get; set; } = "";
-        public double Precio { get; set; }
+        try
+        {
+            var eventos = await EventoService.ListarEventosAsync();
+
+            Console.WriteLine($"EVENTOS: {eventos?.Count}");
+
+            ListaDeCategorias = eventos
+                .GroupBy(e => e.categoria ?? "SIN")
+                .Select(g => new categoriaEvento
+                {
+                    Categoria = g.Key,
+                    eventos = g.ToList()
+                })
+                .ToList();
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine("ERROR HTTP:");
+            Console.WriteLine(ex.Message);
+            Console.WriteLine(ex.ToString());
+        }
+
     }
 
-    protected override void OnInitialized()
-    {
-        categoriaEvento auxCategoria;
-
-        auxCategoria = new categoriaEvento();
-        auxCategoria.Categoria = "Stand Up Comedy";
-        auxCategoria.eventos = new List<Evento>
-        {
-        new Evento { Titulo = "Por qué eres llorón?", Fecha = "11/11/2026", Hora = "2:00 pm", Precio = 30.00 },
-        new Evento { Titulo = "Poemax", Fecha = "11/11/2026", Hora = "2:00 pm", Precio = 30.00 },
-        new Evento { Titulo = "Risas Asintomáticas", Fecha = "15/11/2026", Hora = "8:30 pm", Precio = 45.00 },
-        new Evento { Titulo = "Noche de Micro Abierto", Fecha = "20/11/2026", Hora = "9:00 pm", Precio = 25.00 },
-        new Evento { Titulo = "Stand Up Premium", Fecha = "25/11/2026", Hora = "7:00 pm", Precio = 60.00 },
-        new Evento { Titulo = "Comedia de Emergencia", Fecha = "30/11/2026", Hora = "9:30 pm", Precio = 35.00 },
-        new Evento { Titulo = "Casi Famosos", Fecha = "05/12/2026", Hora = "8:00 pm", Precio = 40.00 },
-        new Evento { Titulo = "Stand Up Final del Año", Fecha = "15/12/2026", Hora = "10:00 pm", Precio = 55.00 }
-        };
-        ListaDeCategorias.Add(auxCategoria);
-
-        // 2. CONCIERTOS
-        auxCategoria = new categoriaEvento();
-        auxCategoria.Categoria = "Conciertos";
-        auxCategoria.eventos = new List<Evento>
-        {
-        new Evento { Titulo = "Rock bajo las Estrellas", Fecha = "12/12/2026", Hora = "7:00 pm", Precio = 120.00 },
-        new Evento { Titulo = "Festival de Reggae", Fecha = "18/12/2026", Hora = "4:00 pm", Precio = 85.00 },
-        new Evento { Titulo = "Filarmónica Pop", Fecha = "22/12/2026", Hora = "6:00 pm", Precio = 50.00 },
-        new Evento { Titulo = "Noche de Jazz", Fecha = "28/12/2026", Hora = "10:00 pm", Precio = 90.00 },
-        new Evento { Titulo = "Heavy Metal Fest Peru", Fecha = "10/01/2027", Hora = "5:00 pm", Precio = 140.00 },
-        new Evento { Titulo = "Acústico de Baladas", Fecha = "14/01/2027", Hora = "8:00 pm", Precio = 75.00 },
-        new Evento { Titulo = "Tour Electrónico 2027", Fecha = "22/01/2027", Hora = "11:00 pm", Precio = 180.00 }
-        };
-        ListaDeCategorias.Add(auxCategoria);
-
-        // 1. DEPORTES
-        auxCategoria = new categoriaEvento();
-        auxCategoria.Categoria = "Deportes";
-        auxCategoria.eventos = new List<Evento>
-        {
-        new Evento { Titulo = "Clásico del Fútbol Peruano", Fecha = "15/11/2026", Hora = "4:00 pm", Precio = 45.00 },
-        new Evento { Titulo = "Maratón de Lima 10K & 21K", Fecha = "22/11/2026", Hora = "6:00 am", Precio = 60.00 },
-        new Evento { Titulo = "Noche de Box Profesional", Fecha = "05/12/2026", Hora = "8:00 pm", Precio = 35.00 },
-        new Evento { Titulo = "Torneo de Tenis Open 2026", Fecha = "12/12/2026", Hora = "2:00 pm", Precio = 50.00 },
-        new Evento { Titulo = "Campeonato Nacional de Surf", Fecha = "18/12/2026", Hora = "9:00 am", Precio = 20.00 },
-        new Evento { Titulo = "Máster de Pádel - Final", Fecha = "20/12/2026", Hora = "6:30 pm", Precio = 40.00 },
-        new Evento { Titulo = "Exhibición de Skate & BMX", Fecha = "27/12/2026", Hora = "3:00 pm", Precio = 15.00 }
-        };
-        ListaDeCategorias.Add(auxCategoria);
-
-        
-
-        // 3. TEATRO
-        auxCategoria = new categoriaEvento();
-        auxCategoria.Categoria = "Teatro";
-        auxCategoria.eventos = new List<Evento>
-        {
-        new Evento { Titulo = "Hamlet: Adaptación Moderna", Fecha = "14/11/2026", Hora = "8:00 pm", Precio = 55.00 },
-        new Evento { Titulo = "Toc Toc - Temporada Final", Fecha = "21/11/2026", Hora = "7:30 pm", Precio = 45.00 },
-        new Evento { Titulo = "Monólogos de la Mente", Fecha = "28/11/2026", Hora = "8:30 pm", Precio = 35.00 },
-        new Evento { Titulo = "El Espejo Roto (Drama)", Fecha = "04/12/2026", Hora = "7:00 pm", Precio = 40.00 },
-        new Evento { Titulo = "Musical de Broadway en Lima", Fecha = "11/12/2026", Hora = "6:00 pm", Precio = 110.00 },
-        new Evento { Titulo = "Teatro Ciego: Experiencia Sensorial", Fecha = "18/12/2026", Hora = "9:00 pm", Precio = 50.00 }
-        };
-        ListaDeCategorias.Add(auxCategoria);
-
-        // 4. ENTRETENIMIENTO (Corregido el typo "Etrenamiento" de tu link href)
-        auxCategoria = new categoriaEvento();
-        auxCategoria.Categoria = "Etrenamiento";
-        auxCategoria.eventos = new List<Evento>
-        {
-        new Evento { Titulo = "Comic-Con Local 2026", Fecha = "05/12/2026", Hora = "10:00 am", Precio = 35.00 },
-        new Evento { Titulo = "Show de Magia e Ilusionismo", Fecha = "06/12/2026", Hora = "6:30 pm", Precio = 40.00 },
-        new Evento { Titulo = "Festival del Terror - Parque", Fecha = "12/12/2026", Hora = "6:00 pm", Precio = 25.00 },
-        new Evento { Titulo = "Torneo Nacional de Gaming", Fecha = "19/12/2026", Hora = "11:00 am", Precio = 30.00 },
-        new Evento { Titulo = "Circo de Invierno Contemporáneo", Fecha = "25/12/2026", Hora = "4:00 pm", Precio = 65.00 },
-        new Evento { Titulo = "Exhibición de Autos Clásicos", Fecha = "03/01/2027", Hora = "10:00 am", Precio = 20.00 }
-        };
-        ListaDeCategorias.Add(auxCategoria);
-
-        // 5. SEMINARIOS Y/O CONFERENCIAS
-        auxCategoria = new categoriaEvento();
-        auxCategoria.Categoria = "Seminarios y o conferencias";
-        auxCategoria.eventos = new List<Evento>
-        {
-        new Evento { Titulo = "Tech Summit: Inteligencia Artificial", Fecha = "18/11/2026", Hora = "9:00 am", Precio = 150.00 },
-        new Evento { Titulo = "Congreso de Marketing Digital", Fecha = "25/11/2026", Hora = "10:00 am", Precio = 120.00 },
-        new Evento { Titulo = "Foro Liderazgo y Emprendimiento", Fecha = "02/12/2026", Hora = "3:00 pm", Precio = 80.00 },
-        new Evento { Titulo = "Seminario de Finanzas Personales", Fecha = "09/12/2026", Hora = "6:00 pm", Precio = 45.00 },
-        new Evento { Titulo = "Innovación en Arquitectura Sostenible", Fecha = "15/12/2026", Hora = "9:30 am", Precio = 95.00 }
-        };
-        ListaDeCategorias.Add(auxCategoria);
-
-        // 6. CURSOS Y/O TALLERES
-        auxCategoria = new categoriaEvento();
-        auxCategoria.Categoria = "Cursos y o Talleres";
-        auxCategoria.eventos = new List<Evento>
-        { 
-        new Evento { Titulo = "Taller de Coctelería de Autor", Fecha = "20/11/2026", Hora = "7:00 pm", Precio = 70.00 },
-        new Evento { Titulo = "Curso Expreso de Fotografía Urbana", Fecha = "27/11/2026", Hora = "3:00 pm", Precio = 55.00 },
-        new Evento { Titulo = "Masterclass de Cocina Italiana", Fecha = "04/12/2026", Hora = "11:00 am", Precio = 90.00 },
-        new Evento { Titulo = "Taller de Oratoria y Desplante", Fecha = "11/12/2026", Hora = "6:00 pm", Precio = 40.00 },
-        new Evento { Titulo = "Introducción al Desarrollo con Blazor", Fecha = "18/12/2026", Hora = "4:00 pm", Precio = 100.00 },
-        new Evento { Titulo = "Taller de Pintura y Vino", Fecha = "23/12/2026", Hora = "7:30 pm", Precio = 65.00 }
-        };
-        ListaDeCategorias.Add(auxCategoria);
-
-        // 7. PARTY (FIESTAS)
-        auxCategoria = new categoriaEvento();
-        auxCategoria.Categoria = "Party";
-        auxCategoria.eventos = new List<Evento>
-        {
-        new Evento { Titulo = "Neon Glow Party - Open Air", Fecha = "21/11/2026", Hora = "10:00 pm", Precio = 50.00 },
-        new Evento { Titulo = "Retro 80s & 90s Dance Night", Fecha = "28/11/2026", Hora = "9:00 pm", Precio = 35.00 },
-        new Evento { Titulo = "White Party Año Nuevo 2027", Fecha = "31/12/2026", Hora = "11:00 pm", Precio = 150.00 },
-        new Evento { Titulo = "Pool Party - Summer Vibe", Fecha = "09/01/2027", Hora = "2:00 pm", Precio = 60.00 },
-        new Evento { Titulo = "Electro-Sunset Rooftop", Fecha = "16/01/2027", Hora = "5:30 pm", Precio = 45.00 }
-        };
-        ListaDeCategorias.Add(auxCategoria);
-    }
-
-    private void RedirigirADetalles(Evento evento)
+    private void RedirigirADetalles(EventoDTO evento)
     {
 
         Navigation.NavigateTo($"/public/detalle-evento/");

@@ -2,6 +2,7 @@ using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Components;
 using TicketFlowWeb.Components;
 using TicketFlowWeb.Services;
+using TicketFlowWeb.Services.EventoRS;
 using TicketFlowWeb.Services.UsuarioRS;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -9,9 +10,11 @@ var builder = WebApplication.CreateBuilder(args);
 // Add services to the container.
 builder.Services.AddRazorComponents()
     .AddInteractiveServerComponents();
-
 //--------------------------------
-
+builder.Services.AddHttpClient<EventoRestService>(client =>
+{
+    client.BaseAddress = new Uri("http://localhost:8080/TicketFlow/api/");
+});
 builder.Services.AddHttpClient<UsuarioRestService>(client =>
 {
     client.BaseAddress = new Uri("http://localhost:8080/TicketFlow/api/");

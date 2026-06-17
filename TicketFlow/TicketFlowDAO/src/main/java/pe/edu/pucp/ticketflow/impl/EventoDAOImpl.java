@@ -3,6 +3,7 @@ package pe.edu.pucp.ticketflow.impl;
 import pe.edu.pucp.ticketflow.IEventoDAO;
 import pe.edu.pucp.ticketflow.evento.model.Evento;
 import pe.edu.pucp.ticketflow.dao.manager.DBManager;
+import pe.edu.pucp.ticketflow.evento.model.categoria_evento;
 
 import java.sql.*;
 
@@ -279,9 +280,9 @@ public class EventoDAOImpl implements IEventoDAO {
         evento.setPrecio(rs.getDouble("precio"));
         evento.setIdAnfitrion(rs.getInt("idAnfitrion"));
 
-        evento.setFK_idCategoria_evento(
-                rs.getInt("idCategoria_evento")
-        );
+        categoria_evento cat = new categoria_evento();
+        cat.setNombre(rs.getString("categoria"));
+        evento.setCategoria(cat);
 
         evento.setFK_idEstadoPublicacion(
                 rs.getInt("idEstado_publicacion")

@@ -1,4 +1,4 @@
-package pe.edu.pucp.ticketflow.evento.DTO;
+package Evento;
 //Para evitar conflictos con las clases Time y Date debo manejar esta clase
 public class EventoDTO {
     public int idEvento;
@@ -10,6 +10,7 @@ public class EventoDTO {
     public String hora_fin;
     public String ubicacion;
     public String nombre_establecimiento;
+    public String categoria;
     public double precio;
 
     public int getIdEvento() {
@@ -90,5 +91,13 @@ public class EventoDTO {
 
     public void setPrecio(double precio) {
         this.precio = precio;
+    }
+
+    public String getCategoria() {
+        return categoria;
+    }
+
+    public void setCategoria(String categoria) {
+        this.categoria = categoria;
     }
 }
