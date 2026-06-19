@@ -1,0 +1,282 @@
+﻿@page "/public/descubrir"
+
+@inject NavigationManager Navigation
+@inject HttpClient Http
+
+@using TicketFlowWeb.Services.EventoRS
+@inject EventoRestService EventoService
+
+@using TicketFlowWeb.Models.DTO;
+
+@using Newtonsoft.Json;
+
+<h1 class="main-page-title">Descubre un evento</h1>
+@foreach (var eventosaux in ListaDeCategorias)
+{
+    <div class="portal-container">
+        <div class="category-section">
+            <div class="category-header">
+                <h2 class="category-title">@eventosaux.Categoria</h2>
+                <div class="category-controls">
+                    <a href="public/descubrir/@eventosaux.Categoria" class="btn-ver-todos">
+                        VER TODOS <span class="arrow-icon">→</span>
+                    </a>
+                    <div class="slider-arrows">
+                        <button class="arrow-btn" @onclick="() => ScrollLeft(eventosaux)">←</button>
+                        <button class="arrow-btn" @onclick="() => ScrollRight(eventosaux)">→</button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="slider-wrapper">
+                <div class="events-slider" style="transform: translateX(-@(eventosaux.PosicionActual)px);">
+
+                    @foreach (var EventoDTO in eventosaux.eventos)
+                    {
+                        <div class="event-card">
+                            <div class="card-image-placeholder">
+                                <span class="placeholder-text">[Imagen: @EventoDTO.titulo]</span>
+                            </div>
+                            <div class="card-body">
+                                <h3 class="event-name">@EventoDTO.titulo</h3>
+                                <p class="event-info">Fecha: @EventoDTO.fecha</p>
+                                <p class="event-info">Hora: @EventoDTO.hora_inicio</p>
+                                <p class="event-info">Precio: S/ @EventoDTO.precio.ToString("F2")</p>
+                                <button class="btn-comprar" @onclick="() => RedirigirADetalles(EventoDTO)">MAS INFORMACION</button>
+                            </div>
+                        </div>
+                    }
+
+                </div>
+            </div>
+
+        </div>
+    </div>
+}
+<style>
+    .slider-wrapper {
+        width: 100%;
+        overflow: hidden;
+        padding-bottom: 15px;
+    }
+
+    .portal-container {
+        width: 100%;
+        max-width: 1400px;
+        margin: 0 auto;
+        padding: 40px 20px;
+        background-color: #ffffff; /* Fondo claro para la sección de contenidos */
+        font-family: sans-serif;
+    }
+
+    /* Espaciado de secciones */
+    .category-section {
+        margin-bottom: 60px;
+    }
+
+    /* Encabezado de la Categoría */
+    .category-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        border-bottom: 2px solid #000000;
+        padding-bottom: 10px;
+        margin-bottom: 25px;
+    }
+
+    .category-title {
+        font-size: 1.8rem;
+        font-weight: bold;
+        color: #000000;
+        margin: 0;
+    }
+
+    /* Controles del lado derecho */
+    .category-controls {
+        display: flex;
+        align-items: center;
+        gap: 30px;
+    }
+
+    .btn-ver-todos {
+        color: #000000;
+        text-decoration: none;
+        font-weight: bold;
+        font-size: 0.95rem;
+        display: flex;
+        align-items: center;
+        gap: 5px;
+    }
+
+        .btn-ver-todos:hover {
+            text-decoration: underline;
+        }
+
+    .slider-arrows {
+        display: flex;
+        gap: 10px;
+    }
+
+    /* Flechas Negras Redondas del Mockup */
+    .arrow-btn {
+        background-color: #000000;
+        color: #ffffff;
+        border: none;
+        border-radius: 50%;
+        width: 36px;
+        height: 36px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.1rem;
+        cursor: pointer;
+        font-weight: bold;
+        transition: transform 0.1s;
+    }
+
+        .arrow-btn:active {
+            transform: scale(0.9);
+        }
+
+    .events-slider {
+        display: flex;
+        gap: 25px;
+        /* Agregamos una transición para que el movimiento de C# sea suave */
+        transition: transform 0.4s ease-in-out;
+        width: max-content;
+    }
+
+        .events-slider::-webkit-scrollbar {
+            display: none; /* Chrome, Safari y Opera */
+        }
+
+    /* Tarjeta de Evento */
+    .event-card {
+        flex: 0 0 340px;
+        background-color: #f4f7fc;
+        border: 1px solid #d1d5db;
+        border-radius: 12px;
+    }
+    /* Cuadrados con Texto (Simulando las Imágenes del diseño) */
+    .card-image-placeholder {
+        width: 100%;
+        height: 180px;
+        background-color: #a2b9d6; /* Tono gris azulado */
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border-bottom: 1px solid #d1d5db;
+    }
+
+    .concert-bg {
+        background-color: #8da4c4; /* Variación de tono para distinguir categorías */
+    }
+
+    .placeholder-text {
+        color: #0d1b3e;
+        font-weight: bold;
+        font-size: 0.9rem;
+        text-align: center;
+        padding: 0 10px;
+    }
+
+    /* Cuerpo de la tarjeta */
+    .card-body {
+        padding: 20px;
+        display: flex;
+        flex-direction: column;
+        flex-grow: 1;
+    }
+
+    .event-name {
+        font-size: 1.2rem;
+        font-weight: bold;
+        color: #0d1b3e;
+        margin: 0 0 12px 0;
+    }
+
+    .event-info {
+        font-size: 0.95rem;
+        color: #4b5563;
+        margin: 4px 0;
+    }
+
+    /* Botón de acción principal */
+    .btn-comprar {
+        background-color: #12192c;
+        color: #ffffff;
+        border: none;
+        border-radius: 6px;
+        padding: 12px;
+        font-weight: bold;
+        margin-top: 15px;
+        cursor: pointer;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        width: 100%;
+        transition: background-color 0.2s;
+    }
+
+        .btn-comprar:hover {
+            background-color: #1e294b;
+        }
+</style>
+
+@code {
+
+    private List<categoriaEvento> ListaDeCategorias = new List<categoriaEvento>();
+
+    private const int anchoTarjeta = 365; // Ancho de tarjeta (340px) + gap (25px)
+
+    // Métodos dinámicos que reciben la categoría clickeada
+    private void ScrollLeft(categoriaEvento categoria)
+    {
+        categoria.PosicionActual = Math.Max(0, categoria.PosicionActual - anchoTarjeta);
+    }
+
+    private void ScrollRight(categoriaEvento categoria)
+    {
+        // Calcula el límite de scroll de forma dinámica basándose en sus propios eventos
+        int maxScroll = anchoTarjeta * (categoria.eventos.Count - 3);
+        categoria.PosicionActual = Math.Min(maxScroll, categoria.PosicionActual + anchoTarjeta);
+    }
+
+    public class categoriaEvento
+    {
+        public List<EventoDTO> eventos { get; set; } = new();
+        public string Categoria { get; set; } = "";
+        public int PosicionActual { get; set; } = 0;
+    }
+
+    protected override async Task OnInitializedAsync()
+    {
+        try
+        {
+            var eventos = await EventoService.ListarEventosAsync();
+
+            Console.WriteLine($"EVENTOS: {eventos?.Count}");
+
+            ListaDeCategorias = eventos
+                .GroupBy(e => e.categoria ?? "SIN")
+                .Select(g => new categoriaEvento
+                {
+                    Categoria = g.Key,
+                    eventos = g.ToList()
+                })
+                .ToList();
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine("ERROR HTTP:");
+            Console.WriteLine(ex.Message);
+            Console.WriteLine(ex.ToString());
+        }
+
+    }
+
+    private void RedirigirADetalles(EventoDTO evento)
+    {
+
+        Navigation.NavigateTo($"/public/detalle-evento/"+evento.idEvento);
+    }
+}

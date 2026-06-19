@@ -1,0 +1,220 @@
+﻿@page "/anfitrion/pagos_evento"
+@using Microsoft.AspNetCore.Authorization
+
+@attribute [Authorize(Roles = "ANFITRION")]
+@using TicketFlowWeb.Models
+@inject NavigationManager NavigationManager
+
+<PageTitle>TicketFlow - Pagos de Mis Eventos</PageTitle>
+
+<div class="pagos-eventos-contenedor">
+    <main class="contenido-perfil">
+
+        <section class="titulo-section mb-4">
+            <h1>Pagos de Mis Eventos</h1>
+        </section>
+
+        <section class="tarjeta-control mb-4 p-4 rounded-4 bg-white shadow-sm">
+            <div class="d-flex align-items-center gap-3">
+                <label class="fs-5 fw-bold text-dark m-0">Buscar:</label>
+                <div class="position-relative flex-grow-1" style="max-width: 400px;">
+                    <input type="text" class="form-control buscador-input" placeholder="Buscar por nombre de evento..." @bind="criterioBusqueda" @bind:event="oninput" />
+                </div>
+            </div>
+        </section>
+
+        <section class="tarjeta-perfil p-4 rounded-4 bg-white shadow-sm">
+            <div class="tabla-scroll-contenedor">
+                <table class="table table-striped table-hover align-middle m-0 Custom-tabla-anf">
+                    <thead>
+                        <tr>
+                            <th>ID Pago</th>
+                            <th>Evento</th>
+                            <th>Cliente</th>
+                            <th>Método</th>
+                            <th>Fecha</th>
+                            <th>Monto</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var pago in PagosFiltrados)
+                        {
+                            <tr>
+                                <td class="fw-bold text-muted" style="width: 120px;">@pago.IdPago</td>
+                                <td class="fw-bold text-indigo">@pago.Evento</td>
+                                <td>@pago.Cliente</td>
+                                <td><span class="metodo-badge">@pago.Metodo</span></td>
+                                <td><span class="badge-fecha">@pago.FechaTexto</span></td>
+                                <td class="fw-bold text-dark">S/. @pago.Monto.ToString("0.00")</td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </section>
+
+    </main>
+</div>
+
+<style>
+    .pagos-eventos-contenedor {
+        min-height: 100vh;
+        background-color: #f2edff;
+        font-family: Arial, Helvetica, sans-serif;
+        color: #110846;
+    }
+
+    .contenido-perfil {
+        padding: 40px 50px;
+    }
+
+    .titulo-section {
+        background-color: white;
+        padding: 35px 42px;
+        border-radius: 8px;
+    }
+
+        .titulo-section h1 {
+            margin: 0;
+            font-size: 38px;
+            font-weight: bold;
+            letter-spacing: 2px;
+            color: #15095f;
+        }
+
+    .buscador-input {
+        background-color: #d1e8ff !important;
+        border: 1px solid #a3c7f5 !important;
+        border-radius: 6px !important;
+        padding: 8px 14px;
+        color: #333 !important;
+    }
+
+    .tabla-scroll-contenedor {
+        max-height: 440px; 
+        overflow-y: auto; 
+        border: 1px solid #f0edf5;
+        border-radius: 4px;
+    }
+
+        .tabla-scroll-contenedor::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        .tabla-scroll-contenedor::-webkit-scrollbar-track {
+            background: #f1edf5;
+        }
+
+        .tabla-scroll-contenedor::-webkit-scrollbar-thumb {
+            background: #c3b6f2;
+            border-radius: 4px;
+        }
+
+            .tabla-scroll-contenedor::-webkit-scrollbar-thumb:hover {
+                background: #15095f;
+            }
+
+    .Custom-tabla-anf {
+        border: none;
+        width: 100%;
+    }
+
+        .Custom-tabla-anf thead th {
+            color: #0c2775 !important;
+            background-color: #d1e8ff !important;
+            font-weight: bold;
+            padding: 14px;
+            font-size: 16px;
+            position: sticky;
+            top: 0;
+            z-index: 2;
+        }
+
+        .Custom-tabla-anf tbody td {
+            padding: 16px 14px;
+            font-size: 15px;
+            color: #333;
+        }
+
+    .text-indigo {
+        color: #15095f;
+    }
+
+    .badge-fecha {
+        background-color: #cbdcf7;
+        color: #0c2775;
+        padding: 6px 14px;
+        border-radius: 15px;
+        font-weight: 500;
+        font-size: 14px;
+    }
+
+    .metodo-badge {
+        font-weight: 500;
+        color: #444;
+    }
+
+    @@media (max-width: 900px) {
+        .contenido-perfil {
+            padding: 20px 15px;
+        }
+
+        .titulo-section h1 {
+            font-size: 28px;
+        }
+    }
+</style>
+
+@code {
+    private string criterioBusqueda = string.Empty;
+
+    private List<PagoFilaDto> listadoPagos = new()
+    {
+        // --- TRANSACCIONES DE "POEMAX" (Precio base S/. 80.00) ---
+        new PagoFilaDto("PG-001", "Poemax", "María López", "Yape", "07/03/2026", 80.00m),       // 1 entrada regular
+        new PagoFilaDto("PG-002", "Poemax", "Carlos Vega", "BCP", "07/03/2026", 160.00m),      // 2 entradas regulares
+        new PagoFilaDto("PG-003", "Poemax", "Romina Icho", "Yape", "08/03/2026", 75.00m),       // 1 entrada - Descuento 50 pts (-5 soles)
+        new PagoFilaDto("PG-008", "Poemax", "Jorge Luna", "Plin", "28/03/2026", 70.00m),        // 1 entrada - Descuento 100 pts (-10 soles)
+
+        // --- TRANSACCIONES DE "CONCIERTO ROCK" (Precio base S/. 85.00) ---
+        new PagoFilaDto("PG-004", "Concierto Rock", "Sergio Ventura", "Interbank", "15/03/2026", 85.00m),   // 1 entrada regular
+        new PagoFilaDto("PG-005", "Concierto Rock", "Andrea Rojas", "Yape", "15/03/2026", 170.00m),         // 2 entradas regulares
+        new PagoFilaDto("PG-012", "Concierto Rock", "Diana Medina", "Yape", "10/04/2026", 75.00m),          // 1 entrada - Descuento 100 pts (-10 soles)
+
+        // --- TRANSACCIONES DE "OBRA DE TEATRO: HAMLET" (Precio base S/. 120.00) ---
+        new PagoFilaDto("PG-006", "Obra de Teatro: Hamlet", "Luis Ramírez", "BCP", "22/03/2026", 120.00m),       // 1 entrada regular
+        new PagoFilaDto("PG-007", "Obra de Teatro: Hamlet", "María Elena Gómez", "Yape", "23/03/2026", 115.00m),  // 1 entrada - Descuento 50 pts (-5 soles)
+        new PagoFilaDto("PG-013", "Obra de Teatro: Hamlet", "Carlos Torres", "BBVA", "24/03/2026", 230.00m),     // 2 entradas - Descuento 100 pts (-10 soles)
+
+        // --- TRANSACCIONES DE "FERIA GASTRONÓMICA" (Precio base S/. 20.00) ---
+        new PagoFilaDto("PG-009", "Feria Gastronómica \"Sabores Limeños\"", "Carlos Torres", "Yape", "02/04/2026", 20.00m), // 1 entrada regular
+        new PagoFilaDto("PG-010", "Feria Gastronómica \"Sabores Limeños\"", "Milagros Sosa", "BCP", "02/04/2026", 40.00m),  // 2 entradas regulares
+
+        // --- TRANSACCIONES DE "NOCHE DE SALSA" (Precio base S/. 45.00) ---
+        new PagoFilaDto("PG-011", "Noche de Salsa y Sabor", "Renato Castro", "BBVA", "05/04/2026", 45.00m)          // 1 entrada regular
+    };
+
+    private IEnumerable<PagoFilaDto> PagosFiltrados =>
+        listadoPagos.Where(p => string.IsNullOrEmpty(criterioBusqueda) ||
+                                p.Evento.Contains(criterioBusqueda, StringComparison.OrdinalIgnoreCase));
+
+    private class PagoFilaDto
+    {
+        public string IdPago { get; set; }
+        public string Evento { get; set; }
+        public string Cliente { get; set; }
+        public string Metodo { get; set; }
+        public string FechaTexto { get; set; }
+        public decimal Monto { get; set; }
+
+        public PagoFilaDto(string idPago, string evento, string cliente, string metodo, string fechaTexto, decimal monto)
+        {
+            IdPago = idPago;
+            Evento = evento;
+            Cliente = cliente;
+            Metodo = metodo;
+            FechaTexto = fechaTexto;
+            Monto = monto;
+        }
+    }
+}

@@ -1,0 +1,126 @@
+﻿@inherits LayoutComponentBase
+@using Microsoft.AspNetCore.Components.Authorization
+
+<AuthorizeView Roles="ANFITRION">
+    <Authorized>
+        @* ==========================================
+           VISTA DE ANFITRION: Formato predeterminado con menú izquierdo
+           ========================================== *@
+        <div class="page">
+            <div class="sidebar">
+                <NavMenu />
+            </div>
+            @* se hace un llamado al NavMenu pues alli esta el nuevo formato*@
+            <main>
+                <div class="top-row px-4 text-end" style="background-color: #f7f7f7; border-bottom: 1px solid #d6d5d5; padding: 0.8rem;">
+                    <span class="me-3 fw-bold">
+                        ¡Hola Anfitrión, @context.User.FindFirst(c => c.Type == "Nombres")?.Value!
+                    </span>
+                    <a href="/auth/logout" class="btn btn-sm btn-outline-danger">Cerrar Sesión</a>
+                </div>
+
+                <article class="content px-4 py-3">
+                    @* cualquiera en su propio formato se dirige al HOME*@
+                    @Body
+                </article>
+            </main>
+        </div>
+    </Authorized>
+
+    <Authorizing>
+        <div class="text-center p-5">Cargando autorización...</div>
+    </Authorizing>
+
+    <NotAuthorized>
+
+        @* si no esta autorizado se sobre entiende que el rol es de CLIENTE, entonces se mantiene el mismo formato*@
+        @* ==========================================
+           VISTA PÚBLICA Y CLIENTE: Navbar superior limpia y @Body completo abajo
+           ========================================== *@
+        <div class="page">
+            <main>
+                <div class="top-navbar px-4 shadow-sm d-flex justify-content-between align-items-center" style="background-color: #120e49; height: 60px;">
+
+                    <div class="nav-left">
+                        <a href="/" class="brand-link">
+                            <img src="images/logo_ticketflow.png" alt="Logo TicketFlow" class="brand-logo" style="max-height: 40px;" />
+                        </a>
+                    </div>
+
+    <div class="nav-center-wrapper">
+    <button class="botonDescubrir @(isDropdownOpen ? "active" : "")" @onclick="ToggleDropdown">
+        <span class="texto-descubrir">DESCUBRIR</span>
+        <div class="badge-flecha">
+            <span class="arrow">@(isDropdownOpen ? "↑" : "↓")</span>
+        </div>
+    </button>
+
+    @if (isDropdownOpen)
+    {
+        <div class="ticketflow-dropdown">
+            <div class="dropdown-header-row">
+                                    <a href="/public/descubrir" class="dropdown-link-main" @onclick="ToggleDropdown">
+                    VER TODAS LAS CATEGORIAS 
+                    <span class="arrow-circle">→</span>
+                </a>
+            </div>
+
+            <div class="dropdown-grid">
+                                    <div class="grid-item"><a href="/public/descubrir/Deportes" @onclick="ToggleDropdown">Deportes</a><span class="arrow-circle">→</span></div>
+                                    <div class="grid-item"><a href="/public/descubrir/Conciertos" @onclick="ToggleDropdown">Conciertos</a><span class="arrow-circle">→</span></div>
+                                    <div class="grid-item"><a href="/public/descubrir/Teatro" @onclick="ToggleDropdown">Teatro</a><span class="arrow-circle">→</span></div>
+
+                                    <div class="grid-item"><a href="/public/descubrir/Etrenamiento" @onclick="ToggleDropdown">Entretenimiento</a><span class="arrow-circle">→</span></div>
+                                    <div class="grid-item"><a href="/public/descubrir/Seminarios y o conferencias" @onclick="ToggleDropdown">Seminarios y/o Conferencias</a><span class="arrow-circle">→</span></div>
+                                    <div class="grid-item"><a href="/public/descubrir/Cursos y o Talleres" @onclick="ToggleDropdown">Cursos y/o Talleres</a><span class="arrow-circle">→</span></div>
+
+                                    <div class="grid-item"><a href="/public/descubrir/Party" @onclick="ToggleDropdown">Party</a><span class="arrow-circle">→</span></div>
+                                    <div class="grid-item"><a href="/public/descubrir/Stand_Up_Comedy" @onclick="ToggleDropdown">Stand Up Comedy</a><span class="arrow-circle">→</span></div>
+                <div class="grid-item empty"></div>
+            </div>
+        </div>
+    }
+    </div>
+
+
+                    <div class="nav-right d-flex align-items-center gap-3">
+                        <AuthorizeView Roles="CLIENTE">
+                            <NotAuthorized Context="authContext">
+                                <a href="/register" class="botonRegistrarse">Regístrate</a>
+                                <a href="/login" class="botonIniciarSesion">Iniciar Sesión</a>
+                            </NotAuthorized>
+                            <Authorized Context="authContext">
+                                <a href="/cliente/perfil" class="saludoPerfil fw-medium">
+                                    ¡Hola, @authContext.User.FindFirst(c => c.Type == "Nombres")?.Value!
+                                </a>
+
+                                <a href="/auth/logout" class="botonLogout">Cerrar Sesión</a>
+                            </Authorized>
+                        </AuthorizeView>
+                    </div>
+
+                </div>
+
+                <div class="content-viewport">
+                    @* cualquiera en su propio formato se dirige al HOME*@
+                    @Body
+                </div>
+            </main>
+        </div>
+    </NotAuthorized>
+</AuthorizeView>
+
+<div id="blazor-error-ui" data-nosnippet>
+    An unhandled error has occurred.
+    <a href="." class="reload">Reload</a>
+    <span class="dismiss">🗙</span>
+</div>
+@code {
+    // Lógica en C# para abrir y cerrar el menú
+    private bool isDropdownOpen = false;
+
+    private void ToggleDropdown()
+    {
+        isDropdownOpen = !isDropdownOpen;
+    }
+}

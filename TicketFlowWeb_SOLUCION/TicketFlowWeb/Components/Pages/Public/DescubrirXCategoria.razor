@@ -1,0 +1,245 @@
+﻿@page "/public/descubrir/{CategoriaSeleccionada}"
+@inject NavigationManager Navigation
+
+<div class="portal-container">
+    <h1 class="main-page-title">Descubrir: @CategoriaSeleccionada</h1>
+
+    @if (EventosPaginados.Any())
+    {
+        <div class="events-grid">
+            @foreach (var evento in EventosPaginados)
+            {
+                <div class="event-card">
+                    <div class="card-image-box">
+                         @evento.Titulo 
+                    </div>
+                    <div class="card-body">
+                        <h3 class="event-name">@evento.Titulo</h3>
+                        <div class="event-details">
+                            <p class="event-info"><strong>Fecha:</strong> @evento.Fecha</p>
+                            <p class="event-info"><strong>Hora:</strong> @evento.Hora</p>
+                            <p class="event-info"><strong>Precio:</strong> S/ @evento.Precio.ToString("F2")</p>
+                        </div>
+                        <a href="/public/detalle-evento/" class="btn-mas-informacion">
+                            MAS INFORMACION
+                        </a>
+                    </div>
+                </div>
+            }
+        </div>
+
+        <div class="pagination-container">
+            <button class="page-btn" @onclick="PaginaAnterior" disabled="@(paginaActual == 1)">
+                ← Anterior
+            </button>
+
+            <span class="page-indicator">
+                Página <strong>@paginaActual</strong> de <strong>@TotalPaginas</strong>
+            </span>
+
+            <button class="page-btn" @onclick="PaginaSiguiente" disabled="@(paginaActual == TotalPaginas)">
+                Siguiente →
+            </button>
+        </div>
+    }
+    else
+    {
+        <div class="no-events">
+            <p>No se encontraron eventos disponibles en esta categoría por el momento.</p>
+        </div>
+    }
+</div>
+
+<style>
+/* Contenedor Principal */
+.portal-container {
+    width: 100%;
+    max-width: 1300px;
+    margin: 0 auto;
+    padding: 40px 20px;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background-color: #ffffff;
+}
+
+    /* Título de la sección */
+    .main-page-title {
+        font-size: 2.8rem;
+        font-weight: bold;
+        color: #0d1b3e; /* Azul oscuro corporativo de TicketFlow */
+        margin-bottom: 35px;
+    }
+
+    /* Grilla de Elementos (Se acomoda a 3 columnas automáticamente) */
+    .events-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(360px, 1fr));
+        gap: 30px;
+        margin-bottom: 40px;
+    }
+
+    /* Tarjeta de Evento */
+    .event-card {
+        background-color: #ffffff;
+        border: 3px solid #6ee7b7; /* Borde turquesa claro brillante de los mockups */
+        border-radius: 4px;
+        overflow: hidden;
+        display: flex;
+        flex-direction: column;
+        box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+    }
+
+    /* Caja del contenedor de imágenes */
+    .card-image-box {
+        width: 100%;
+        height: 200px;
+        background-color: #000;
+    }
+
+        .card-image-box img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            opacity: 0.9;
+        }
+
+    /* Cuerpo interno de datos */
+    .card-body {
+        padding: 20px;
+        display: flex;
+        flex-direction: column;
+        justify-content: space-between;
+        flex-grow: 1;
+    }
+
+    .event-name {
+        font-size: 1.3rem;
+        font-weight: 800;
+        color: #0d1b3e;
+        margin: 0 0 15px 0;
+        line-height: 1.3;
+    }
+
+    .event-details {
+        margin-bottom: 20px;
+    }
+
+    .event-info {
+        font-size: 0.95rem;
+        color: #4b5563;
+        margin: 6px 0;
+    }
+
+    /* El botón lila/morado exacto del Mockup */
+    .btn-mas-informacion {
+        display: block;
+        background-color: #5850ec; /* Tono morado/azul de las capturas */
+        color: #ffffff;
+        text-align: center;
+        text-decoration: none;
+        font-weight: bold;
+        font-size: 0.85rem;
+        padding: 10px 0;
+        border-radius: 20px; /* Bordes totalmente redondeados u ovalados */
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        transition: background-color 0.2s;
+        border: none;
+        width: 60%;
+        margin: 0 auto;
+    }
+
+        .btn-mas-informacion:hover {
+            background-color: #4338ca;
+        }
+
+    /* Contenedor inferior de paginación */
+    .pagination-container {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        gap: 20px;
+        margin-top: 40px;
+        padding-top: 20px;
+        border-top: 1px solid #e5e7eb;
+    }
+
+    .page-btn {
+        background-color: #12192c;
+        color: #ffffff;
+        border: none;
+        padding: 10px 20px;
+        font-weight: bold;
+        border-radius: 6px;
+        cursor: pointer;
+        transition: opacity 0.2s;
+    }
+
+        .page-btn:hover:not(:disabled) {
+            background-color: #1e294b;
+        }
+
+        .page-btn:disabled {
+            background-color: #d1d5db;
+            color: #9ca3af;
+            cursor: not-allowed;
+        }
+
+    .page-indicator {
+        font-size: 1rem;
+        color: #374151;
+    }
+
+    .no-events {
+        text-align: center;
+        padding: 60px;
+        color: #6b7280;
+        font-size: 1.2rem;
+    }
+</style>
+
+
+@code {
+    // Parámetro que lee la categoría directamente desde la barra de direcciones del navegador
+    [Parameter] public string CategoriaSeleccionada { get; set; } = "Stand up comedy";
+
+    // Variables de paginación
+    private int paginaActual = 1;
+    private const int ElementosPorPagina = 6; // Se mostrarán de 6 en 6 (Grilla de 3x2)
+
+    private List<Evento> TodosLosEventos = new List<Evento>();
+
+    public class Evento
+    {
+        public string Titulo { get; set; } = "";
+        public string Fecha { get; set; } = "";
+        public string Hora { get; set; } = "";
+        public double Precio { get; set; }
+    }
+
+    // Lógica matemática de paginación con LINQ nativo de C#
+    private IEnumerable<Evento> EventosPaginados =>
+        TodosLosEventos
+            .Skip((paginaActual - 1) * ElementosPorPagina)
+            .Take(ElementosPorPagina);
+
+    private int TotalPaginas => (int)Math.Ceiling((double)TodosLosEventos.Count / ElementosPorPagina);
+
+    private void PaginaAnterior() => paginaActual = Math.Max(1, paginaActual - 1);
+    private void PaginaSiguiente() => paginaActual = Math.Min(TotalPaginas, paginaActual + 1);
+
+    protected override void OnInitialized()
+    {
+        // Forzamos un set de datos grande ("Hardcodeado") para probar la paginación con 8 elementos
+        TodosLosEventos = new List<Evento>
+        {
+            new Evento { Titulo = "Nombre de un Evento muy Interesante", Fecha = "11/11/2026", Hora = "2:00 pm", Precio = 30.00 },
+            new Evento { Titulo = "Poemax", Fecha = "11/11/2026", Hora = "2:00 pm", Precio = 30.00 },
+            new Evento { Titulo = "Risas Asintomáticas", Fecha = "15/11/2026", Hora = "8:30 pm", Precio = 45.00 },
+            new Evento { Titulo = "Noche de Micro Abierto", Fecha = "20/11/2026", Hora = "9:00 pm", Precio = 25.00 },
+            new Evento { Titulo = "Stand Up Premium", Fecha = "25/11/2026", Hora = "7:00 pm", Precio = 60.00 },
+            new Evento { Titulo = "Comedia de Emergencia", Fecha = "30/11/2026", Hora = "9:30 pm", Precio = 35.00 },
+            new Evento { Titulo = "Casi Famosos", Fecha = "05/12/2026", Hora = "8:00 pm", Precio = 40.00 },
+            new Evento { Titulo = "Stand Up Final del Año", Fecha = "15/12/2026", Hora = "10:00 pm", Precio = 55.00 }
+        };
+    }
+}

@@ -1,0 +1,108 @@
+﻿@page "/admin/eventos"
+@using Microsoft.AspNetCore.Authorization
+
+@attribute [Authorize(Roles = "ADMIN")]
+@layout AdminLayout
+
+<PageTitle>Panel de Eventos</PageTitle>
+
+<h3>Gestionar Evento</h3>
+
+<nav class="navbar bg-body-tertiary">
+    <div class="filtros-pagos">
+        <label>Buscar:</label>
+        <input type="text"
+               class="form-control filtro-input"
+               placeholder="Buscar evento..."
+               @bind="textoBusqueda"
+               @bind:event="oninput" />
+
+        <button class="btn btn-dark" @onclick="LimpiarFiltros">
+            <i class="bi bi-x-circle"></i>
+        </button>
+    </div>
+</nav>
+
+<div class="mt-4">
+    <table class="table table-bordered table-hover">
+        <thead class="table-primary">
+            <tr>
+                <th>ID</th>
+                <th>Titulo</th>
+                <th>Fecha</th>
+                <th>Ubicación</th>
+                <th>Precio</th>
+                <th>Estado</th>
+                <th>Acciones</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td>1</td>
+                <td>Concierto de Rock</td>
+                <td>15/06/2026</td>
+                <td>Anfiteatro del Parque de la Expocición</td>
+                <td>S/ 85.00</td>
+                <td>Publicado</td>
+                <td>
+                    <button class="btn btn-outline-dark btn-sm"
+                            data-bs-toggle="modal"
+                            data-bs-target="#detalleUsuario">
+                        <i class="bi bi-eye"></i>
+                    </button>
+                    <button class="btn btn-outline-dark btn-sm"
+                            data-bs-toggle="modal"
+                            data-bs-target="#editarUsuario">
+                        <i class="bi bi-brush"></i>
+                    </button>
+                    <button class="btn btn-outline-dark btn-sm"
+                            data-bs-toggle="modal"
+                            data-bs-target="#bloquearUsuario">
+                        <i class="bi bi-trash3"></i>
+                    </button>
+                </td>
+            </tr>
+            <tr>
+                <td>2</td>
+                <td>Festival de Cine Independiente</td>
+                <td>05/08/2026</td>
+                <td>Centro Cultural PUCP, San Isidro</td>
+                <td>S/ 35.00</td>
+                <td>Pendiente</td>
+                <td>
+                    <button class="btn btn-outline-dark btn-sm"
+                            data-bs-toggle="modal"
+                            data-bs-target="#detalleUsuario">
+                        <i class="bi bi-eye"></i>
+                    </button>
+                    <button class="btn btn-outline-dark btn-sm"
+                            data-bs-toggle="modal"
+                            data-bs-target="#editarUsuario">
+                        <i class="bi bi-brush"></i>
+                    </button>
+                    <button class="btn btn-outline-dark btn-sm"
+                            data-bs-toggle="modal"
+                            data-bs-target="#bloquearUsuario">
+                        <i class="bi bi-check-circle"></i>
+                    </button>
+                    <button class="btn btn-outline-dark btn-sm"
+                            data-bs-toggle="modal"
+                            data-bs-target="#bloquearUsuario">
+                        <i class="bi bi-x-circle"></i>
+                    </button>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+</div>
+
+@code {
+    private string textoBusqueda = "";
+    private string estadoFiltro = "";
+
+    private void LimpiarFiltros()
+    {
+        textoBusqueda = "";
+        estadoFiltro = "";
+    }
+}
