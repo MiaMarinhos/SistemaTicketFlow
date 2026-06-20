@@ -55,6 +55,7 @@ public class EventoService {
         }
 
     }
+
     @GET
     @Path("{id}")
     @Produces(MediaType.APPLICATION_JSON)
@@ -77,6 +78,46 @@ public class EventoService {
             return Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity(Map.of("error", "Error interno.")).build();
         }
     }
+    @GET
+    @Path("/detalle/{id}")
+    @Produces(MediaType.APPLICATION_JSON)
+    public Response verDetalleEvento(@PathParam("id") Integer idEvento) {
+        try{
+            Evento evento = eventoBL.verDetalleEvento(idEvento);
+
+            if (evento == null) {
+                return Response.status(Response.Status.NOT_FOUND)
+                        .entity(Map.of("mensaje", "Evento no encontrado."))
+                        .build();
+            }
+            //cambiar direcatamente las fechas y horas aqui
+            if (evento.getFecha() != null) {
+                java.time.LocalDate fechaModerna = new java.sql.Timestamp(evento.getFecha().getTime())
+                        .toLocalDateTime().toLocalDate();
+                // Si creaste el campo fechaModerna en Evento, lo asignas:
+                evento.setFechaModerna(fechaModerna);
+                evento.setFecha(null);
+            }
+            if (evento.getHora_inicio() != null) {
+                java.time.LocalTime horaInicioModerna = java.time.LocalTime.parse(evento.getHora_inicio().toString());
+                evento.setHoraInicioModerna(horaInicioModerna);
+                evento.setHora_inicio(null);
+            }
+            if (evento.getHora_fin() != null) {
+                java.time.LocalTime horaFinModerna = java.time.LocalTime.parse(evento.getHora_fin().toString());
+                evento.setHoraFinModerna(horaFinModerna);
+                evento.setHora_fin(null);
+            }
+            return Response.ok(evento).build();
+        }
+        catch (pe.edu.pucp.ticketflow.exception.BusinessLogicException e) {
+            return Response.status(Response.Status.BAD_REQUEST).entity(Map.of("error", e.getMessage())).build();
+        }
+        catch (Exception e) {
+            return Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity(Map.of("error", "Error interno.")).build();
+        }
+    }
+
 
     @POST
     public Response registrarEvento(Evento evento) {

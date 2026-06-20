@@ -4,6 +4,9 @@ import pe.edu.pucp.ticketflow.IEventoDAO;
 import pe.edu.pucp.ticketflow.evento.model.Evento;
 import pe.edu.pucp.ticketflow.dao.manager.DBManager;
 import pe.edu.pucp.ticketflow.evento.model.categoria_evento;
+import pe.edu.pucp.ticketflow.ubicacion.model.Distrito;
+import pe.edu.pucp.ticketflow.ubicacion.model.Region;
+import pe.edu.pucp.ticketflow.usuario.model.Anfitrion;
 
 import java.sql.*;
 
@@ -311,20 +314,28 @@ public class EventoDAOImpl implements IEventoDAO {
         );
         evento.setImg(rs.getString("img"));
         evento.setPrecio(rs.getDouble("precio"));
+
+        Region region = new Region();
+        region.setIdRegion(rs.getInt("idRegion"));
+        region.setNombre(rs.getString("nombre_region"));
+
+        Distrito distrito = new Distrito();
+        distrito.setIdDistrito(rs.getInt("idDistrito"));
+        distrito.setNombre(rs.getString("nombre_distrito"));
+        distrito.setRegion(region);
+        evento.setDistrito(distrito);
+
         evento.setIdAnfitrion(rs.getInt("idAnfitrion"));
+        Anfitrion anfitrion = new Anfitrion();
+        anfitrion.setIdUsuario(rs.getInt("idAnfitrion"));
+        anfitrion.setRazonSocial(rs.getString("razon_social"));
+        anfitrion.setNombre(rs.getString("nombre_anfitrion"));
+        evento.setAnfitrion(anfitrion);
 
-        evento.setFK_idCategoria_evento(rs.getInt("idCategoria_evento"));
+        categoria_evento cat = new categoria_evento();
+        cat.setIdCategoria_evento(rs.getInt("idCategoria_evento"));
+        cat.setNombre(rs.getString("nombre_categoria"));
+        evento.setCategoria(cat);
 
-        evento.setFK_idEstadoPublicacion(
-                rs.getInt("idEstado_publicacion")
-        );
-
-        evento.setFK_idEstadoEvento(
-                rs.getInt("idEstado_evento")
-        );
-
-        evento.setFK_idDistrito(
-                rs.getInt("idDistrito")
-        );
     }
 }

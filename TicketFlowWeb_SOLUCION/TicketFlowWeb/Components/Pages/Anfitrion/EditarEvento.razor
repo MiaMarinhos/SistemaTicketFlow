@@ -1,4 +1,6 @@
-﻿@page "/anfitrion/editar-evento/{Id:int}"
+﻿@*
+
+@page "/anfitrion/editar-evento/{Id:int}"
 @using Microsoft.AspNetCore.Authorization
 
 @attribute [Authorize(Roles = "ANFITRION")]
@@ -29,12 +31,12 @@
 
                     <!-- Título -->
                     <div class="input-contenedor-full">
-                        <input type="text" class="custom-input custom-titulo-input" placeholder="Título" @bind="eventoModel.Titulo" required />
+                        <input type="text" class="custom-input custom-titulo-input" placeholder="Título" @bind="eventoModel.titulo" required />
                     </div>
 
                     <!-- Descripción -->
                     <div class="input-contenedor-full flex-grow-1 d-flex flex-column">
-                        <textarea class="custom-input custom-textarea flex-grow-1" rows="8" placeholder="Descripcion..." @bind="eventoModel.Descripcion" required></textarea>
+                        <textarea class="custom-input custom-textarea flex-grow-1" rows="8" placeholder="Descripcion..." @bind="eventoModel.descripcion" required></textarea>
                     </div>
 
                     <!-- N Entradas y Precio -->
@@ -59,7 +61,7 @@
 
                     <div class="fila-formulario-derecha">
                         <span class="etiqueta-fija">Imagen</span>
-                        <input type="text" class="custom-input" placeholder="Subir Imagen" @bind="eventoModel.ImagenRuta" />
+                        <input type="text" class="custom-input" placeholder="Subir Imagen" @bind="eventoModel.img" />
                     </div>
 
                     <div class="fila-formulario-derecha">
@@ -69,32 +71,32 @@
 
                     <div class="fila-formulario-derecha">
                         <span class="etiqueta-fija">Hora de Inicio</span>
-                        <input type="text" class="custom-input" placeholder="10:30 am" @bind="eventoModel.HoraInicio" required />
+                        <input type="text" class="custom-input" placeholder="10:30 am" @bind="eventoModel.horaInicioModerna" required />
                     </div>
 
                     <div class="fila-formulario-derecha">
                         <span class="etiqueta-fija">Hora de Fin</span>
-                        <input type="text" class="custom-input" placeholder="12:30 am" @bind="eventoModel.HoraFin" required />
+                        <input type="text" class="custom-input" placeholder="12:30 am" @bind="eventoModel.horaFinModerna" required />
                     </div>
 
                     <div class="fila-formulario-derecha">
                         <span class="etiqueta-fija">Ubicacion</span>
-                        <input type="text" class="custom-input" placeholder="Pasaje Porta 132. Miraflores" @bind="eventoModel.Ubicacion" required />
+                        <input type="text" class="custom-input" placeholder="Pasaje Porta 132. Miraflores" @bind="eventoModel.ubicacion" required />
                     </div>
 
                     <div class="fila-formulario-derecha">
                         <span class="etiqueta-fija">Sitio del Evento</span>
-                        <input type="text" class="custom-input" placeholder="El Teatro Teatral" @bind="eventoModel.SitioEvento" required />
+                        <input type="text" class="custom-input" placeholder="El Teatro Teatral" @bind="eventoModel.nombre_establecimiento" required />
                     </div>
 
                     <div class="fila-formulario-derecha">
                         <span class="etiqueta-fija">Distrito</span>
-                        <input type="text" class="custom-input" placeholder="Miraflores" @bind="eventoModel.Distrito" required />
+                        <input type="text" class="custom-input" placeholder="Miraflores" @bind="eventoModel.distrito" required />
                     </div>
 
                     <div class="fila-formulario-derecha">
                         <span class="etiqueta-fija">Region</span>
-                        <input type="text" class="custom-input" placeholder="Lima" @bind="eventoModel.Region" required />
+                        <input type="text" class="custom-input" placeholder="Lima" @bind="eventoModel.distrito.region" required />
                     </div>
 
                 </div>
@@ -229,6 +231,7 @@
 </style>
 
 @code {
+    /*
     [Parameter] public int Id { get; set; }
     private EventoViewModel eventoModel = new EventoViewModel();
 
@@ -287,4 +290,7 @@
     {
         NavigationManager.NavigateTo("/anfitrion/gestionar-evento");
     }
+    */
 }
+
+*@

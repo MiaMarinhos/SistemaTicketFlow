@@ -69,16 +69,51 @@ DELIMITER ;
 -- READ
 DROP PROCEDURE IF EXISTS SP_LEER_EVENTO;
 DELIMITER //
+
 CREATE PROCEDURE SP_LEER_EVENTO(
     IN p_id_Evento INT
 )
 BEGIN
-    SELECT *
-    FROM evento
-    WHERE idEvento = p_id_Evento;
+    SELECT 
+        e.idEvento,
+        e.titulo,
+        e.descripcion,
+        e.capacidad_entradas,
+        e.fecha,
+        e.hora_inicio,
+        e.hora_fin,
+        e.ubicacion,
+        e.nombre_establecimiento,
+        e.img,
+        e.precio,
+        e.idDistrito,
+        e.idAnfitrion,
+        e.idCategoria_evento,
+        -- Llaves foráneas solicitadas
+        r.idRegion,
+        d.nombre AS nombre_distrito,
+        r.nombre AS nombre_region,
+        c.nombre AS nombre_categoria,
+        u.nombre AS nombre_anfitrion, -- Nombre del usuario que actúa como anfitrión
+        a.razon_social, -- Por si también necesitas su razón social
+        -- Mantener los IDs originales de los estados (ya que especificaste que sus nombres no son necesarios)
+        e.idEstado_publicacion,
+        e.idEstado_evento
+    FROM evento e
+    INNER JOIN distrito d ON e.idDistrito = d.idDistrito
+    INNER JOIN region r ON d.idRegion = r.idRegion
+    INNER JOIN categoria_evento c ON e.idCategoria_evento = c.idCategoria_evento
+    INNER JOIN anfitrion a ON e.idAnfitrion = a.idAnfitrion
+    INNER JOIN usuario u ON a.idAnfitrion = u.idUsuario -- El ID de anfitrión hereda del ID de usuario
+    WHERE e.idEvento = p_id_Evento;
+    
 END //
 DELIMITER ;
 
+select * from evento;
+UPDATE evento
+SET img = 'https://lh3.googleusercontent.com/d/1tf5zvdOHO1mmnKpJVx4OaaOMVz1P4V8v'
+WHERE idEvento = 1;
 
 -- UPDATE
 DROP PROCEDURE IF EXISTS SP_ACTUALIZAR_EVENTO;

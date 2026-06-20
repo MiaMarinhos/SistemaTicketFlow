@@ -56,8 +56,25 @@ namespace TicketFlowWeb.Services.EventoRS
                 Console.WriteLine($"Error obteniendo evento: {ex.Message}");
                 return new EventoDTO();
             }
-
-
         }
+
+        public async Task<EventoViewModel> verDetalleEventoAsync(int id)
+        {
+            try
+            {
+                var evento = await _httpClient.GetFromJsonAsync<EventoViewModel>(
+                    $"EventoRS/detalle/{id}",
+                    JsonOptions
+                );
+
+                return evento ?? new EventoViewModel();
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error obteniendo evento: {ex.Message}");
+                return new EventoViewModel();
+            }
+        }
+
     }
 }

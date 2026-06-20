@@ -94,4 +94,20 @@ public class EventoBLImpl implements IEventoBL {
             }
         }
     }
+
+    @Override
+    public Evento verDetalleEvento(Integer id) throws BusinessLogicException {
+        try {
+            Evento evento = new Evento();
+            evento = eventoDAO.read(id);
+            return evento;
+        }
+        catch (Exception ex){
+            if (ex instanceof BusinessLogicException) {
+                throw (BusinessLogicException)ex;
+            } else {
+                throw new BusinessLogicException(ex);
+            }
+        }
+    }
 }
