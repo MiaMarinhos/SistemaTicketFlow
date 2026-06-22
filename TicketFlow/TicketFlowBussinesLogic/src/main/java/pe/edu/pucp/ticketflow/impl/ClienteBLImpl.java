@@ -117,4 +117,14 @@ public class ClienteBLImpl extends UsuarioBLImpl implements IClienteBL {
         System.out.println("Cliente está solicitando convertirse en anfitrión.");
     }
 
+    @Override
+    public int obtenerPuntosBonus(Integer idCliente) throws BusinessLogicException {
+        try {
+            return clienteDAO.readPuntos(idCliente);
+
+        } catch (Exception e) {
+            throw new BusinessLogicException("Error al listar clientes: " + e.getMessage());
+        }
+    }
+
 }

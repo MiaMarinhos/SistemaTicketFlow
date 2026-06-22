@@ -82,5 +82,25 @@ namespace TicketFlowWeb.Services.UsuarioRS
                 return new List<Distrito>();
             }
         }
+
+        public async Task<int> ObtenerPuntosBonusAsync(int idUsuario)
+        {
+            if (idUsuario <= 0)
+            {
+                return -1;
+            }
+
+            var response = await _httpClient.GetAsync($"ClienteRS/verPuntosBonus/{idUsuario}");
+
+            if (!response.IsSuccessStatusCode)
+            {
+                var detalle = await response.Content.ReadAsStringAsync();
+                Console.WriteLine($"Error obteniendo puntos bonus de cliente. HTTP {(int)response.StatusCode}: {detalle}");
+                return -1;
+            }
+
+            return await response.Content.ReadFromJsonAsync<int>(JsonOptions);
+        }
+
     }
 }

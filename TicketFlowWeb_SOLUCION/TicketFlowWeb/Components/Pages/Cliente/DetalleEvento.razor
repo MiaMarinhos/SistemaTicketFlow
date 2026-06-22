@@ -77,10 +77,11 @@
 
                 <div class="recuadro-anfitrion">
                     <div class="anfitrion-titulo">ORGANIZADO POR</div>
-                    <h3>@nombreAnfitrion</h3>
-                    @if (!string.IsNullOrEmpty(razonSocialAnfitrion))
+                    <h3>@eventoReal.anfitrion.nombre</h3>
+                    <p class="mb-0 text-white-50">@eventoReal.anfitrion.razonSocial</p>
+                    @if (!string.IsNullOrEmpty(eventoReal.anfitrion.razonSocial))
                     {
-                        <p class="mb-0 text-white-50">@razonSocialAnfitrion</p>
+                        <p class="mb-0 text-white-50">@eventoReal.anfitrion.razonSocial</p>
                     }
                 </div>
 
@@ -305,26 +306,14 @@
     [Parameter]
     public int Id { get; set; }
 
-    // Objeto real enlazado al backend
     private Models.EventoViewModel eventoReal;
 
-    // Variables de respaldo para el anfitrión (puedes mapearlas también en tu ViewModel de C#)
     private string nombreAnfitrion = "Cargando...";
     private string razonSocialAnfitrion = "";
 
     protected override async Task OnInitializedAsync()
     {
-        // 🟢 Llamamos a tu servicio REST real de C# usando el ID de la URL
         eventoReal = await EventoService.verDetalleEventoAsync(Id);
 
-        // Como el anfitrión viene anidado en el JSON pero no estaba mapeado en tu ViewModel original,
-        // interceptamos dinámicamente o dejamos campos fijos en base a tu respuesta de Postman.
-        if (eventoReal != null)
-        {
-            // Nota: Si decides agregar la clase 'Anfitrion' dentro de tu EventoViewModel en C#,
-            // cambias esto a: nombreAnfitrion = eventoReal.anfitrion.nombre;
-            nombreAnfitrion = "Maria";
-            razonSocialAnfitrion = "Eventos Lima SAC";
-        }
     }
 }

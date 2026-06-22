@@ -39,7 +39,7 @@
                     </div>
                     <br />
                     <div class="acciones-nuevas">
-                        <a href="@($"/cliente/resumen-compra/{Id}")" class="btn-comprar">Comprar entrada</a>
+                        <a href="@($"/cliente/compra/{Id}")" class="btn-comprar">Comprar entrada</a>
                     </div>
                     
                 </div>
@@ -49,10 +49,10 @@
             <div class="columna-vacia-izq">
                 <div class="recuadro-anfitrion">
                     <div class="anfitrion-titulo">ORGANIZADO POR</div>
-                    <h3>@nombreAnfitrion</h3>
+                    <h3>@eventoReal.anfitrion.nombre</h3>
                     @if (!string.IsNullOrEmpty(razonSocialAnfitrion))
                     {
-                        <p class="mb-0 text-white-50">@razonSocialAnfitrion</p>
+                        <p class="mb-0 text-white-50">@eventoReal.anfitrion.razonSocial</p>
                     }
                 </div>
             </div>
@@ -71,10 +71,12 @@
                         <label>Hora</label>
                         <span>@eventoReal.horaInicioModerna - @eventoReal.horaFinModerna</span>
                     </div>
+
                     <div class="acciones-nuevas">
                         <a href="/public/descubrir" class="btn-volver">Volver</a>
-                        <a href="@($"/cliente/resumen-compra/{Id}")" class="btn-comprar">Comprar entrada</a>
+                        <a href="@($"/cliente/compra/{Id}")" class="btn-comprar">Comprar entrada</a>
                     </div>
+
                 </div>
             </div>
 
@@ -320,26 +322,14 @@
     [Parameter]
     public int Id { get; set; }
 
-    // Objeto real enlazado al backend
     private Models.EventoViewModel eventoReal;
 
-    // Variables de respaldo para el anfitrión (puedes mapearlas también en tu ViewModel de C#)
     private string nombreAnfitrion = "Cargando...";
     private string razonSocialAnfitrion = "";
 
     protected override async Task OnInitializedAsync()
     {
-        // 🟢 Llamamos a tu servicio REST real de C# usando el ID de la URL
         eventoReal = await EventoService.verDetalleEventoAsync(Id);
 
-        // Como el anfitrión viene anidado en el JSON pero no estaba mapeado en tu ViewModel original,
-        // interceptamos dinámicamente o dejamos campos fijos en base a tu respuesta de Postman.
-        if (eventoReal != null)
-        {
-            // Nota: Si decides agregar la clase 'Anfitrion' dentro de tu EventoViewModel en C#,
-            // cambias esto a: nombreAnfitrion = eventoReal.anfitrion.nombre;
-            nombreAnfitrion = "Maria";
-            razonSocialAnfitrion = "Eventos Lima SAC";
-        }
     }
 }

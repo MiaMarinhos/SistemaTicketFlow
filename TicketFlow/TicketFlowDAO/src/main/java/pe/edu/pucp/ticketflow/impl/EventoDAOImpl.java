@@ -345,6 +345,7 @@ public class EventoDAOImpl implements IEventoDAO {
                 rs.getInt("idDistrito")
         );
     }
+
     private void mapearEvento(ResultSet rs, Evento evento) throws SQLException {
 
         evento.setIdEvento(rs.getInt("idEvento"));

@@ -3,6 +3,11 @@ USE `ticket_flow`;
 -- =====================================================
 -- EVENTO
 -- =====================================================
+select * from evento;
+select * from anfitrion;
+select * from usuario where idUsuario = 2;
+select * from administrador;
+
 
 -- CREATE
 DROP PROCEDURE IF EXISTS SP_INSERTAR_EVENTO;
@@ -86,17 +91,18 @@ BEGIN
         e.nombre_establecimiento,
         e.img,
         e.precio,
-        e.idDistrito,
         e.idAnfitrion,
         e.idCategoria_evento,
-        -- Llaves foráneas solicitadas
-        r.idRegion,
+        
+        d.idDistrito AS idDistrito,
+        r.idRegion AS idRegion,
+        
         d.nombre AS nombre_distrito,
         r.nombre AS nombre_region,
         c.nombre AS nombre_categoria,
-        u.nombre AS nombre_anfitrion, -- Nombre del usuario que actúa como anfitrión
-        a.razon_social, -- Por si también necesitas su razón social
-        -- Mantener los IDs originales de los estados (ya que especificaste que sus nombres no son necesarios)
+        u.nombre AS nombre_anfitrion, 
+        a.razon_social, 
+        
         e.idEstado_publicacion,
         e.idEstado_evento
     FROM evento e
@@ -104,17 +110,32 @@ BEGIN
     INNER JOIN region r ON d.idRegion = r.idRegion
     INNER JOIN categoria_evento c ON e.idCategoria_evento = c.idCategoria_evento
     INNER JOIN anfitrion a ON e.idAnfitrion = a.idAnfitrion
-    INNER JOIN usuario u ON a.idAnfitrion = u.idUsuario -- El ID de anfitrión hereda del ID de usuario
-    WHERE e.idEvento = p_id_Evento;
-    
+    INNER JOIN usuario u ON a.idAnfitrion = u.idUsuario
+    WHERE e.idEvento = p_id_Evento; 
 END //
 DELIMITER ;
+
 
 select * from evento;
 UPDATE evento
 SET img = 'https://lh3.googleusercontent.com/d/1tf5zvdOHO1mmnKpJVx4OaaOMVz1P4V8v'
 WHERE idEvento = 1;
 
+CALL SP_LEER_EVENTO(1);
+
+select * from administrador;
+select * from usuario;
+select * from evento;
+UPDATE administrador
+SET img_qr = 'https://lh3.googleusercontent.com/d/1QHJXW8xyDvfFp9IfAmseD0sOyq7V2ssl'
+WHERE idAdmin = 3;
+
+select * from compras;
+select * from cliente;
+select * from usuario_x_tipo;
+INSERT INTO usuario_x_tipo(idUsuario, idTipo_usuario) VALUES
+(4,1),
+(3,1);
 -- UPDATE
 DROP PROCEDURE IF EXISTS SP_ACTUALIZAR_EVENTO;
 DELIMITER //

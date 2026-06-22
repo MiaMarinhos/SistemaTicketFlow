@@ -410,6 +410,21 @@ END //
 
 DELIMITER ;
 
+
+DELIMITER //
+
+DROP PROCEDURE IF EXISTS SP_OBTENER_PUNTOS_BONUS //
+
+CREATE PROCEDURE SP_OBTENER_PUNTOS_BONUS(
+    IN p_idCliente INT
+)
+BEGIN
+SELECT c.puntos_bonus
+FROM cliente c
+WHERE c.idCliente = p_idCliente;
+END //
+
+DELIMITER ;
 -----------------------------------
 --ANFITRION
 -----------------------------------

@@ -19,12 +19,14 @@ namespace TicketFlowWeb.Services
             var rol = usuario.tipo?.tipoUsuario ?? string.Empty;
 
             var claims = new List<Claim>
-            {
-                new Claim(ClaimTypes.NameIdentifier, usuario.idUsuario.ToString()),
-                new Claim(ClaimTypes.Name, usuario.correoElectronico ?? string.Empty),
-                new Claim("Nombres", usuario.nombre ?? string.Empty),
-                new Claim(ClaimTypes.Role, rol)
-            };
+    {
+        new Claim(ClaimTypes.NameIdentifier, usuario.idUsuario.ToString()),
+        new Claim(ClaimTypes.Name, usuario.correoElectronico ?? string.Empty),
+        new Claim("Nombres", usuario.nombre ?? string.Empty),
+        new Claim(ClaimTypes.Role, rol),
+        // 🌟 AGREGA ESTA LÍNEA: Así tu vista Blazor reconocerá "IdUsuario" inmediatamente
+        new Claim("IdUsuario", usuario.idUsuario.ToString())
+    };
 
             var identity = new ClaimsIdentity(
                 claims,

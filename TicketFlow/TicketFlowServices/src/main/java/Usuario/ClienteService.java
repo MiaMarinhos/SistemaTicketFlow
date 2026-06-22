@@ -71,4 +71,25 @@ public class ClienteService {
                     .build();
         }
     }
+
+    @GET
+    @Path("/verPuntosBonus/{idUsuario}")
+    public Response verPuntosBonusDelCliente(@PathParam("idUsuario") Integer idUsuario){
+        try {
+            int pb = clienteBL.obtenerPuntosBonus(idUsuario);
+
+            return Response.ok(pb).build();
+
+        } catch (pe.edu.pucp.ticketflow.exception.BusinessLogicException e) {
+            return Response.status(Response.Status.BAD_REQUEST)
+                    .entity(Map.of("error", e.getMessage()))
+                    .build();
+
+        } catch (Exception e) {
+            return Response.status(Response.Status.INTERNAL_SERVER_ERROR)
+                    .entity(Map.of("error", "Error interno: " + e.getMessage()))
+                    .build();
+        }
+    }
+
 }
