@@ -12,7 +12,7 @@ public class ComprasBLImpl implements IComprasBL {
     @Override
     public Compra registrarCompra(Compra compra) throws BusinessLogicException {
         try {
-            compraDAO.create(compra);
+            return compraDAO.create(compra);
         }
         catch (Exception ex){
             if (ex instanceof BusinessLogicException) {

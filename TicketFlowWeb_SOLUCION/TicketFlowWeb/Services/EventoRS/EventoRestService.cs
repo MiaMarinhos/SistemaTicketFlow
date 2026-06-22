@@ -40,6 +40,25 @@ namespace TicketFlowWeb.Services.EventoRS
                 return new List<EventoDTO>();
             }
         }
+
+        public async Task<List<EventoDTO>> FiltrarEventosCategoria(String categoria)
+        {
+            try
+            {
+                var lista = await _httpClient.GetFromJsonAsync<List<EventoDTO>>(
+                    "EventoRS/Filtrar/"+categoria,
+                    JsonOptions
+                );
+
+                return lista ?? new List<EventoDTO>();
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error obteniendo eventos: {ex.Message}");
+                return new List<EventoDTO>();
+            }
+        }
+
         public async Task<EventoDTO> BuscarEventoAsync(int id)
         {
             try

@@ -57,6 +57,34 @@ public class EventoService {
     }
 
     @GET
+    @Path("/Filtrar/{categoria}")
+    @Produces(MediaType.APPLICATION_JSON)
+    public Response ListarEventosPorCategoria(@PathParam("categoria") String categoria) throws BusinessLogicException {
+
+        try {
+            List<Evento> eventos = eventoBL.verTodosLosEventosPorCategoria(categoria);
+
+            List<EventoDTO> eventosDTO = new ArrayList<>();
+
+            for (Evento e : eventos) {
+                eventosDTO.add(convertirDTO(e));
+            }
+
+            System.out.println("EVENTOS EN SERVICE: " + eventosDTO.size());
+
+            return Response.ok(eventosDTO).build();
+
+        } catch (Exception e) {
+            e.printStackTrace();
+
+            return Response.status(Response.Status.INTERNAL_SERVER_ERROR)
+                    .entity(Map.of("error", "Error en servicio Filtrar por Categoria"))
+                    .build();
+        }
+
+    }
+
+    @GET
     @Path("{id}")
     @Produces(MediaType.APPLICATION_JSON)
     public Response obtenerEventoPorId(@PathParam("id") Integer idEvento) {
@@ -202,6 +230,7 @@ public class EventoService {
         dto.ubicacion = e.getUbicacion();
         dto.nombre_establecimiento = e.getNombre_establecimiento();
         dto.precio = e.getPrecio();
+        dto.idCategoria = e.getCategoria().getIdCategoria_evento();
         dto.categoria = e.getCategoria().getNombre();
         return dto;
     }
