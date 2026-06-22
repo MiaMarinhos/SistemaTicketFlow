@@ -94,6 +94,19 @@ public class EventoBLImpl implements IEventoBL {
             }
         }
     }
+    @Override
+    public List<Evento> verTodosLosEventosPorCategoria(String categoria) throws BusinessLogicException{
+        try {
+            return eventoDAO.filtrarPorTipo(categoria);
+        }
+        catch (Exception ex){
+            if (ex instanceof BusinessLogicException) {
+                throw (BusinessLogicException)ex;
+            } else {
+                throw new BusinessLogicException(ex);
+            }
+        }
+    }
 
     @Override
     public Evento verDetalleEvento(Integer id) throws BusinessLogicException {

@@ -237,6 +237,35 @@ BEGIN
 END //
 DELIMITER ;
 
+DROP PROCEDURE IF EXISTS SP_FILTRAR_EVENTO_CATEGORIA;
+DELIMITER //
+CREATE PROCEDURE SP_FILTRAR_EVENTO_CATEGORIA(
+    IN p_categoria VARCHAR(45)
+)
+BEGIN
+    SELECT 
+        e.idEvento,
+        e.titulo,
+        e.descripcion,
+        e.capacidad_entradas,
+        e.fecha,
+        e.hora_inicio,
+        e.hora_fin,
+        e.ubicacion,
+        e.nombre_establecimiento,
+        e.img,
+        e.precio,
+        e.idDistrito,
+        e.idAnfitrion,
+        e.idCategoria_evento,
+       -- ce.nombre AS categoria,
+        e.idEstado_publicacion,
+        e.idEstado_evento
+    FROM evento e, categoria_evento ce
+	WHERE ce.nombre = p_categoria and ce.idCategoria_evento = e.idCategoria_evento
+    ORDER BY e.idEvento;
+END //
+DELIMITER ;
 
 -- APROBAR EVENTO
 DROP PROCEDURE IF EXISTS SP_APROBAR_EVENTO;

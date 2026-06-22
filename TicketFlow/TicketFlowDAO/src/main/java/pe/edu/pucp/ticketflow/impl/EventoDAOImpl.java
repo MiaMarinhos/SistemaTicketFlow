@@ -208,6 +208,50 @@ public class EventoDAOImpl implements IEventoDAO {
             throw new RuntimeException("Error al filtrar eventos por estado", e);
         }
     }
+    @Override
+    public List<Evento> filtrarPorTipo(String Tipo){
+        List<Evento> eventos = new ArrayList<>();
+
+        String sql = "{CALL SP_FILTRAR_EVENTO_CATEGORIA(?)}";
+
+        try (Connection connection = DBManager.getInstance().getConnection();
+             CallableStatement cs = connection.prepareCall(sql)) {
+
+            cs.setString(1, Tipo);
+
+            try (ResultSet rs = cs.executeQuery()) {
+
+                while (rs.next()) {
+
+                    Evento evento = new Evento();
+                    evento.setIdEvento(rs.getInt("idEvento"));
+                    evento.setTitulo(rs.getString("titulo"));
+                    evento.setDescripcion(rs.getString("descripcion"));
+                    evento.setCapacidad_entradas(rs.getInt("capacidad_entradas"));
+                    evento.setFecha(rs.getDate("fecha"));
+                    evento.setHora_inicio(rs.getTime("hora_inicio"));
+                    evento.setHora_fin(rs.getTime("hora_fin"));
+                    evento.setUbicacion(rs.getString("ubicacion"));
+                    evento.setNombre_establecimiento(
+                            rs.getString("nombre_establecimiento")
+                    );
+                    evento.setImg(rs.getString("img"));
+                    evento.setPrecio(rs.getDouble("precio"));
+
+                    categoria_evento cat = new categoria_evento();
+                    cat.setIdCategoria_evento(rs.getInt("idCategoria_evento"));
+                    evento.setCategoria(cat);
+
+                    eventos.add(evento);
+                }
+
+                return eventos;
+            }
+
+        } catch (SQLException e) {
+            throw new RuntimeException("Error al filtrar eventos por categoria", e);
+        }
+    }
 
     @Override
     public Evento aprobarEvento(Integer idEvento) {
@@ -246,6 +290,8 @@ public class EventoDAOImpl implements IEventoDAO {
             throw new RuntimeException("Error al rechazar evento", e);
         }
     }
+
+
 
     @Override
     public Evento eliminarEvento(Integer idEvento) {

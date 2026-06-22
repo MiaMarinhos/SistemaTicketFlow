@@ -11,6 +11,7 @@ public class EventoDTO {
     public String ubicacion;
     public String nombre_establecimiento;
     public String categoria;
+    public int idCategoria;
     public double precio;
 
     public int getIdEvento() {
