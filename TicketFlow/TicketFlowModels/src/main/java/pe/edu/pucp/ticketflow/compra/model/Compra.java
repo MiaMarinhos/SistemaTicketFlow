@@ -6,6 +6,7 @@ import pe.edu.pucp.ticketflow.usuario.model.Cliente;
 
 import java.time.LocalDate;
 import java.time.LocalTime;
+import java.time.format.DateTimeFormatter;
 
 public class Compra {
     private int idCompra;
@@ -25,6 +26,33 @@ public class Compra {
     private PuntosBonus puntosBonus;
     private Cliente cliente;
     private Evento evento;
+
+    private String fechaCompraS;
+    private String horaCompraS;
+
+    public String getFechaCompraS() {
+        return fechaCompraS;
+    }
+
+    public void setFechaCompraS(String fechaCompraS) {
+        this.fechaCompraS = fechaCompraS;
+        if (fechaCompraS != null && !fechaCompraS.isEmpty()){
+            DateTimeFormatter formato = DateTimeFormatter.ofPattern("dd/MM/yyyy");
+            this.fechaCompra = LocalDate.parse(fechaCompraS, formato);
+        }
+    }
+
+    public String getHoraCompraS() {
+        return horaCompraS;
+    }
+
+    public void setHoraCompraS(String horaCompraS) {
+        this.horaCompraS = horaCompraS;
+        if (horaCompraS != null && !horaCompraS.isEmpty()){
+            DateTimeFormatter formato = DateTimeFormatter.ofPattern("HH:mm:ss");
+            this.horaCompra = LocalTime.parse(horaCompraS, formato);
+        }
+    }
 
     public int getIdEstado() {
         return idEstado;
@@ -80,6 +108,8 @@ public class Compra {
 
     public void setFechaCompra(LocalDate fechaCompra) {
         this.fechaCompra = fechaCompra;
+        DateTimeFormatter formato = DateTimeFormatter.ofPattern("dd/MM/yyyy");
+        this.fechaCompraS = fechaCompra.format(formato);
     }
 
     public LocalTime getHoraCompra() {
@@ -88,6 +118,8 @@ public class Compra {
 
     public void setHoraCompra(LocalTime horaCompra) {
         this.horaCompra = horaCompra;
+        DateTimeFormatter formato = DateTimeFormatter.ofPattern("HH:mm:ss");
+        this.horaCompraS = horaCompra.format(formato);
     }
 
     public String getMetodoPago() {
