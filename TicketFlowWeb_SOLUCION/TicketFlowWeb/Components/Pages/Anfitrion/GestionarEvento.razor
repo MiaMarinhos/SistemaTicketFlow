@@ -1,9 +1,14 @@
 ﻿@page "/anfitrion/gestionar-evento"
 @using Microsoft.AspNetCore.Authorization
+@using TicketFlowWeb.Models
+@using TicketFlowWeb.Services.AnfitrionRS
+@using Microsoft.AspNetCore.Components.Authorization
 
 @attribute [Authorize(Roles = "ANFITRION")]
-@using TicketFlowWeb.Models
+
 @inject NavigationManager NavigationManager
+@inject AnfitrionRestService AnfitrionService
+@inject AuthenticationStateProvider AuthStateProvider
 
 <PageTitle>TicketFlow - Mis Eventos</PageTitle>
 
@@ -46,46 +51,62 @@
                         </tr>
                     </thead>
                     <tbody>
-                        @foreach (var ev in EventosFiltrados)
+                        @if (cargando)
                         {
                             <tr>
-                                <td class="fw-bold text-muted" style="width: 50px;">@ev.Id</td>
-                                <td class="fw-bold text-indigo">@ev.Titulo</td>
-                                <td><span class="badge-fecha">@ev.FechaTexto</span></td>
-                                <td class="text-secondary custom-truncate">@ev.Ubicacion</td>
-                                <td class="fw-bold">S/. @ev.Precio.ToString("0.00")</td>
-                                <td>
-                                    <span class="badge-estado @ev.ClaseEstado">
-                                        @ev.Estado
-                                    </span>
-                                </td>
-                                <td class="text-center">
-                                    <div class="d-flex justify-content-center gap-2">
-                                        <button class="btn-accion-icono btn-ver" title="Ver Detalle" @onclick="() => VerDetalle(ev.Id)">
-                                            👁️
-                                        </button>
-                                        <button class="btn-accion-icono btn-editar" title="Editar Evento" @onclick="() => IrAEditar(ev.Id)">
-                                            ✏️
-                                        </button>
-
-                                        @if (ev.Estado == "Pendiente")
-                                        {
-                                            <button class="btn-accion-icono btn-aprobar" title="Aprobar" @onclick="() => CambiarEstado(ev.Id, 'P')">
-                                                ✅
-                                            </button>
-                                            <button class="btn-accion-icono btn-rechazar" title="Rechazar" @onclick="() => CambiarEstado(ev.Id, 'R')">
-                                                ❌
-                                            </button>
-                                        }
-                                        else
-                                        {
-                                            <button class="btn-accion-icono btn-eliminar" title="Eliminar Evento" @onclick="() => EliminarEvento(ev.Id)">
-                                                🗑️
-                                            </button>
-                                        }
+                                <td colspan="7" class="text-center py-4">
+                                    <div class="spinner-border text-primary" role="status">
+                                        <span class="visually-hidden">Cargando eventos...</span>
                                     </div>
                                 </td>
                             </tr>
+                        }
+                        else if (!EventosFiltrados.Any())
+                        {
+                            <tr>
+                                <td colspan="7" class="text-center py-4 text-muted">
+                                    No se encontraron eventos. ¡Anímate a publicar el primero!
+                                </td>
+                            </tr>
+                        }
+                        else
+                        {
+                            @foreach (var ev in EventosFiltrados)
+                            {
+                                <tr>
+                                    <td class="fw-bold text-muted" style="width: 50px;">@ev.id</td>
+
+                                    <td class="fw-bold text-indigo">@ev.titulo</td>
+
+                                    <td><span class="badge-fecha">@(ev.fechaModerna?.ToString("dd/MM/yyyy") ?? "Por definir")</span></td>
+
+                                    <td class="text-secondary custom-truncate">@(string.IsNullOrEmpty(ev.ubicacion) ? "Ubicación pendiente" : ev.ubicacion)</td>
+
+                                    <td class="fw-bold text-primary">S/. @ev.precio.ToString("N2")</td>
+
+                                    <td>
+                                        <span class="badge-estado publicado">
+                                            Publicado
+                                        </span>
+                                    </td>
+
+                                    <td class="text-center">
+                                        <div class="d-flex justify-content-center gap-2">
+                                            <button class="btn-accion-icono btn-ver" title="Ver Detalle" @onclick="() => VerDetalle(ev.id)">
+                                                👁️
+                                            </button>
+
+                                            <button class="btn-accion-icono btn-editar" title="Editar Evento" @onclick="() => IrAEditar(ev.id)">
+                                                ✏️
+                                            </button>
+
+                                            <button class="btn-accion-icono btn-eliminar" title="Eliminar Evento" @onclick="() => EliminarEvento(ev.id)">
+                                                🗑️
+                                            </button>
+                                        </div>
+                                    </td>
+                                </tr>
+                            }
                         }
                     </tbody>
                 </table>
@@ -96,6 +117,7 @@
 </div>
 
 <style>
+    /* Estilos CSS (Se mantienen exactamente igual a los tuyos) */
     .gestionar-eventos-contenedor {
         min-height: 100vh;
         background-color: #f2edff;
@@ -272,64 +294,51 @@
 
 @code {
     private string criterioBusqueda = string.Empty;
+    private List<EventoViewModel> eventosOriginales = new();
+    private bool cargando = true;
 
-    private List<EventoFilaDto> listadoEventos = new()
+    // Filtro dinámico en tiempo real
+    private IEnumerable<EventoViewModel> EventosFiltrados =>
+        eventosOriginales.Where(e => string.IsNullOrEmpty(criterioBusqueda) ||
+                                  (e.titulo != null && e.titulo.Contains(criterioBusqueda, StringComparison.OrdinalIgnoreCase)));
+
+    protected override async Task OnInitializedAsync()
     {
-        new EventoFilaDto(1, "Concierto Rock", "15/6/2026", "Anfiteatro del Parque de la Exposición", 85.00m, "Publicado"),
-        new EventoFilaDto(2, "Feria Gastronómica \"Sabores Limeños\"", "20/6/2026", "Parque de la Reserva (Circuito Mágico)", 20.00m, "Publicado"),
-        new EventoFilaDto(3, "Obra de Teatro: Hamlet", "12/7/2026", "Teatro Municipal de Lima", 120.00m, "Publicado"),
-        new EventoFilaDto(4, "Maratón Lima 42K", "24/5/2026", "Av. Larco, Miraflores", 60.00m, "Finalizado"),
-        new EventoFilaDto(5, "Festival de Cine Independiente", "5/8/2026", "Centro Cultural PUCP, San Isidro", 35.00m, "Pendiente"),
-        new EventoFilaDto(6, "Noche de Salsa y Sabor", "30/5/2026", "Centro de Convenciones Barranco", 45.00m, "Publicado")
-    };
+        var authState = await AuthStateProvider.GetAuthenticationStateAsync();
+        var user = authState.User;
 
-    private IEnumerable<EventoFilaDto> EventosFiltrados =>
-        listadoEventos.Where(e => string.IsNullOrEmpty(criterioBusqueda) ||
-                                  e.Titulo.Contains(criterioBusqueda, StringComparison.OrdinalIgnoreCase));
+        if (user.Identity is not null && user.Identity.IsAuthenticated)
+        {
+            var idClaim = user.FindFirst("IdUsuario")?.Value;
 
-    private void VerDetalle(int id)
+            if (int.TryParse(idClaim, out int idAnfitrion))
+            {
+                var todosLosEventos = await AnfitrionService.VerTodosLosEventosAsync();
+
+                if (todosLosEventos != null)
+                {
+                    eventosOriginales = todosLosEventos.Where(e => e.anfitrion != null && e.anfitrion.idUsuario == idAnfitrion).ToList();
+                }
+            }
+        }
+
+        cargando = false;
+    }
+
+    // Nota: Como 'id' en tu modelo es string, los métodos ahora reciben string
+    private void VerDetalle(string id)
     {
         NavigationManager.NavigateTo($"/cliente/detalle-evento/{id}");
     }
 
-    private void IrAEditar(int id)
+    private void IrAEditar(string id)
     {
         NavigationManager.NavigateTo($"/anfitrion/editar-evento/{id}");
     }
 
-    private void EliminarEvento(int id)
+    private void EliminarEvento(string id)
     {
-        var item = listadoEventos.FirstOrDefault(e => e.Id == id);
-        if (item != null) listadoEventos.Remove(item);
-    }
-
-    private void CambiarEstado(int id, char accion)
-    {
-        var item = listadoEventos.FirstOrDefault(e => e.Id == id);
-        if (item != null)
-        {
-            item.Estado = accion == 'P' ? "Publicado" : "Finalizado";
-        }
-    }
-
-    private class EventoFilaDto
-    {
-        public int Id { get; set; }
-        public string Titulo { get; set; }
-        public string FechaTexto { get; set; }
-        public string Ubicacion { get; set; }
-        public decimal Precio { get; set; }
-        public string Estado { get; set; }
-        public string ClaseEstado => Estado.ToLower();
-
-        public EventoFilaDto(int id, string titulo, string fechaTexto, string ubicacion, decimal precio, string estado)
-        {
-            Id = id;
-            Titulo = titulo;
-            FechaTexto = fechaTexto;
-            Ubicacion = ubicacion;
-            Precio = precio;
-            Estado = estado;
-        }
+        var item = eventosOriginales.FirstOrDefault(e => e.id == id);
+        if (item != null) eventosOriginales.Remove(item);
     }
 }

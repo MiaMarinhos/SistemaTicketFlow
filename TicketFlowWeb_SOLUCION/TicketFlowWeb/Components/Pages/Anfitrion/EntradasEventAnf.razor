@@ -1,9 +1,14 @@
 ﻿@page "/anfitrion/entradas_evento"
 @using Microsoft.AspNetCore.Authorization
+@using TicketFlowWeb.Models
+@using TicketFlowWeb.Services.AnfitrionRS
+@using Microsoft.AspNetCore.Components.Authorization
 
 @attribute [Authorize(Roles = "ANFITRION")]
-@using TicketFlowWeb.Models
+
 @inject NavigationManager NavigationManager
+@inject AnfitrionRestService AnfitrionService
+@inject AuthenticationStateProvider AuthStateProvider
 
 <PageTitle>TicketFlow - Entradas por Eventos</PageTitle>
 
@@ -22,8 +27,8 @@
                         <span class="kpi-titulo-anf">MÁS ENTRADAS VENDIDAS</span>
                         <span>🔥</span>
                     </div>
-                    <div class="kpi-valor-evento">Poemax</div>
-                    <p class="m-0 text-success small fw-bold">300 tickets vendidos</p>
+                    <div class="kpi-valor-evento">@(string.IsNullOrEmpty(eventoMasVendido) ? "Sin datos" : eventoMasVendido)</div>
+                    <p class="m-0 text-success small fw-bold">@maxVendidas tickets vendidos</p>
                 </div>
             </div>
 
@@ -33,8 +38,8 @@
                         <span class="kpi-titulo-anf">MÁS ENTRADAS DISPONIBLES</span>
                         <span>🎟️</span>
                     </div>
-                    <div class="kpi-valor-evento">Festival de Cine Independiente</div>
-                    <p class="m-0 text-primary small fw-bold">300 tickets libres</p>
+                    <div class="kpi-valor-evento">@(string.IsNullOrEmpty(eventoMasLibre) ? "Sin datos" : eventoMasLibre)</div>
+                    <p class="m-0 text-primary small fw-bold">@maxLibres tickets libres</p>
                 </div>
             </div>
 
@@ -44,8 +49,8 @@
                         <span class="kpi-titulo-anf">TOTAL ENTRADAS VENDIDAS</span>
                         <span>📊</span>
                     </div>
-                    <div class="kpi-valor-anf text-primary">682</div>
-                    <p class="m-0 text-muted small">De un total de 1500 emitidas</p>
+                    <div class="kpi-valor-anf text-primary">@totalVendidas</div>
+                    <p class="m-0 text-muted small">De un total de @totalEmitidas emitidas</p>
                 </div>
             </div>
 
@@ -68,17 +73,38 @@
                         </tr>
                     </thead>
                     <tbody>
-                        @foreach (var ev in listadoInventario)
+                        @if (cargando)
                         {
                             <tr>
-                                <td class="fw-bold text-muted" style="width: 60px;">@ev.Id</td>
-                                <td class="fw-bold text-indigo">@ev.Titulo</td>
-                                <td><span class="badge-fecha">@ev.FechaTexto</span></td>
-                                <td class="fw-bold text-dark">S/. @ev.Precio.ToString("0.00")</td>
-                                <td class="text-center fw-bold text-success fs-6">@ev.EntradasVendidas</td>
-                                <td class="text-center fw-bold text-primary fs-6">@ev.EntradasDisponibles</td>
-                                <td class="text-center text-muted">@ev.CapacidadTotal</td>
+                                <td colspan="7" class="text-center py-5">
+                                    <div class="spinner-border text-primary" role="status">
+                                        <span class="visually-hidden">Calculando inventario...</span>
+                                    </div>
+                                </td>
                             </tr>
+                        }
+                        else if (!listadoInventario.Any())
+                        {
+                            <tr>
+                                <td colspan="7" class="text-center py-5 text-muted">
+                                    Aún no tienes eventos publicados para calcular inventario.
+                                </td>
+                            </tr>
+                        }
+                        else
+                        {
+                            @foreach (var ev in listadoInventario)
+                            {
+                                <tr>
+                                    <td class="fw-bold text-muted" style="width: 60px;">@ev.Id</td>
+                                    <td class="fw-bold text-indigo">@ev.Titulo</td>
+                                    <td><span class="badge-fecha">@ev.FechaTexto</span></td>
+                                    <td class="fw-bold text-dark">S/. @ev.Precio.ToString("N2")</td>
+                                    <td class="text-center fw-bold text-success fs-6">@ev.EntradasVendidas</td>
+                                    <td class="text-center fw-bold text-primary fs-6">@ev.EntradasDisponibles</td>
+                                    <td class="text-center text-muted">@ev.CapacidadTotal</td>
+                                </tr>
+                            }
                         }
                     </tbody>
                 </table>
@@ -89,6 +115,7 @@
 </div>
 
 <style>
+    /* TODOS TUS ESTILOS SE MANTIENEN IGUAL */
     .entradas-eventos-contenedor {
         min-height: 100vh;
         background-color: #f2edff;
@@ -226,34 +253,88 @@
 </style>
 
 @code {
-    private List<InventarioEventoDto> listadoInventario = new()
+    private bool cargando = true;
+    private List<InventarioEventoDto> listadoInventario = new();
+
+    // Variables para los KPIs superiores
+    private string eventoMasVendido = "";
+    private int maxVendidas = 0;
+    private string eventoMasLibre = "";
+    private int maxLibres = 0;
+    private int totalVendidas = 0;
+    private int totalEmitidas = 0;
+
+    protected override async Task OnInitializedAsync()
     {
-        new InventarioEventoDto(1, "Poemax", "07/05/2026", 80.00m, 300, 0, 300),
-        new InventarioEventoDto(2, "Feria Gastronómica \"Sabores Limeños\"", "20/06/2026", 20.00m, 40, 260, 300),
-        new InventarioEventoDto(3, "Concierto Rock", "15/06/2026", 85.00m, 210, 90, 300),
-        new InventarioEventoDto(4, "Obra de Teatro: Hamlet", "12/07/2026", 120.00m, 132, 168, 300),
-        new InventarioEventoDto(5, "Festival de Cine Independiente", "05/08/2026", 35.00m, 0, 300, 300)
-    };
+        var authState = await AuthStateProvider.GetAuthenticationStateAsync();
+        var user = authState.User;
+
+        if (user.Identity is not null && user.Identity.IsAuthenticated)
+        {
+            var idClaim = user.FindFirst("IdUsuario")?.Value;
+
+            if (int.TryParse(idClaim, out int idAnfitrion))
+            {
+                // 1. Traemos los eventos de este anfitrión
+                var todosLosEventos = await AnfitrionService.VerTodosLosEventosAsync();
+                var misEventos = todosLosEventos?.Where(e => e.anfitrion != null && e.anfitrion.idUsuario == idAnfitrion).ToList() ?? new();
+
+                // 2. Traemos TODAS las compras hechas a los eventos de este anfitrión
+                var compras = await AnfitrionService.VerComprasDeSusEventosAsync(idAnfitrion);
+
+                listadoInventario.Clear();
+                totalVendidas = 0;
+                totalEmitidas = 0;
+
+                // 3. Cruzamos y agrupamos los datos (AQUÍ ESTÁ LA MAGIA)
+                foreach (var ev in misEventos)
+                {
+                    // Comparamos el idEvento de la compra (int) con el id del evento (string)
+                    int vendidas = compras?.Where(c => c.idEvento.ToString() == ev.id).Sum(c => c.entradasCompradas) ?? 0;
+
+                    int disponibles = ev.capacidad_entradas - vendidas;
+                    if (disponibles < 0) disponibles = 0;
+
+                    listadoInventario.Add(new InventarioEventoDto
+                    {
+                        Id = ev.id, // Tu ID de evento es string
+                        Titulo = string.IsNullOrEmpty(ev.titulo) ? "Sin título" : ev.titulo,
+                        FechaTexto = ev.fechaModerna?.ToString("dd/MM/yyyy") ?? "Pendiente",
+                        Precio = ev.precio,
+                        EntradasVendidas = vendidas,
+                        EntradasDisponibles = disponibles,
+                        CapacidadTotal = ev.capacidad_entradas
+                    });
+
+                    totalVendidas += vendidas;
+                    totalEmitidas += ev.capacidad_entradas;
+                }
+
+                // 4. Calculamos los KPIs usando LINQ para encontrar los máximos
+                if (listadoInventario.Any())
+                {
+                    var masVendido = listadoInventario.OrderByDescending(x => x.EntradasVendidas).First();
+                    eventoMasVendido = masVendido.Titulo;
+                    maxVendidas = masVendido.EntradasVendidas;
+
+                    var masLibre = listadoInventario.OrderByDescending(x => x.EntradasDisponibles).First();
+                    eventoMasLibre = masLibre.Titulo;
+                    maxLibres = masLibre.EntradasDisponibles;
+                }
+            }
+        }
+
+        cargando = false;
+    }
 
     private class InventarioEventoDto
     {
-        public int Id { get; set; }
-        public string Titulo { get; set; }
-        public string FechaTexto { get; set; }
+        public string Id { get; set; } = string.Empty;
+        public string Titulo { get; set; } = string.Empty;
+        public string FechaTexto { get; set; } = string.Empty;
         public decimal Precio { get; set; }
         public int EntradasVendidas { get; set; }
         public int EntradasDisponibles { get; set; }
         public int CapacidadTotal { get; set; }
-
-        public InventarioEventoDto(int id, string titulo, string fechaTexto, decimal precio, int entradasVendidas, int entradasDisponibles, int capacidadTotal)
-        {
-            Id = id;
-            Titulo = titulo;
-            FechaTexto = fechaTexto;
-            Precio = precio;
-            EntradasVendidas = entradasVendidas;
-            EntradasDisponibles = entradasDisponibles;
-            CapacidadTotal = capacidadTotal;
-        }
     }
 }

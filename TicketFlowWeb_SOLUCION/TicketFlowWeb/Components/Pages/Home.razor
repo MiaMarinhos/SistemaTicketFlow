@@ -1,5 +1,10 @@
 ﻿@page "/"
 @using Microsoft.AspNetCore.Components.Authorization
+@using TicketFlowWeb.Models
+@using TicketFlowWeb.Services.AnfitrionRS
+
+@inject AnfitrionRestService AnfitrionService
+@inject AuthenticationStateProvider AuthStateProvider
 
 <PageTitle>Home</PageTitle>
 <div class="home">
@@ -12,14 +17,12 @@
 </div>
 
 <AuthorizeView Roles="ANFITRION">
-    @* si la vista esta autorizada para el ANFITRION entonces se vera un mensaje diferentes*@
     <Authorized Context="authContext">
-        <!-- MODIFICACIÓN EXCLUSIVA: Dashboard encapsulado sin alterar contenedores globales -->
         <div class="seccion-anfitrion-interna">
 
             <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center mb-4 gap-2">
                 <div>
-                    <h2 class="titulo-dash-anf">¡Bienvenido de nuevo, Juan!</h2>
+                    <h2 class="titulo-dash-anf">¡Bienvenido de nuevo, @nombreAnfitrion!</h2>
                     <p class="subtitulo-dash-anf">Resumen y rendimiento de tus espectáculos en TicketFlow.</p>
                 </div>
                 <div>
@@ -29,7 +32,6 @@
                 </div>
             </div>
 
-            <!-- Fila de Tarjetas Estadísticas con Clases Únicas -->
             <div class="row g-4 mb-4">
                 <div class="col-md-4">
                     <div class="tarjeta-kpi-anf">
@@ -37,7 +39,7 @@
                             <span class="kpi-titulo-anf">EVENTOS PUBLICADOS</span>
                             <span>🎭</span>
                         </div>
-                        <div class="kpi-valor-anf">4</div>
+                        <div class="kpi-valor-anf">@cantidadEventosPublicados</div>
                         <p class="m-0 text-success small">● Todos los shows activos</p>
                     </div>
                 </div>
@@ -48,9 +50,9 @@
                             <span class="kpi-titulo-anf">ENTRADAS VENDIDAS</span>
                             <span>🎟️</span>
                         </div>
-                        <div class="kpi-valor-anf">642 <span class="fs-6 text-muted">/ 1200</span></div>
+                        <div class="kpi-valor-anf">@entradasVendidas <span class="fs-6 text-muted">/ @capacidadTotal</span></div>
                         <div class="progress mt-2" style="height: 6px; background-color: #e9e6f5;">
-                            <div class="progress-bar bg-primary" style="width: 53.5%"></div>
+                            <div class="progress-bar bg-primary" style="width: @(capacidadTotal > 0 ? (entradasVendidas * 100 / capacidadTotal) : 0)%"></div>
                         </div>
                     </div>
                 </div>
@@ -61,13 +63,12 @@
                             <span class="kpi-titulo-anf">INGRESOS GENERADOS</span>
                             <span>💰</span>
                         </div>
-                        <div class="kpi-valor-anf text-primary">S/. 32,150.00</div>
-                        <p class="m-0 text-muted small">📈 +12% esta semana</p>
+                        <div class="kpi-valor-anf text-primary">S/. @ingresosGenerados.ToString("N2")</div>
+                        <p class="m-0 text-muted small">Monto bruto de tus ventas</p>
                     </div>
                 </div>
             </div>
 
-            <!-- Tabla de Espectáculos en Vivo -->
             <div class="contenedor-tabla-anf">
                 <h4 class="mb-3 fw-bold" style="color: #15095f;">Estado en Vivo de tus Shows</h4>
                 <div class="table-responsive">
@@ -76,33 +77,35 @@
                             <tr class="text-muted border-bottom">
                                 <th class="pb-2">Espectáculo</th>
                                 <th class="pb-2">Fecha</th>
-                                <th class="pb-2">Progreso Ventas</th>
+                                <th class="pb-2">Capacidad</th>
                                 <th class="pb-2 text-center">Estado</th>
                             </tr>
                         </thead>
                         <tbody>
-                            <tr class="border-bottom">
-                                <td class="py-2 fw-bold" style="color: #15095f;">Nombre de un Evento muy Interesante (FRÍOS)</td>
-                                <td class="py-2 text-muted">15 Mar 2026</td>
-                                <td class="py-2">
-                                    <span class="small text-muted d-block mb-1">210 / 300 vendidas</span>
-                                    <div class="progress" style="height: 5px; background-color: #e9e6f5;">
-                                        <div class="progress-bar bg-success" style="width: 70%"></div>
-                                    </div>
-                                </td>
-                                <td class="py-2 text-center"><span class="badge bg-success text-white rounded-pill px-3">Activo</span></td>
-                            </tr>
-                            <tr>
-                                <td class="py-2 fw-bold" style="color: #15095f;">Poemax (Stand-up Comedy)</td>
-                                <td class="py-2 text-muted">07 May 2026</td>
-                                <td class="py-2">
-                                    <span class="small text-muted d-block mb-1">300 / 300 vendidas</span>
-                                    <div class="progress" style="height: 5px; background-color: #e9e6f5;">
-                                        <div class="progress-bar bg-danger" style="width: 100%"></div>
-                                    </div>
-                                </td>
-                                <td class="py-2 text-center"><span class="badge bg-danger text-white rounded-pill px-3">Agotado</span></td>
-                            </tr>
+                            @if (!misEventos.Any())
+                            {
+                                <tr>
+                                    <td colspan="4" class="text-center py-4 text-muted">Aún no tienes eventos publicados. ¡Crea el primero!</td>
+                                </tr>
+                            }
+                            else
+                            {
+                                @foreach (var evento in misEventos)
+                                {
+                                    <tr class="border-bottom">
+                                        <td class="py-2 fw-bold" style="color: #15095f;">@evento.titulo</td>
+                                        <td class="py-2 text-muted">@(evento.fechaModerna?.ToString("dd MMM yyyy") ?? "Por definir")</td>
+                                        <td class="py-2">
+                                            <span class="small text-muted d-block mb-1">Capacidad: @evento.capacidad_entradas personas</span>
+                                        </td>
+                                        <td class="py-2 text-center">
+                                            <span class="badge bg-success text-white rounded-pill px-3">
+                                                Activo
+                                            </span>
+                                        </td>
+                                    </tr>
+                                }
+                            }
                         </tbody>
                     </table>
                 </div>
@@ -110,14 +113,9 @@
 
         </div>
     </Authorized>
+
     <NotAuthorized Context="authContext">
-        @* en el caso que no este autorizado como ANFITRION, se sobre entiende que como CLIENTE
-            y entonces podras navegar por los eventos que ofrece TicketFlow
-        *@
-        @* AQUI SE DEBE DE PONER MAS COSAS QUE SOLO EL CLIENTE PUEDE VER*@
-
         <div class="inicio-cliente-page">
-
             <section class="hero-cliente">
                 <div class="hero-content">
                     <h1>Ticket Flow</h1>
@@ -128,14 +126,11 @@
 
             <section class="shows-section">
                 <h2>ÚLTIMOS SHOWS</h2>
-
                 <div class="shows-grid">
-
                     <div class="show-card">
                         <div class="show-img show-img-uno">
                             <span>FRÍOS</span>
                         </div>
-
                         <div class="show-info">
                             <h3>TÍTULO 1</h3>
                             <p class="autor">---------- AUTOR 1</p>
@@ -143,7 +138,6 @@
                             <p><strong>Hora:</strong> 2:00 pm</p>
                             <p><strong>Lugar:</strong> Av. No sé 123</p>
                             <p class="precio">S/. 50.00</p>
-
                             <a href="/public/detalle-evento/" class="btn-detalle">Ver detalle</a>
                         </div>
                     </div>
@@ -152,7 +146,6 @@
                         <div class="show-img show-img-dos">
                             <span>POEMAX</span>
                         </div>
-
                         <div class="show-info">
                             <h3>TÍTULO 2</h3>
                             <p class="autor">---------- AUTOR 2</p>
@@ -160,26 +153,18 @@
                             <p><strong>Hora:</strong> 10:30 pm</p>
                             <p><strong>Lugar:</strong> Pasaje Porta 132, Miraflores</p>
                             <p class="precio">S/. 50.00</p>
-
                             <a href="/public/detalle-evento/" class="btn-detalle">Ver detalle</a>
                         </div>
                     </div>
-
                 </div>
-
                 <div class="puntos">
-                    <span></span>
-                    <span></span>
-                    <span></span>
-                    <span></span>
+                    <span></span><span></span><span></span><span></span>
                 </div>
             </section>
 
             <section class="testimonios-section">
                 <h2>TESTIMONIOS DE USUARIOS</h2>
-
                 <div class="testimonios-grid">
-
                     <div class="testimonio">
                         <div class="avatar">A</div>
                         <div class="globo">
@@ -187,7 +172,6 @@
                             <p>"Compré mis entradas y todo fue súper fluido. Me encantó la rapidez de TicketFlow."</p>
                         </div>
                     </div>
-
                     <div class="testimonio">
                         <div class="avatar">M</div>
                         <div class="globo">
@@ -195,7 +179,6 @@
                             <p>"Siempre busco qué hacer los fines de semana y aquí encuentro buenas opciones."</p>
                         </div>
                     </div>
-
                     <div class="testimonio">
                         <div class="avatar">C</div>
                         <div class="globo">
@@ -203,7 +186,6 @@
                             <p>"Lo que más me gusta de TicketFlow es la seguridad."</p>
                         </div>
                     </div>
-
                     <div class="testimonio">
                         <div class="avatar">J</div>
                         <div class="globo">
@@ -211,31 +193,16 @@
                             <p>"Excelente plataforma. Transparente con los precios y muy intuitiva."</p>
                         </div>
                     </div>
-
                 </div>
             </section>
 
             <section class="conocenos-section">
                 <div class="conocenos-texto">
                     <h2>CONÓCENOS UN POCO</h2>
-
-                    <p>
-                        Somos TicketFlow, una plataforma dedicada a transformar la manera en que conectas
-                        con el entretenimiento y la cultura en nuestra ciudad.
-                    </p>
-
-                    <p>
-                        Nuestra misión es facilitar el acceso a las mejores experiencias mediante un sistema
-                        de gestión integral, seguro y transparente.
-                    </p>
-
-                    <p>
-                        Nos apasiona potenciar el talento de los organizadores locales brindándoles herramientas
-                        para la administración de sus eventos, mientras garantizamos a cada asistente un proceso
-                        de compra rápido y confiable.
-                    </p>
+                    <p>Somos TicketFlow, una plataforma dedicada a transformar la manera en que conectas con el entretenimiento y la cultura en nuestra ciudad.</p>
+                    <p>Nuestra misión es facilitar el acceso a las mejores experiencias mediante un sistema de gestión integral, seguro y transparente.</p>
+                    <p>Nos apasiona potenciar el talento de los organizadores locales brindándoles herramientas para la administración de sus eventos, mientras garantizamos a cada asistente un proceso de compra rápido y confiable.</p>
                 </div>
-
                 <div class="conocenos-imagen">
                     <div class="cuadro-red">
                         <h3>TicketFlow</h3>
@@ -246,273 +213,260 @@
                     </div>
                 </div>
             </section>
-
         </div>
-
-        <style>
-                    .inicio-cliente-page {
-                        min-height: 100vh;
-                        background: linear-gradient(180deg, #7fdce8 0%, #83edf3 45%, #17094f 100%);
-                        font-family: Arial, Helvetica, sans-serif;
-                        color: #09082d;
-                    }
-
-                    .hero-cliente {
-                        min-height: 320px;
-                        background: linear-gradient(rgba(14, 7, 60, 0.35), rgba(14, 7, 60, 0.65)), radial-gradient(circle at center, #5141bd 0%, #26136f 50%, #0c073d 100%);
-                        display: flex;
-                        align-items: center;
-                        justify-content: center;
-                        text-align: center;
-                        color: white;
-                        padding: 40px 20px;
-                    }
-
-                    .hero-content h1 {
-                        font-size: 64px;
-                        font-weight: bold;
-                        margin-bottom: 25px;
-                    }
-
-                    .hero-content p {
-                        font-size: 22px;
-                        margin-bottom: 25px;
-                    }
-
-                    .btn-anfitrion {
-                        display: inline-block;
-                        color: white;
-                        border: 3px solid white;
-                        border-radius: 30px;
-                        padding: 12px 40px;
-                        text-decoration: none;
-                        font-weight: bold;
-                        font-size: 18px;
-                    }
-
-                    .shows-section,
-                    .testimonios-section {
-                        padding: 45px 60px;
-                    }
-
-                        .shows-section h2,
-                        .testimonios-section h2,
-                        .conocenos-section h2 {
-                            font-size: 42px;
-                            font-weight: bold;
-                            letter-spacing: 8px;
-                            margin-bottom: 35px;
-                            color: #0b0b3d;
-                        }
-
-                    .shows-grid {
-                        display: grid;
-                        grid-template-columns: 1fr 1fr;
-                        gap: 35px;
-                    }
-
-                    .show-card {
-                        display: grid;
-                        grid-template-columns: 1fr 1fr;
-                        background-color: rgba(255, 255, 255, 0.35);
-                        border: 3px solid #111;
-                        min-height: 280px;
-                    }
-
-                    .show-img {
-                        display: flex;
-                        align-items: center;
-                        justify-content: center;
-                        color: white;
-                        font-size: 36px;
-                        font-weight: bold;
-                        text-align: center;
-                    }
-
-                    .show-img-uno {
-                        background: linear-gradient(135deg, #111, #555);
-                    }
-
-                    .show-img-dos {
-                        background: linear-gradient(135deg, #000, #2d235c);
-                    }
-
-                    .show-info {
-                        padding: 22px;
-                    }
-
-                        .show-info h3 {
-                            font-size: 25px;
-                            font-weight: bold;
-                            margin-bottom: 5px;
-                        }
-
-                    .autor {
-                        font-weight: bold;
-                        margin-bottom: 15px;
-                    }
-
-                    .precio {
-                        font-size: 24px;
-                        font-weight: bold;
-                        margin-top: 10px;
-                    }
-
-                    .btn-detalle {
-                        display: inline-block;
-                        background-color: #12075a;
-                        color: white;
-                        text-decoration: none;
-                        padding: 10px 28px;
-                        border-radius: 25px;
-                        margin-top: 10px;
-                        font-weight: bold;
-                    }
-
-                    .puntos {
-                        display: flex;
-                        justify-content: center;
-                        gap: 8px;
-                        margin-top: 30px;
-                    }
-
-                        .puntos span {
-                            width: 18px;
-                            height: 18px;
-                            background-color: #110846;
-                            border-radius: 50%;
-                            display: block;
-                        }
-
-                    .testimonios-grid {
-                        display: grid;
-                        grid-template-columns: 1fr 1fr;
-                        gap: 28px 60px;
-                    }
-
-                    .testimonio {
-                        display: flex;
-                        align-items: center;
-                        gap: 18px;
-                    }
-
-                    .avatar {
-                        width: 70px;
-                        height: 70px;
-                        background-color: #eeeeee;
-                        border-radius: 50%;
-                        display: flex;
-                        align-items: center;
-                        justify-content: center;
-                        color: #12075a;
-                        font-size: 28px;
-                        font-weight: bold;
-                        flex-shrink: 0;
-                    }
-
-                    .globo {
-                        background-color: #e6f3ff;
-                        border-radius: 25px;
-                        padding: 14px 20px;
-                        min-height: 90px;
-                    }
-
-                        .globo h4 {
-                            font-weight: bold;
-                            margin-bottom: 6px;
-                        }
-
-                        .globo p {
-                            margin: 0;
-                        }
-
-                    .conocenos-section {
-                        background-color: #110846;
-                        color: white;
-                        display: grid;
-                        grid-template-columns: 1.3fr 0.7fr;
-                        gap: 35px;
-                        padding: 50px 60px;
-                    }
-
-                        .conocenos-section h2 {
-                            color: white;
-                        }
-
-                    .conocenos-texto p {
-                        font-size: 18px;
-                        line-height: 1.6;
-                    }
-
-                    .conocenos-imagen {
-                        display: flex;
-                        align-items: center;
-                        justify-content: center;
-                    }
-
-                    .cuadro-red {
-                        width: 300px;
-                        min-height: 230px;
-                        border: 2px solid #78f3ff;
-                        border-radius: 20px;
-                        padding: 25px;
-                        text-align: center;
-                        box-shadow: 0 0 25px rgba(120, 243, 255, 0.5);
-                    }
-
-                        .cuadro-red h3 {
-                            font-size: 30px;
-                            color: #78f3ff;
-                            margin-bottom: 20px;
-                        }
-
-                        .cuadro-red span {
-                            display: inline-block;
-                            border: 1px solid #78f3ff;
-                            border-radius: 20px;
-                            padding: 8px 15px;
-                            margin: 8px;
-                        }
-
-                    @@media (max-width: 900px) {
-                        .hero-content h1 {
-                            font-size: 42px;
-                        }
-
-                        .shows-grid,
-                        .testimonios-grid,
-                        .conocenos-section {
-                            grid-template-columns: 1fr;
-                        }
-
-                        .show-card {
-                            grid-template-columns: 1fr;
-                        }
-
-                        .shows-section,
-                        .testimonios-section,
-                        .conocenos-section {
-                            padding: 35px 25px;
-                        }
-
-                            .shows-section h2,
-                            .testimonios-section h2,
-                            .conocenos-section h2 {
-                                font-size: 30px;
-                                letter-spacing: 4px;
-                            }
-                    }
-        </style>
     </NotAuthorized>
 </AuthorizeView>
 
 <style>
-    /* 🔴 ESTILOS AISLADOS Y EXCLUSIVOS PARA LA SECCIÓN INTERNA DEL ANFITRIÓN
-           Diseñados con colores que respetan el contenedor blanco del Layout de tu compañero.
-        */
+    /* Estilos del Cliente */
+    .inicio-cliente-page {
+        min-height: 100vh;
+        background: linear-gradient(180deg, #7fdce8 0%, #83edf3 45%, #17094f 100%);
+        font-family: Arial, Helvetica, sans-serif;
+        color: #09082d;
+    }
+
+    .hero-cliente {
+        min-height: 320px;
+        background: linear-gradient(rgba(14, 7, 60, 0.35), rgba(14, 7, 60, 0.65)), radial-gradient(circle at center, #5141bd 0%, #26136f 50%, #0c073d 100%);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        text-align: center;
+        color: white;
+        padding: 40px 20px;
+    }
+
+    .hero-content h1 {
+        font-size: 64px;
+        font-weight: bold;
+        margin-bottom: 25px;
+    }
+
+    .hero-content p {
+        font-size: 22px;
+        margin-bottom: 25px;
+    }
+
+    .btn-anfitrion {
+        display: inline-block;
+        color: white;
+        border: 3px solid white;
+        border-radius: 30px;
+        padding: 12px 40px;
+        text-decoration: none;
+        font-weight: bold;
+        font-size: 18px;
+    }
+
+    .shows-section, .testimonios-section {
+        padding: 45px 60px;
+    }
+
+        .shows-section h2, .testimonios-section h2, .conocenos-section h2 {
+            font-size: 42px;
+            font-weight: bold;
+            letter-spacing: 8px;
+            margin-bottom: 35px;
+            color: #0b0b3d;
+        }
+
+    .shows-grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 35px;
+    }
+
+    .show-card {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        background-color: rgba(255, 255, 255, 0.35);
+        border: 3px solid #111;
+        min-height: 280px;
+    }
+
+    .show-img {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: white;
+        font-size: 36px;
+        font-weight: bold;
+        text-align: center;
+    }
+
+    .show-img-uno {
+        background: linear-gradient(135deg, #111, #555);
+    }
+
+    .show-img-dos {
+        background: linear-gradient(135deg, #000, #2d235c);
+    }
+
+    .show-info {
+        padding: 22px;
+    }
+
+        .show-info h3 {
+            font-size: 25px;
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+
+    .autor {
+        font-weight: bold;
+        margin-bottom: 15px;
+    }
+
+    .precio {
+        font-size: 24px;
+        font-weight: bold;
+        margin-top: 10px;
+    }
+
+    .btn-detalle {
+        display: inline-block;
+        background-color: #12075a;
+        color: white;
+        text-decoration: none;
+        padding: 10px 28px;
+        border-radius: 25px;
+        margin-top: 10px;
+        font-weight: bold;
+    }
+
+    .puntos {
+        display: flex;
+        justify-content: center;
+        gap: 8px;
+        margin-top: 30px;
+    }
+
+        .puntos span {
+            width: 18px;
+            height: 18px;
+            background-color: #110846;
+            border-radius: 50%;
+            display: block;
+        }
+
+    .testimonios-grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 28px 60px;
+    }
+
+    .testimonio {
+        display: flex;
+        align-items: center;
+        gap: 18px;
+    }
+
+    .avatar {
+        width: 70px;
+        height: 70px;
+        background-color: #eeeeee;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: #12075a;
+        font-size: 28px;
+        font-weight: bold;
+        flex-shrink: 0;
+    }
+
+    .globo {
+        background-color: #e6f3ff;
+        border-radius: 25px;
+        padding: 14px 20px;
+        min-height: 90px;
+    }
+
+        .globo h4 {
+            font-weight: bold;
+            margin-bottom: 6px;
+        }
+
+        .globo p {
+            margin: 0;
+        }
+
+    .conocenos-section {
+        background-color: #110846;
+        color: white;
+        display: grid;
+        grid-template-columns: 1.3fr 0.7fr;
+        gap: 35px;
+        padding: 50px 60px;
+    }
+
+        .conocenos-section h2 {
+            color: white;
+        }
+
+    .conocenos-texto p {
+        font-size: 18px;
+        line-height: 1.6;
+    }
+
+    .conocenos-imagen {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .cuadro-red {
+        width: 300px;
+        min-height: 230px;
+        border: 2px solid #78f3ff;
+        border-radius: 20px;
+        padding: 25px;
+        text-align: center;
+        box-shadow: 0 0 25px rgba(120, 243, 255, 0.5);
+    }
+
+        .cuadro-red h3 {
+            font-size: 30px;
+            color: #78f3ff;
+            margin-bottom: 20px;
+        }
+
+        .cuadro-red span {
+            display: inline-block;
+            border: 1px solid #78f3ff;
+            border-radius: 20px;
+            padding: 8px 15px;
+            margin: 8px;
+        }
+
+    @@media (max-width: 900px) {
+        .hero-content h1 {
+            font-size: 42px;
+        }
+
+        .shows-grid, .testimonios-grid, .conocenos-section {
+            grid-template-columns: 1fr;
+        }
+
+        .show-card {
+            grid-template-columns: 1fr;
+        }
+
+        .shows-section, .testimonios-section, .conocenos-section {
+            padding: 35px 25px;
+        }
+
+            .shows-section h2, .testimonios-section h2, .conocenos-section h2 {
+                font-size: 30px;
+                letter-spacing: 4px;
+            }
+    }
+
+    /* Estilos del Anfitrión */
     .seccion-anfitrion-interna {
         padding: 30px;
-        background-color: #ffffff; /* Respeta el color de fondo general de la ventana */
+        background-color: #ffffff;
         font-family: Arial, sans-serif;
     }
 
@@ -545,7 +499,6 @@
             background-color: #241080;
         }
 
-    /* Tarjetas KPI Claras para combinar con el entorno de la página */
     .tarjeta-kpi-anf {
         background: #ffffff;
         border: 1px solid #e1dbf5;
@@ -573,7 +526,6 @@
         margin: 5px 0;
     }
 
-    /* Caja contenedora para la grilla de control de shows */
     .contenedor-tabla-anf {
         background: #ffffff;
         border: 1px solid #e1dbf5;
@@ -583,3 +535,74 @@
         box-shadow: 0 4px 15px rgba(21, 9, 95, 0.04);
     }
 </style>
+
+@code {
+    private PerfilAnfitrionViewModel? perfilActual;
+    private List<EventoViewModel> misEventos = new();
+
+    // Lo usaremos para mostrar el error directamente en la pantalla
+    private string nombreAnfitrion = "Cargando...";
+    private int cantidadEventosPublicados = 0;
+    private int entradasVendidas = 0;
+    private int capacidadTotal = 0;
+    private double ingresosGenerados = 0;
+
+    protected override async Task OnInitializedAsync()
+    {
+        try
+        {
+            var authState = await AuthStateProvider.GetAuthenticationStateAsync();
+            var user = authState.User;
+
+            if (user.Identity is not null && user.Identity.IsAuthenticated)
+            {
+                var idClaim = user.FindFirst("IdUsuario")?.Value;
+
+                // PRUEBA 1: Ver si el ID realmente se guardó en la cookie
+                if (string.IsNullOrEmpty(idClaim))
+                {
+                    nombreAnfitrion = "ERROR: Falta 'IdUsuario' en la cookie";
+                    return;
+                }
+
+                if (int.TryParse(idClaim, out int idAnfitrion))
+                {
+                    // PRUEBA 2: Ver si el Backend Java responde
+                    perfilActual = await AnfitrionService.BuscarAnfitrionAsync(idAnfitrion);
+
+                    if (perfilActual != null)
+                    {
+                        nombreAnfitrion = string.IsNullOrWhiteSpace(perfilActual.Nombre)
+                                            ? "Anfitrión"
+                                            : perfilActual.Nombre;
+                    }
+                    else
+                    {
+                        nombreAnfitrion = $"ERROR: El Java devolvió NULL para el ID {idAnfitrion}";
+                    }
+
+                    // Intentamos traer los eventos aunque falle el perfil
+                    var todosLosEventos = await AnfitrionService.VerTodosLosEventosAsync();
+                    if (todosLosEventos != null)
+                    {
+                        misEventos = todosLosEventos.Where(e => e.anfitrion != null && e.anfitrion.idUsuario == idAnfitrion).ToList();
+                        cantidadEventosPublicados = misEventos.Count;
+                        capacidadTotal = misEventos.Sum(e => e.capacidad_entradas);
+                    }
+
+                    var compras = await AnfitrionService.VerComprasDeSusEventosAsync(idAnfitrion);
+                    if (compras != null && compras.Any())
+                    {
+                        entradasVendidas = compras.Sum(c => c.entradasCompradas);
+                        ingresosGenerados = compras.Sum(c => c.montoTotal);
+                    }
+                }
+            }
+        }
+        catch (Exception ex)
+        {
+            // PRUEBA 3: Si se cae la conexión a GlassFish, lo veremos aquí
+            nombreAnfitrion = "Crash: " + ex.Message;
+        }
+    }
+}

@@ -1,9 +1,13 @@
 ﻿@page "/anfitrion/perfil"
 @using Microsoft.AspNetCore.Authorization
+@using TicketFlowWeb.Models
+@using TicketFlowWeb.Services.AnfitrionRS
+@using Microsoft.AspNetCore.Components.Authorization
 
 @attribute [Authorize(Roles = "ANFITRION")]
 
-@using TicketFlowWeb.Models
+@inject AnfitrionRestService AnfitrionService
+@inject AuthenticationStateProvider AuthStateProvider
 
 <PageTitle>TicketFlow - Perfil de Anfitrión</PageTitle>
 
@@ -15,59 +19,71 @@
         </section>
 
         <section class="tarjeta-perfil">
-            <div class="tabla-perfil">
+            @if (cargando)
+            {
+                <div class="text-center py-5">
+                    <div class="spinner-border text-primary" role="status">
+                        <span class="visually-hidden">Cargando...</span>
+                    </div>
+                    <p class="mt-3 text-muted">Cargando datos de tu perfil...</p>
+                </div>
+            }
+            else
+            {
+                <div class="tabla-perfil">
 
-                <div class="fila-perfil">
-                    <div class="campo">CÓDIGO EMPRESA:</div>
-                    <div class="valor">@perfilModel.Codigo</div>
+                    <div class="fila-perfil">
+                        <div class="campo">CÓDIGO EMPRESA:</div>
+                        <div class="valor text-primary fw-bold">@perfilModel.Codigo</div>
+                    </div>
+
+                    <div class="fila-perfil">
+                        <div class="campo">RAZÓN SOCIAL:</div>
+                        <div class="valor puntos">@(string.IsNullOrEmpty(perfilModel.RazonSocial) ? "No registrado" : perfilModel.RazonSocial)</div>
+                    </div>
+
+                    <div class="fila-perfil">
+                        <div class="campo">RUC:</div>
+                        <div class="valor">@(string.IsNullOrEmpty(perfilModel.Ruc) ? "No registrado" : perfilModel.Ruc)</div>
+                    </div>
+
+                    <div class="fila-perfil">
+                        <div class="campo">REPRESENTANTE:</div>
+                        <div class="valor">@perfilModel.Nombre @perfilModel.ApellidoPaterno @perfilModel.ApellidoMaterno</div>
+                    </div>
+
+                    <div class="fila-perfil">
+                        <div class="campo">DNI REPRESENTANTE:</div>
+                        <div class="valor">@perfilModel.Dni</div>
+                    </div>
+
+                    <div class="fila-perfil">
+                        <div class="campo">CORREO CORPORATIVO:</div>
+                        <div class="valor">@perfilModel.CorreoElectronico</div>
+                    </div>
+
+                    <div class="fila-perfil">
+                        <div class="campo">TELÉFONO CONTACTO:</div>
+                        <div class="valor">@perfilModel.Telefono</div>
+                    </div>
+
+                    <div class="fila-perfil">
+                        <div class="campo">CUENTA BANCARIA:</div>
+                        <div class="valor text-muted">@(string.IsNullOrEmpty(perfilModel.CuentaBancaria) ? "No registrada" : perfilModel.CuentaBancaria)</div>
+                    </div>
+
                 </div>
 
-                <div class="fila-perfil">
-                    <div class="campo">RAZÓN SOCIAL:</div>
-                    <div class="valor puntos">@perfilModel.RazonSocial</div>
+                <div class="acciones-perfil">
+                    <a href="/anfitrion/gestionar-evento" class="btn-perfil secundario">
+                        Ver mis eventos
+                    </a>
+
+                    <a href="/anfitrion/crear-evento" class="btn-perfil principal">
+                        Publicar Evento
+                    </a>
                 </div>
-
-                <div class="fila-perfil">
-                    <div class="campo">RUC:</div>
-                    <div class="valor">@perfilModel.Ruc</div>
-                </div>
-
-                <div class="fila-perfil">
-                    <div class="campo">REPRESENTANTE:</div>
-                    <div class="valor">@perfilModel.Nombre @perfilModel.ApellidoPaterno @perfilModel.ApellidoMaterno</div>
-                </div>
-
-                <div class="fila-perfil">
-                    <div class="campo">DNI REPRESENTANTE:</div>
-                    <div class="valor">@perfilModel.Dni</div>
-                </div>
-
-                <div class="fila-perfil">
-                    <div class="campo">CORREO CORPORATIVO:</div>
-                    <div class="valor">@perfilModel.Correo</div>
-                </div>
-
-                <div class="fila-perfil">
-                    <div class="campo">TELÉFONO CONTACTO:</div>
-                    <div class="valor">@perfilModel.Telefono</div>
-                </div>
-
-                <div class="fila-perfil">
-                    <div class="campo">CUENTA BANCARIA:</div>
-                    <div class="valor text-muted">@perfilModel.CuentaBancaria</div>
-                </div>
-
-            </div>
-
-            <div class="acciones-perfil">
-                <a href="/anfitrion/gestionar-evento" class="btn-perfil secundario">
-                    Ver mis eventos
-                </a>
-
-                <a href="/anfitrion/crear-evento" class="btn-perfil principal">
-                    Publicar Evento
-                </a>
-            </div>
+            }
         </section>
 
     </main>
@@ -217,21 +233,36 @@
 
 @code {
     private PerfilAnfitrionViewModel perfilModel = new PerfilAnfitrionViewModel();
+    private bool cargando = true;
 
-    protected override void OnInitialized()
+    protected override async Task OnInitializedAsync()
     {
-        perfilModel = new PerfilAnfitrionViewModel
+        var authState = await AuthStateProvider.GetAuthenticationStateAsync();
+        var user = authState.User;
+
+        if (user.Identity is not null && user.Identity.IsAuthenticated)
         {
-            Codigo = "ANF-9842",
-            RazonSocial = "Producciones Entretenimiento Perú S.A.C.",
-            Ruc = "20765432101",
-            Nombre = "Luis",
-            ApellidoPaterno = "Ramírez",
-            ApellidoMaterno = "Gómez",
-            Dni = "76543210",
-            Correo = "contacto@entretenimiento.pe",
-            Telefono = "987 654 321",
-            CuentaBancaria = "BCP - 191-XXXXXXXX-X-XX"
-        };
+            var idClaim = user.FindFirst("IdUsuario")?.Value;
+
+            if (int.TryParse(idClaim, out int idAnfitrion))
+            {
+                // Traemos los datos de Java
+                var data = await AnfitrionService.BuscarAnfitrionAsync(idAnfitrion);
+
+                if (data != null)
+                {
+                    perfilModel = data;
+
+                    // Como la base de datos no tiene un "Código de Empresa" guardado,
+                    // lo generamos dinámicamente usando su ID (ej. ANF-0001)
+                    if (string.IsNullOrEmpty(perfilModel.Codigo))
+                    {
+                        perfilModel.Codigo = $"ANF-{idAnfitrion.ToString("D4")}";
+                    }
+                }
+            }
+        }
+
+        cargando = false;
     }
 }

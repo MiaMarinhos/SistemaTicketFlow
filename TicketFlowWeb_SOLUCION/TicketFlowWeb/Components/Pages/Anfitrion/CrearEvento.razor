@@ -1,10 +1,15 @@
 ﻿@page "/anfitrion/crear-evento"
 @using Microsoft.AspNetCore.Authorization
-
-@attribute [Authorize(Roles = "ANFITRION")]
+@using Microsoft.AspNetCore.Components.Authorization
 @using System.ComponentModel.DataAnnotations
 @using TicketFlowWeb.Models
+@using TicketFlowWeb.Services.AnfitrionRS
+
+@attribute [Authorize(Roles = "ANFITRION")]
+
 @inject NavigationManager NavigationManager
+@inject AnfitrionRestService AnfitrionService
+@inject AuthenticationStateProvider AuthStateProvider
 
 <PageTitle>TicketFlow - Crear Evento</PageTitle>
 
@@ -17,7 +22,7 @@
             </button>
         </div>
 
-        <form @onsubmit="GuardarEvento" autocomplete="off">
+        <form @onsubmit="GuardarEventoAsync" autocomplete="off">
 
             <div class="row g-4">
 
@@ -55,8 +60,8 @@
                 <div class="col-lg-6 d-flex flex-column gap-3 justify-content-between">
 
                     <div class="fila-formulario-derecha">
-                        <span class="etiqueta-fija">Imagen</span>
-                        <input type="text" class="custom-input" placeholder="Subir Imagen" @bind="eventoModel.img" />
+                        <span class="etiqueta-fija">Imagen URL</span>
+                        <input type="text" class="custom-input" placeholder="Ej: https://mi-imagen.com/foto.jpg" @bind="eventoModel.img" />
                     </div>
 
                     <div class="fila-formulario-derecha">
@@ -71,7 +76,7 @@
 
                     <div class="fila-formulario-derecha">
                         <span class="etiqueta-fija">Hora de Fin</span>
-                        <input type="text" class="custom-input" placeholder="12:30 am" @bind="eventoModel.horaFinModerna" required />
+                        <input type="text" class="custom-input" placeholder="12:30 pm" @bind="eventoModel.horaFinModerna" required />
                     </div>
 
                     <div class="fila-formulario-derecha">
@@ -86,12 +91,12 @@
 
                     <div class="fila-formulario-derecha">
                         <span class="etiqueta-fija">Distrito</span>
-                        <input type="text" class="custom-input" placeholder="Miraflores" @bind="eventoModel.distrito" required />
+                        <input type="text" class="custom-input" placeholder="Miraflores" @bind="nombreDistrito" required />
                     </div>
-                    
+
                     <div class="fila-formulario-derecha">
                         <span class="etiqueta-fija">Region</span>
-                        <input type="text" class="custom-input" placeholder="Lima" @bind="eventoModel.distrito.region" required />
+                        <input type="text" class="custom-input" placeholder="Lima" @bind="nombreRegion" required />
                     </div>
 
                 </div>
@@ -99,8 +104,8 @@
             </div>
 
             <div class="text-center mt-5">
-                <button type="submit" class="btn-crear-evento fw-bold text-uppercase">
-                    Crear Evento
+                <button type="submit" class="btn-crear-evento fw-bold text-uppercase" disabled="@estaGuardando">
+                    @(estaGuardando ? "Guardando..." : "Crear Evento")
                 </button>
             </div>
 
@@ -110,6 +115,7 @@
 </div>
 
 <style>
+    /* SE MANTIENEN TODOS TUS ESTILOS EXACTAMENTE IGUAL */
     .crear-evento-page {
         background-color: #121212;
         font-family: system-ui, -apple-system, sans-serif;
@@ -218,31 +224,34 @@
         box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
     }
 
-        .btn-crear-evento:hover {
+        .btn-crear-evento:hover:not(:disabled) {
             background-color: #ffffff;
             transform: scale(1.03);
+        }
+
+        .btn-crear-evento:disabled {
+            opacity: 0.7;
+            cursor: not-allowed;
         }
 </style>
 
 @code {
     private EventoViewModel eventoModel = new EventoViewModel();
+    private bool estaGuardando = false;
+
+    // Variables temporales para evitar errores de enlace (Binding) en Blazor
+    private string nombreDistrito = string.Empty;
+    private string nombreRegion = string.Empty;
 
     private string FechaFormateada
     {
-        get
-        {
-            return eventoModel.fechaModerna?.ToString("dd/MM/yyyy") ?? DateTime.Today.ToString("dd/MM/yyyy");
-        }
+        get => eventoModel.fechaModerna?.ToString("dd/MM/yyyy") ?? DateTime.Today.ToString("dd/MM/yyyy");
         set
         {
             if (DateTime.TryParseExact(value, "dd/MM/yyyy", null, System.Globalization.DateTimeStyles.None, out DateTime fechaParsed))
-            {
                 eventoModel.fechaModerna = fechaParsed;
-            }
             else if (DateTime.TryParse(value, out DateTime fechaFlexible))
-            {
                 eventoModel.fechaModerna = fechaFlexible;
-            }
         }
     }
 
@@ -254,32 +263,60 @@
 
     private string PrecioFormateado
     {
-        get
-        {
-            return $"S/. {eventoModel.precio.ToString("0.00")}";
-        }
+        get => $"S/. {eventoModel.precio.ToString("0.00")}";
         set
         {
             string limpio = value.Replace("S/.", "").Replace("S/", "").Replace(" ", "").Trim();
-
             if (decimal.TryParse(limpio, out decimal resultado))
-            {
                 eventoModel.precio = resultado < 0 ? 0 : resultado;
-            }
             else if (string.IsNullOrEmpty(limpio))
-            {
                 eventoModel.precio = 0;
-            }
         }
     }
 
-    private void GuardarEvento()
+    private async Task GuardarEventoAsync()
     {
-        NavigationManager.NavigateTo("/");
+        estaGuardando = true;
+
+        try
+        {
+            // 1. Identificar al usuario logueado
+            var authState = await AuthStateProvider.GetAuthenticationStateAsync();
+            var user = authState.User;
+
+            if (user.Identity is not null && user.Identity.IsAuthenticated)
+            {
+                var idClaim = user.FindFirst("IdUsuario")?.Value;
+
+                if (int.TryParse(idClaim, out int idAnfitrion))
+                {
+                    // 2. Le asignamos al evento quién es su dueño (Anfitrión)
+                    eventoModel.anfitrion = new Anfitrion { idUsuario = idAnfitrion };
+
+                    // Opcional: Configurar Distrito si tienes un modelo para enviarlo
+                    // eventoModel.distrito = new Distrito { nombre = nombreDistrito, region = nombreRegion };
+
+                    // 3. Lo mandamos al Backend Java
+                    // NOTA: Asegúrate de tener este método CrearEventoAsync en tu AnfitrionRestService.cs
+                    await AnfitrionService.CrearEventoAsync(eventoModel);
+
+                    // 4. Si todo sale bien, lo redirigimos a "Mis Eventos" para que vea su nuevo show
+                    NavigationManager.NavigateTo("/anfitrion/gestionar-evento");
+                }
+            }
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine("Error al guardar: " + ex.Message);
+        }
+        finally
+        {
+            estaGuardando = false;
+        }
     }
 
     private void VolverAtras()
     {
-        NavigationManager.NavigateTo("/");
+        NavigationManager.NavigateTo("/anfitrion/gestionar-evento");
     }
 }

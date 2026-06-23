@@ -1,9 +1,14 @@
 ﻿@page "/anfitrion/pagos_evento"
 @using Microsoft.AspNetCore.Authorization
+@using TicketFlowWeb.Models
+@using TicketFlowWeb.Services.AnfitrionRS
+@using Microsoft.AspNetCore.Components.Authorization
 
 @attribute [Authorize(Roles = "ANFITRION")]
-@using TicketFlowWeb.Models
+
 @inject NavigationManager NavigationManager
+@inject AnfitrionRestService AnfitrionService
+@inject AuthenticationStateProvider AuthStateProvider
 
 <PageTitle>TicketFlow - Pagos de Mis Eventos</PageTitle>
 
@@ -37,16 +42,37 @@
                         </tr>
                     </thead>
                     <tbody>
-                        @foreach (var pago in PagosFiltrados)
+                        @if (cargando)
                         {
                             <tr>
-                                <td class="fw-bold text-muted" style="width: 120px;">@pago.IdPago</td>
-                                <td class="fw-bold text-indigo">@pago.Evento</td>
-                                <td>@pago.Cliente</td>
-                                <td><span class="metodo-badge">@pago.Metodo</span></td>
-                                <td><span class="badge-fecha">@pago.FechaTexto</span></td>
-                                <td class="fw-bold text-dark">S/. @pago.Monto.ToString("0.00")</td>
+                                <td colspan="6" class="text-center py-5">
+                                    <div class="spinner-border text-primary" role="status">
+                                        <span class="visually-hidden">Cargando pagos...</span>
+                                    </div>
+                                </td>
                             </tr>
+                        }
+                        else if (!PagosFiltrados.Any())
+                        {
+                            <tr>
+                                <td colspan="6" class="text-center py-5 text-muted">
+                                    No se encontraron pagos registrados para tus eventos.
+                                </td>
+                            </tr>
+                        }
+                        else
+                        {
+                            @foreach (var pago in PagosFiltrados)
+                            {
+                                <tr>
+                                    <td class="fw-bold text-muted" style="width: 120px;">@pago.IdPagoFormat</td>
+                                    <td class="fw-bold text-indigo">@pago.NombreEvento</td>
+                                    <td>@pago.NombreCliente</td>
+                                    <td><span class="metodo-badge">@pago.MetodoPago</span></td>
+                                    <td><span class="badge-fecha">@pago.FechaPago</span></td>
+                                    <td class="fw-bold text-dark">S/. @pago.MontoTotal.ToString("0.00")</td>
+                                </tr>
+                            }
                         }
                     </tbody>
                 </table>
@@ -57,6 +83,7 @@
 </div>
 
 <style>
+    /* Se mantienen exactamente tus mismos estilos */
     .pagos-eventos-contenedor {
         min-height: 100vh;
         background-color: #f2edff;
@@ -91,8 +118,8 @@
     }
 
     .tabla-scroll-contenedor {
-        max-height: 440px; 
-        overflow-y: auto; 
+        max-height: 440px;
+        overflow-y: auto;
         border: 1px solid #f0edf5;
         border-radius: 4px;
     }
@@ -167,54 +194,78 @@
 
 @code {
     private string criterioBusqueda = string.Empty;
+    private bool cargando = true;
 
-    private List<PagoFilaDto> listadoPagos = new()
-    {
-        // --- TRANSACCIONES DE "POEMAX" (Precio base S/. 80.00) ---
-        new PagoFilaDto("PG-001", "Poemax", "María López", "Yape", "07/03/2026", 80.00m),       // 1 entrada regular
-        new PagoFilaDto("PG-002", "Poemax", "Carlos Vega", "BCP", "07/03/2026", 160.00m),      // 2 entradas regulares
-        new PagoFilaDto("PG-003", "Poemax", "Romina Icho", "Yape", "08/03/2026", 75.00m),       // 1 entrada - Descuento 50 pts (-5 soles)
-        new PagoFilaDto("PG-008", "Poemax", "Jorge Luna", "Plin", "28/03/2026", 70.00m),        // 1 entrada - Descuento 100 pts (-10 soles)
+    // Aquí guardamos la lista transformada para la tabla
+    private List<PagoFilaDto> listadoPagos = new();
 
-        // --- TRANSACCIONES DE "CONCIERTO ROCK" (Precio base S/. 85.00) ---
-        new PagoFilaDto("PG-004", "Concierto Rock", "Sergio Ventura", "Interbank", "15/03/2026", 85.00m),   // 1 entrada regular
-        new PagoFilaDto("PG-005", "Concierto Rock", "Andrea Rojas", "Yape", "15/03/2026", 170.00m),         // 2 entradas regulares
-        new PagoFilaDto("PG-012", "Concierto Rock", "Diana Medina", "Yape", "10/04/2026", 75.00m),          // 1 entrada - Descuento 100 pts (-10 soles)
-
-        // --- TRANSACCIONES DE "OBRA DE TEATRO: HAMLET" (Precio base S/. 120.00) ---
-        new PagoFilaDto("PG-006", "Obra de Teatro: Hamlet", "Luis Ramírez", "BCP", "22/03/2026", 120.00m),       // 1 entrada regular
-        new PagoFilaDto("PG-007", "Obra de Teatro: Hamlet", "María Elena Gómez", "Yape", "23/03/2026", 115.00m),  // 1 entrada - Descuento 50 pts (-5 soles)
-        new PagoFilaDto("PG-013", "Obra de Teatro: Hamlet", "Carlos Torres", "BBVA", "24/03/2026", 230.00m),     // 2 entradas - Descuento 100 pts (-10 soles)
-
-        // --- TRANSACCIONES DE "FERIA GASTRONÓMICA" (Precio base S/. 20.00) ---
-        new PagoFilaDto("PG-009", "Feria Gastronómica \"Sabores Limeños\"", "Carlos Torres", "Yape", "02/04/2026", 20.00m), // 1 entrada regular
-        new PagoFilaDto("PG-010", "Feria Gastronómica \"Sabores Limeños\"", "Milagros Sosa", "BCP", "02/04/2026", 40.00m),  // 2 entradas regulares
-
-        // --- TRANSACCIONES DE "NOCHE DE SALSA" (Precio base S/. 45.00) ---
-        new PagoFilaDto("PG-011", "Noche de Salsa y Sabor", "Renato Castro", "BBVA", "05/04/2026", 45.00m)          // 1 entrada regular
-    };
-
+    // Filtro dinámico en tiempo real
     private IEnumerable<PagoFilaDto> PagosFiltrados =>
         listadoPagos.Where(p => string.IsNullOrEmpty(criterioBusqueda) ||
-                                p.Evento.Contains(criterioBusqueda, StringComparison.OrdinalIgnoreCase));
+                                p.NombreEvento.Contains(criterioBusqueda, StringComparison.OrdinalIgnoreCase));
+
+    protected override async Task OnInitializedAsync()
+    {
+        var authState = await AuthStateProvider.GetAuthenticationStateAsync();
+        var user = authState.User;
+
+        if (user.Identity is not null && user.Identity.IsAuthenticated)
+        {
+            var idClaim = user.FindFirst("IdUsuario")?.Value;
+
+            if (int.TryParse(idClaim, out int idAnfitrion))
+            {
+                // 1. Traemos todas las compras hechas a los eventos de este anfitrión
+                var comprasBackend = await AnfitrionService.VerComprasDeSusEventosAsync(idAnfitrion);
+
+                // 2. Traemos la lista de eventos para poder buscar sus títulos (ya que el CompraViewModel solo trae IDs a veces)
+                var eventosBackend = await AnfitrionService.VerTodosLosEventosAsync();
+
+                if (comprasBackend != null)
+                {
+                    listadoPagos.Clear();
+
+                    foreach (var compra in comprasBackend)
+                    {
+                        // Buscamos el nombre del evento cruzando el idEvento de la compra con la lista de eventos
+                        var eventoRelacionado = eventosBackend?.FirstOrDefault(e => e.id == compra.idEvento.ToString());
+                        string nombreEvento = eventoRelacionado?.titulo ?? "Evento Desconocido";
+
+                        // El nombre del cliente asumo que el backend te lo manda dentro del objeto anidado `cliente`.
+                        // Como tu modelo `cliente` es un "object?", no podemos acceder a sus propiedades directamente.
+                        // Por ahora pondremos su ID, pero más adelante puedes ajustar esto si creas un ClienteViewModel.
+                        string nombreCliente = $"Cliente ID: {compra.idCliente}";
+
+                        // Damos formato visual al ID del Pago (ej. de 1 a PG-001)
+                        string pagoIdFormateado = $"PG-{compra.idCompra.ToString("D3")}";
+
+                        listadoPagos.Add(new PagoFilaDto
+                        {
+                            IdPagoFormat = pagoIdFormateado,
+                            NombreEvento = nombreEvento,
+                            NombreCliente = nombreCliente,
+                            MetodoPago = string.IsNullOrEmpty(compra.metodoPago) ? "No especificado" : compra.metodoPago,
+                            FechaPago = string.IsNullOrEmpty(compra.fechaCompra) ? "Pendiente" : compra.fechaCompra,
+                            MontoTotal = compra.montoTotal
+                        });
+                    }
+
+                    // Ordenamos los pagos por los más recientes (basado en el ID, o podrías usar la fecha)
+                    listadoPagos = listadoPagos.OrderByDescending(p => p.IdPagoFormat).ToList();
+                }
+            }
+        }
+
+        cargando = false;
+    }
 
     private class PagoFilaDto
     {
-        public string IdPago { get; set; }
-        public string Evento { get; set; }
-        public string Cliente { get; set; }
-        public string Metodo { get; set; }
-        public string FechaTexto { get; set; }
-        public decimal Monto { get; set; }
-
-        public PagoFilaDto(string idPago, string evento, string cliente, string metodo, string fechaTexto, decimal monto)
-        {
-            IdPago = idPago;
-            Evento = evento;
-            Cliente = cliente;
-            Metodo = metodo;
-            FechaTexto = fechaTexto;
-            Monto = monto;
-        }
+        public string IdPagoFormat { get; set; } = string.Empty;
+        public string NombreEvento { get; set; } = string.Empty;
+        public string NombreCliente { get; set; } = string.Empty;
+        public string MetodoPago { get; set; } = string.Empty;
+        public string FechaPago { get; set; } = string.Empty;
+        public double MontoTotal { get; set; }
     }
 }
