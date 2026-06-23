@@ -1,11 +1,11 @@
 USE `ticket_flow`;
 -----------------------------------
----COMPRA
+-- COMPRA
 -----------------------------------
 
---Create
+-- Create
 ------------------------------------------------------
-DROP PROCEDURE IF EXISTS SP_REGISTRAR_COMPRA
+DROP PROCEDURE IF EXISTS SP_REGISTRAR_COMPRA;
 
 DELIMITER //
 
@@ -56,7 +56,7 @@ END //
 DELIMITER ;
 ------------------------------
 
---Read
+-- Read
 DELIMITER $$
 
 DROP PROCEDURE IF EXISTS sp_read_compras $$
@@ -74,7 +74,7 @@ WHERE idCompras = p_idCompras;
 END$$
 DELIMITER ;
 
---Update
+-- Update
 DELIMITER $$
 
 DROP PROCEDURE IF EXISTS sp_update_compras $$
@@ -109,7 +109,7 @@ WHERE idCompras = p_idCompras;
 END$$
 DELIMITER ;
 
---Delete
+-- Delete
 DELIMITER $$
 
 DROP PROCEDURE IF EXISTS sp_delete_compras $$
@@ -123,7 +123,7 @@ WHERE idCompras = p_idCompras;
 END$$
 DELIMITER ;
 
---ListAll
+-- ListAll
 DELIMITER $$
 
 DROP PROCEDURE IF EXISTS sp_listAll_compras $$
@@ -153,7 +153,7 @@ WHERE e.idAnfitrion = p_idAnfitrion;
 END$$
 DELIMITER ;
 
---Buscar Compra por Usuario
+-- Buscar Compra por Usuario
 DELIMITER $$
 
 DROP PROCEDURE IF EXISTS sp_buscar_compra_usuario $$
@@ -195,11 +195,11 @@ END$$
 
 DELIMITER ;
 
------------------------------------
---ESTADO COMPRAS
------------------------------------
+-- ---------------------------------
+-- ESTADO COMPRAS
+-- ---------------------------------
 
---Create
+-- Create
 DELIMITER $$
 
 DROP PROCEDURE IF EXISTS sp_create_estado_compras $$
@@ -235,7 +235,7 @@ WHERE idEstado = p_idEstado;
 END$$
 DELIMITER ;
 
---Update
+-- Update
 DELIMITER $$
 
 DROP PROCEDURE IF EXISTS sp_update_estado_compras $$
@@ -252,7 +252,7 @@ WHERE idEstado = p_idEstado;
 END$$
 DELIMITER ;
 
---Delete
+-- Delete
 DELIMITER $$
 
 DROP PROCEDURE IF EXISTS sp_delete_estado_compras $$
@@ -266,7 +266,7 @@ WHERE idEstado = p_idEstado;
 END$$
 DELIMITER ;
 
---ListAll
+-- ListAll
 DELIMITER $$
 
 DROP PROCEDURE IF EXISTS sp_listAll_estado_compras $$

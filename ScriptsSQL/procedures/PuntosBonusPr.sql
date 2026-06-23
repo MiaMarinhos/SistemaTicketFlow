@@ -1,10 +1,12 @@
 USE `ticket_flow` ;
------------------------------------
---PUNTOS BONUS
------------------------------------
+-- ---------------------------------
+-- PUNTOS BONUS
+-- ---------------------------------
 
---Create
+-- Create
 DELIMITER $$
+drop procedure if exists sp_create_puntos_bonus;
+
 CREATE PROCEDURE sp_create_puntos_bonus (
     OUT p_id INT,
     IN p_puntos_canjeables INT,
@@ -21,7 +23,10 @@ SET p_id = LAST_INSERT_ID();
 END$$
 DELIMITER ;
 
---Read
+-- Read
+
+drop procedure if exists sp_read_puntos_bonus;
+
 DELIMITER $$
 CREATE PROCEDURE sp_read_puntos_bonus (
     IN p_idPuntos_bonus INT
@@ -34,7 +39,9 @@ WHERE idPuntos_bonus = p_idPuntos_bonus;
 END$$
 DELIMITER ;
 
---Update
+-- Update
+drop procedure if exists sp_update_puntos_bonus;
+
 DELIMITER $$
 CREATE PROCEDURE sp_update_puntos_bonus (
     IN p_idPuntos_bonus INT,
@@ -50,7 +57,10 @@ WHERE idPuntos_bonus = p_idPuntos_bonus;
 END$$
 DELIMITER ;
 
---Delete
+-- Delete
+
+drop procedure if exists sp_delete_puntos_bonus;
+
 DELIMITER $$
 CREATE PROCEDURE sp_delete_puntos_bonus (
     IN p_idPuntos_bonus INT
@@ -61,7 +71,10 @@ WHERE idPuntos_bonus = p_idPuntos_bonus;
 END$$
 DELIMITER ;
 
---ListAll
+-- ListAll
+
+drop procedure if exists sp_listAll_puntos_bonus;
+
 DELIMITER $$
 CREATE PROCEDURE sp_listAll_puntos_bonus ()
 BEGIN
