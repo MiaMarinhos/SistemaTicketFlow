@@ -1,9 +1,11 @@
 USE `ticket_flow` ;
------------------------------------
---ESTADO SOLICITUD
------------------------------------
---Create
+-- ---------------------------------
+-- ESTADO SOLICITUD
+-- ---------------------------------
+-- Create
 DELIMITER $$
+
+drop procedure if exists USP_INSERTAR_ESTADO_SOLICITUD;
 
 CREATE PROCEDURE USP_INSERTAR_ESTADO_SOLICITUD(
     OUT p_idEstadoSolicitud INT,
@@ -24,8 +26,10 @@ END$$
 
 DELIMITER ;
 
---Read
+-- Read
 DELIMITER $$
+
+drop procedure if exists USP_LEER_ESTADO_SOLICITUD;
 
 CREATE PROCEDURE USP_LEER_ESTADO_SOLICITUD(
     IN p_idEstadoSolicitud INT
@@ -42,8 +46,10 @@ END$$
 
 DELIMITER ;
 
---Update
+-- Update
 DELIMITER $$
+
+drop procedure if exists USP_ACTUALIZAR_ESTADO_SOLICITUD;
 
 CREATE PROCEDURE USP_ACTUALIZAR_ESTADO_SOLICITUD(
     IN p_idEstadoSolicitud INT,
@@ -59,7 +65,8 @@ END$$
 
 DELIMITER ;
 
---Delete
+-- Delete
+drop procedure if exists USP_ELIMINAR_ESTADO_SOLICITUD;
 
 DELIMITER $$
 
@@ -75,7 +82,9 @@ END$$
 
 DELIMITER ;
 
---ListAll
+-- ListAll
+
+drop procedure if exists USP_LISTAR_ESTADOS_SOLICITUD;
 
 DELIMITER $$
 
@@ -92,10 +101,13 @@ END$$
 DELIMITER ;
 
 
------------------------------------
---SOLICITUD
------------------------------------
---Create
+-- ---------------------------------
+-- SOLICITUD
+-- ---------------------------------
+-- Create
+
+drop procedure if exists USP_INSERTAR_SOLICITUD;
+
 DELIMITER $$
 
 CREATE PROCEDURE USP_INSERTAR_SOLICITUD(
@@ -132,7 +144,10 @@ END$$
 
 DELIMITER ;
 
---Read
+-- Read
+
+drop procedure if exists USP_LEER_SOLICITUD;
+
 DELIMITER $$
 
 CREATE PROCEDURE USP_LEER_SOLICITUD(
@@ -155,7 +170,10 @@ END$$
 
 DELIMITER ;
 
---Update
+-- Update
+
+drop procedure if exists USP_ACTUALIZAR_SOLICITUD;
+
 DELIMITER $$
 
 CREATE PROCEDURE USP_ACTUALIZAR_SOLICITUD(
@@ -183,7 +201,10 @@ END$$
 
 DELIMITER ;
 
---Delete
+-- Delete
+
+drop procedure if exists USP_ELIMINAR_SOLICITUD;
+
 DELIMITER $$
 
 CREATE PROCEDURE USP_ELIMINAR_SOLICITUD(
@@ -198,7 +219,9 @@ END$$
 
 DELIMITER ;
 
---ListAll
+-- ListAll
+
+drop procedure if exists USP_LISTAR_SOLICITUDES;
 
 DELIMITER $$
 
@@ -220,6 +243,9 @@ END$$
 DELIMITER ;
 
 -- Buscar Solicitud por Nombre
+
+drop procedure if exists USP_BUSCAR_SOLICITUD_NOMBRE;
+
 DELIMITER $$
 
 CREATE PROCEDURE USP_BUSCAR_SOLICITUD_NOMBRE(
@@ -242,6 +268,9 @@ END$$
 DELIMITER ;
 
 -- Filtrar Por Estado
+
+drop procedure if exists USP_FILTRAR_SOLICITUD_ESTADO;
+
 DELIMITER $$
 
 CREATE PROCEDURE USP_FILTRAR_SOLICITUD_ESTADO(
@@ -256,6 +285,9 @@ END$$
 DELIMITER ;
 
 -- Aprobar Solicitud
+
+drop procedure if exists USP_APROBAR_SOLICITUD;
+
 DELIMITER $$
 
 CREATE PROCEDURE USP_APROBAR_SOLICITUD(
@@ -270,6 +302,8 @@ END$$
 DELIMITER ;
 
 -- Rechazar Solicitud
+drop procedure if exists USP_RECHAZAR_SOLICITUD;
+
 DELIMITER $$
 
 CREATE PROCEDURE USP_RECHAZAR_SOLICITUD(

@@ -1,5 +1,7 @@
---Reporte Ventas
+-- Reporte Ventas
 DELIMITER $$
+
+drop procedure if exists USP_REPORTE_VENTAS;
 
 CREATE PROCEDURE USP_REPORTE_VENTAS(
     IN p_fechaInicio DATE,
@@ -23,6 +25,7 @@ END$$
 
 DELIMITER ;
 
+drop procedure if exists USP_REPORTE_FIDELIZACION;
 -- Reporte Fidelizacion
 DELIMITER $$
 
@@ -49,7 +52,9 @@ END$$
 
 DELIMITER ;
 
---Reporte Ocupacion Eventos
+drop procedure if exists USP_REPORTE_OCUPACION_EVENTOS;
+
+-- Reporte Ocupacion Eventos
 DELIMITER $$
 
 CREATE PROCEDURE USP_REPORTE_OCUPACION_EVENTOS()

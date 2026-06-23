@@ -1,7 +1,7 @@
 USE `ticket_flow` ;
------------------------------------
---USUARIO
------------------------------------
+-- ---------------------------------
+-- USUARIO
+-- ---------------------------------
 -- CREATE
 DELIMITER //
 
@@ -192,8 +192,12 @@ FROM estado_usuario
 WHERE idEstado_usuario=p_idEstadoUsuario;
 END //
 
+DELIMITER ;
 
---BuscarPorNombre
+-- BuscarPorNombre
+
+drop procedure if exists SP_BUSCAR_USUARIO_NOMBRE;
+
 DELIMITER $$
 
 CREATE PROCEDURE SP_BUSCAR_USUARIO_NOMBRE(
@@ -213,7 +217,10 @@ END$$
 
 DELIMITER ;
 
---Filtrar Por Tipo
+-- Filtrar Por Tipo
+
+drop procedure if exists SP_FILTRAR_USUARIO_TIPO;
+
 DELIMITER $$
 
 CREATE PROCEDURE SP_FILTRAR_USUARIO_TIPO(
@@ -231,7 +238,9 @@ END$$
 
 DELIMITER ;
 
---Filtrar Por Estado
+
+drop procedure if exists SP_FILTRAR_USUARIO_ESTADO;
+-- Filtrar Por Estado
 DELIMITER $$
 
 CREATE PROCEDURE SP_FILTRAR_USUARIO_ESTADO(
@@ -251,7 +260,10 @@ END$$
 
 DELIMITER ;
 
---Bloquear Usuario
+-- Bloquear Usuario
+
+drop procedure if exists SP_BLOQUEAR_USUARIO;
+
 DELIMITER $$
 
 CREATE PROCEDURE SP_BLOQUEAR_USUARIO(
@@ -267,7 +279,10 @@ END$$
 
 DELIMITER ;
 
---DesbloquearUsuario
+-- DesbloquearUsuario
+
+drop procedure if exists SP_DESBLOQUEAR_USUARIO;
+
 DELIMITER $$
 
 CREATE PROCEDURE SP_DESBLOQUEAR_USUARIO(
@@ -283,9 +298,9 @@ END$$
 
 DELIMITER ;
 
---------------------------------------------------------------------------------------------------------------------------------------------
---CLIENTE
------------------------------------
+-- ------------------------------------------------------------------------------------------------------------------------------------------
+-- CLIENTE
+-- ---------------------------------
 -- CREATE
 DELIMITER //
 
@@ -410,9 +425,24 @@ END //
 
 DELIMITER ;
 
------------------------------------
---ANFITRION
------------------------------------
+
+DELIMITER //
+
+DROP PROCEDURE IF EXISTS SP_OBTENER_PUNTOS_BONUS //
+
+CREATE PROCEDURE SP_OBTENER_PUNTOS_BONUS(
+    IN p_idCliente INT
+)
+BEGIN
+SELECT c.puntos_bonus
+FROM cliente c
+WHERE c.idCliente = p_idCliente;
+END //
+
+DELIMITER ;
+-- ---------------------------------
+-- ANFITRION
+-- ---------------------------------
 -- CREATE
 DELIMITER //
 

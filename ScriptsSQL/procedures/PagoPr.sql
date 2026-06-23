@@ -1,9 +1,9 @@
 USE `ticket_flow`;
------------------------------------
---ESTADO PAGO
------------------------------------
-
---Create
+-- ---------------------------------
+-- ESTADO PAGO
+-- ---------------------------------
+DROP PROCEDURE IF EXISTS sp_create_estado_pagos;
+-- Create
 DELIMITER $$
 CREATE PROCEDURE sp_create_estado_pagos (
     OUT p_id INT,
@@ -20,7 +20,8 @@ SET p_id = LAST_INSERT_ID();
 END$$
 DELIMITER ;
 
---Read
+DROP PROCEDURE IF EXISTS sp_read_estado_pagos; 
+-- Read
 DELIMITER $$
 CREATE PROCEDURE sp_read_estado_pagos (
     IN p_idestado_pagos INT
@@ -33,7 +34,8 @@ WHERE idestado_pagos = p_idestado_pagos;
 END$$
 DELIMITER ;
 
---Update
+DROP PROCEDURE IF EXISTS sp_update_estado_pagos; 
+-- Update
 DELIMITER $$
 CREATE PROCEDURE sp_update_estado_pagos (
     IN p_idestado_pagos INT,
@@ -47,7 +49,9 @@ WHERE idestado_pagos = p_idestado_pagos;
 END$$
 DELIMITER ;
 
---Delete
+DROP PROCEDURE IF EXISTS sp_delete_estado_pagos; 
+
+-- Delete
 DELIMITER $$
 CREATE PROCEDURE sp_delete_estado_pagos (
     IN p_idestado_pagos INT
@@ -59,6 +63,9 @@ END$$
 DELIMITER ;
 
 DELIMITER $$
+
+DROP PROCEDURE IF EXISTS sp_listAll_estado_pagos $$
+
 CREATE PROCEDURE sp_listAll_estado_pagos ()
 BEGIN
 SELECT
@@ -67,11 +74,13 @@ FROM estado_pagos;
 END$$
 DELIMITER ;
 
------------------------------------
---PAGOS
------------------------------------
+-- ---------------------------------
+-- PAGOS
+-- ---------------------------------
 
---Create
+DROP PROCEDURE IF EXISTS sp_create_pagos; 
+
+-- Create
 DELIMITER $$
 CREATE PROCEDURE sp_create_pagos (
     IN p_idPagos INT,
@@ -94,7 +103,10 @@ VALUES (
 END$$
 DELIMITER ;
 
---Read
+-- Read
+
+DROP PROCEDURE IF EXISTS sp_read_pagos; 
+
 DELIMITER $$
 CREATE PROCEDURE sp_read_pagos (
     IN p_idPagos INT
@@ -108,7 +120,9 @@ WHERE idPagos = p_idPagos;
 END$$
 DELIMITER ;
 
---Update
+-- Update
+DROP PROCEDURE IF EXISTS sp_update_pagos; 
+
 DELIMITER $$
 CREATE PROCEDURE sp_update_pagos (
     IN p_idPagos INT,
@@ -132,7 +146,11 @@ WHERE idPagos = p_idPagos;
 END$$
 DELIMITER ;
 
---Delete
+-- Delete
+
+DROP PROCEDURE IF EXISTS sp_delete_pagos; 
+
+
 DELIMITER $$
 CREATE PROCEDURE sp_delete_pagos (
     IN p_idPagos INT
@@ -143,7 +161,11 @@ WHERE idPagos = p_idPagos;
 END$$
 DELIMITER ;
 
---ListAll
+--  ListAll
+
+DROP PROCEDURE IF EXISTS sp_listAll_pagos; 
+
+
 DELIMITER $$
 CREATE PROCEDURE sp_listAll_pagos ()
 BEGIN
@@ -154,7 +176,10 @@ FROM pagos;
 END$$
 DELIMITER ;
 
---Listar pagos por anfitrion
+-- Listar pagos por anfitrion
+DROP PROCEDURE IF EXISTS sp_listar_pagos_por_anfitrion; 
+
+
 DELIMITER $$
 
 CREATE PROCEDURE sp_listar_pagos_por_anfitrion(
@@ -170,6 +195,8 @@ END$$
 DELIMITER ;
 
 -- Buscar Por Nombre
+DROP PROCEDURE IF EXISTS sp_buscar_pago_usuario; 
+
 DELIMITER $$
 
 CREATE PROCEDURE sp_buscar_pago_usuario(
@@ -194,7 +221,9 @@ END$$
 
 DELIMITER ;
 
---Filtrar Por Estado
+-- Filtrar Por Estado
+DROP PROCEDURE IF EXISTS sp_filtrar_pagos_estado ;
+
 DELIMITER $$
 
 CREATE PROCEDURE sp_filtrar_pagos_estado(

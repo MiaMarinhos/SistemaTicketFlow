@@ -26,4 +26,6 @@ public interface IClienteBL extends IUsuarioBL{
     void editarPerfil() throws BusinessLogicException;
 
     void solicitarSerAnfitrion() throws BusinessLogicException;
+
+    int obtenerPuntosBonus(Integer idCliente) throws BusinessLogicException;
 }

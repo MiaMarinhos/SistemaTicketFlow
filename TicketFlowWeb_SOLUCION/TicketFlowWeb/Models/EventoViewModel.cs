@@ -5,6 +5,7 @@ namespace TicketFlowWeb.Models
 {
     public class EventoViewModel
     {
+        public string id { get; set; }
         public string titulo { get; set; } = string.Empty;
         public string descripcion { get; set; } = string.Empty;
         public int capacidad_entradas { get; set; }
@@ -17,6 +18,7 @@ namespace TicketFlowWeb.Models
         public string nombre_establecimiento { get; set; } = string.Empty;
         public Categoria categoria { get; set; }
         public Distrito distrito { get; set; }
+        public Anfitrion anfitrion { get; set; }
         //public Region region { get; set; } = string.Empty;
     }
 

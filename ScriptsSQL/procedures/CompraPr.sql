@@ -1,42 +1,62 @@
 USE `ticket_flow`;
-
 -----------------------------------
---COMPRA
+-- COMPRA
 -----------------------------------
 
---Create
-DELIMITER $$
+-- Create
+------------------------------------------------------
+DROP PROCEDURE IF EXISTS SP_REGISTRAR_COMPRA;
 
-DROP PROCEDURE IF EXISTS sp_create_compras $$
+DELIMITER //
 
-CREATE PROCEDURE sp_create_compras (
-    IN p_idCompras INT,
-    IN p_entradas_compradas INT,
-    IN p_fecha_compra DATE,
-    IN p_metodo_pago VARCHAR(10),
-    IN p_hora_compra TIME,
-    IN p_monto_parcial DOUBLE,
-    IN p_monto_total DOUBLE,
-    IN p_idPuntos_bonus INT,
+CREATE PROCEDURE SP_REGISTRAR_COMPRA(
+    IN p_idCompra INT,
+    IN p_entradasCompradas INT,
+    IN p_metodoPago VARCHAR(50),
+    IN p_montoParcial DOUBLE,
+    IN p_montoTotal DOUBLE,
+    IN p_idEstado INT,
+    IN p_idpuntoBonus INT,
     IN p_idCliente INT,
-    IN p_idEvento INT,
-    IN p_idEstado INT
+    IN p_idEvento INT
 )
 BEGIN
-INSERT INTO compras (
-    idCompras, entradas_compradas, fecha_compra, metodo_pago,
-    hora_compra, monto_parcial, monto_total, idPuntos_bonus,
-    idCliente, idEvento, idEstado
-)
-VALUES (
-           p_idCompras, p_entradas_compradas, p_fecha_compra, p_metodo_pago,
-           p_hora_compra, p_monto_parcial, p_monto_total, p_idPuntos_bonus,
-           p_idCliente, p_idEvento, p_idEstado
-       );
-END$$
-DELIMITER ;
+    START TRANSACTION;
 
---Read
+    -- 1. Insertar la compra
+    INSERT INTO compras (
+        idCompras, entradas_compradas, fecha_compra, metodo_pago, 
+        hora_compra, estado, monto_parcial, monto_total, 
+        idPuntos_bonus, idCliente, idEvento, idEstado
+    ) 
+    VALUES (
+        p_idCompra, p_entradasCompradas, CURDATE(), p_metodoPago, 
+        CURTIME(), 'CONFIRMADO', p_montoParcial, p_montoTotal, 
+        p_idpuntoBonus, p_idCliente, p_idEvento, p_idEstado
+    );
+
+    -- 2. Disminuir las entradas disponibles del evento
+    UPDATE evento 
+    SET entradas_disponibles = entradas_disponibles - p_entradasCompradas
+    WHERE idEvento = p_idEvento;
+
+    -- 3. Verificar si el evento se quedó sin stock para cambiar su estado a AGOTADO (ID: 5)
+    UPDATE evento
+    SET idEstado_evento = 5
+    WHERE idEvento = p_idEvento AND entradas_disponibles <= 0;
+
+    -- 4. Sumar los puntos bonus al cliente por su fidelidad
+    UPDATE cliente 
+    SET puntos_bonus = puntos_bonus + 25
+    WHERE idCliente = p_idCliente;
+
+    COMMIT;
+END //
+
+DELIMITER ;
+------------------------------
+
+-- Read
 DELIMITER $$
 
 DROP PROCEDURE IF EXISTS sp_read_compras $$
@@ -54,7 +74,7 @@ WHERE idCompras = p_idCompras;
 END$$
 DELIMITER ;
 
---Update
+-- Update
 DELIMITER $$
 
 DROP PROCEDURE IF EXISTS sp_update_compras $$
@@ -89,7 +109,7 @@ WHERE idCompras = p_idCompras;
 END$$
 DELIMITER ;
 
---Delete
+-- Delete
 DELIMITER $$
 
 DROP PROCEDURE IF EXISTS sp_delete_compras $$
@@ -103,7 +123,7 @@ WHERE idCompras = p_idCompras;
 END$$
 DELIMITER ;
 
---ListAll
+-- ListAll
 DELIMITER $$
 
 DROP PROCEDURE IF EXISTS sp_listAll_compras $$
@@ -133,7 +153,7 @@ WHERE e.idAnfitrion = p_idAnfitrion;
 END$$
 DELIMITER ;
 
---Buscar Compra por Usuario
+-- Buscar Compra por Usuario
 DELIMITER $$
 
 DROP PROCEDURE IF EXISTS sp_buscar_compra_usuario $$
@@ -175,11 +195,11 @@ END$$
 
 DELIMITER ;
 
------------------------------------
---ESTADO COMPRAS
------------------------------------
+-- ---------------------------------
+-- ESTADO COMPRAS
+-- ---------------------------------
 
---Create
+-- Create
 DELIMITER $$
 
 DROP PROCEDURE IF EXISTS sp_create_estado_compras $$
@@ -215,7 +235,7 @@ WHERE idEstado = p_idEstado;
 END$$
 DELIMITER ;
 
---Update
+-- Update
 DELIMITER $$
 
 DROP PROCEDURE IF EXISTS sp_update_estado_compras $$
@@ -232,7 +252,7 @@ WHERE idEstado = p_idEstado;
 END$$
 DELIMITER ;
 
---Delete
+-- Delete
 DELIMITER $$
 
 DROP PROCEDURE IF EXISTS sp_delete_estado_compras $$
@@ -246,7 +266,7 @@ WHERE idEstado = p_idEstado;
 END$$
 DELIMITER ;
 
---ListAll
+-- ListAll
 DELIMITER $$
 
 DROP PROCEDURE IF EXISTS sp_listAll_estado_compras $$

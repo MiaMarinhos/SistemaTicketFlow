@@ -16,29 +16,27 @@ import java.util.List;
 
 public class CompraDAOImpl implements ICompraDAO{
     @Override
-    public Compra create(Compra t){
-        String sql = "{CALL sp_create_compras(?,?,?,?,?,?,?,?,?,?,?)}";
+    public Compra create(Compra compra){
+        String sql = "{CALL SP_REGISTRAR_COMPRA(?,?,?,?,?,?,?,?,?)}";
 
-        try(Connection con = DBManager.getInstance().getConnection();
-            CallableStatement cs = con.prepareCall(sql)){
+        try (Connection connection = DBManager.getInstance().getConnection();
+             CallableStatement cs = connection.prepareCall(sql)) {
 
-            cs.setInt(1,t.getIdCompra());
-            cs.setInt(2,t.getEntradasCompradas());
-            cs.setDate(3,Date.valueOf(t.getFechaCompra()));
-            cs.setString(4,t.getMetodoPago());
-            cs.setTime(5,Time.valueOf(t.getHoraCompra()));
-            cs.setDouble(6,t.getMontoParcial());
-            cs.setDouble(7,t.getMontoTotal());
-            cs.setInt(8,t.getPuntosBonus().getIdPuntosBonus());
-            cs.setInt(9,t.getCliente().getIdUsuario());
-            cs.setInt(10,t.getEvento().getIdEvento());
-            cs.setInt(11,t.getEstado().getIdEstadoCompra());
+            cs.setInt(1, compra.getIdCompra());
+            cs.setInt(2, compra.getEntradasCompradas());
+            cs.setString(3, compra.getMetodoPago());
+            cs.setDouble(4, compra.getMontoParcial());
+            cs.setDouble(5, compra.getMontoTotal());
+            cs.setInt(6, compra.getIdEstado());
+            cs.setInt(7, compra.getIdpuntoBonus());
+            cs.setInt(8, compra.getIdCliente());
+            cs.setInt(9, compra.getIdEvento());
 
-            cs.execute();
-            return t;
-        }
-        catch (SQLException e){
-            throw new RuntimeException("Error al crear Compra", e);
+            cs.executeUpdate();
+            return compra;
+
+        } catch (SQLException e) {
+            throw new RuntimeException("Error en DAO al registrar compra: " + e.getMessage(), e);
         }
     }
     @Override

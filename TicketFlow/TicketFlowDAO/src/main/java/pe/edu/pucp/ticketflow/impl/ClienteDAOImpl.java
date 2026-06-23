@@ -197,4 +197,24 @@ public class ClienteDAOImpl implements IClienteDAO {
         return cliente;
     }
 
+    @Override
+    public int readPuntos(Integer id) {
+        String sql = "{CALL SP_OBTENER_PUNTOS_BONUS(?)}";
+
+        try (Connection con = DBManager.getInstance().getConnection();
+             CallableStatement cs = con.prepareCall(sql)) {
+
+            cs.setInt(1, id);
+
+            try (ResultSet rs = cs.executeQuery()) {
+                if (rs.next()) {
+                    return rs.getInt("puntos_bonus");
+                }
+            }
+            return -1;
+        } catch (SQLException e) {
+            e.printStackTrace();
+            throw new RuntimeException("Error al leer cliente", e);
+        }
+    }
 }

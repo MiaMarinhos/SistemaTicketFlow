@@ -1,97 +1,205 @@
-﻿@page "/cliente/resumen-compra/{Id:int}"
+﻿@page "/cliente/compra/{Id:int}"
+
 @using Microsoft.AspNetCore.Components
+@using TicketFlowWeb.Models
+@using TicketFlowWeb.Services.EventoRS
+@using TicketFlowWeb.Services.UsuarioRS
+@using Microsoft.AspNetCore.Components.Authorization
+@using Microsoft.AspNetCore.Authorization
+
+@attribute [Authorize]
+
+@inject EventoRestService EventoService 
+@inject UsuarioRestService UsuarioService
+@inject AuthenticationStateProvider AuthStateProvider
 
 <div class="resumen-compra-page">
 
-    <div class="resumen-contenedor">
-
-        <div class="poster-evento @evento.ClasePoster">
-            <div class="poster-contenido">
-                <p class="poster-fecha">@evento.FechaPoster</p>
-                <h2>@evento.TituloPoster</h2>
-                <p>@evento.SubtituloPoster</p>
-                <p class="poster-lugar">@evento.Ubicacion</p>
-            </div>
+    @if (evento == null)
+    {
+        <div class="loading-container">
+            <p>Cargando los detalles del evento...</p>
         </div>
-
-        <div class="panel-compra">
-            <h1>@evento.Titulo</h1>
-
-            <div class="formulario-compra">
-
-                <div class="fila-cantidad">
-                    <label>Cantidad de entradas:</label>
-
-                    <div class="control-cantidad">
-                        <button type="button" @onclick="DisminuirCantidad">−</button>
-                        <span>@cantidadEntradas</span>
-                        <button type="button" @onclick="AumentarCantidad">+</button>
+    }
+    else
+    {
+        <div class="resumen-contenedor">
+            @*
+            <div class="poster-evento @ClasePosterDinamica">
+                <div class="poster-contenido">
                     </div>
-                </div>
+            </div>
+            *@
+            <div class="resumen-contenedor">
+                <img src="@evento.img" alt="Portada del Evento" class="poster-contenido" />
+            </div>
 
-                <div class="fila-dato">
-                    <label>Subtotal:</label>
-                    <span>S/. @Subtotal.ToString("0.00")</span>
-                </div>
+            <div class="panel-compra">
+                <h1>@evento.titulo</h1>
 
-                <div class="fila-dato">
-                    <label>Puntos bonus disponibles:</label>
-                    <span>@puntosBonus puntos</span>
-                </div>
+                <div class="formulario-compra">
 
-                <div class="fila-descuento">
-                    <label>Aplicar descuento:</label>
+                    <div class="fila-cantidad">
+                        <label>Cantidad de entradas:</label>
 
-                    <div class="opciones-descuento">
-                        <div class="opcion">
-                            <input type="radio"
-                                   name="descuento"
-                                   checked="@(descuentoSeleccionado == 0)"
-                                   @onchange="@(() => SeleccionarDescuento(0))" />
-                            <span>No usar</span>
-                        </div>
-
-                        <div class="opcion">
-                            <input type="radio"
-                                   name="descuento"
-                                   checked="@(descuentoSeleccionado == 5)"
-                                   @onchange="@(() => SeleccionarDescuento(5))" />
-                            <span>50 puntos = S/. 5.00</span>
-                        </div>
-
-                        <div class="opcion">
-                            <input type="radio"
-                                   name="descuento"
-                                   checked="@(descuentoSeleccionado == 10)"
-                                   @onchange="@(() => SeleccionarDescuento(10))" />
-                            <span>100 puntos = S/. 10.00</span>
+                        <div class="control-cantidad">
+                            <button type="button" @onclick="DisminuirCantidad">−</button>
+                            <span>@cantidadEntradas</span>
+                            <button type="button" @onclick="AumentarCantidad">+</button>
                         </div>
                     </div>
-                </div>
 
-                <div class="fila-dato total">
-                    <label>Total:</label>
-                    <span>S/. @Total.ToString("0.00")</span>
-                </div>
+                    <div class="fila-dato">
+                        <label>Subtotal:</label>
+                        <span>S/. @Subtotal.ToString("0.00")</span>
+                    </div>
 
-                <div class="acciones">
-                    <a href="@($"/cliente/detalle-evento/{evento.Id}")" class="btn-volver">Volver</a>
-                    <a href="@($"/cliente/confirmar-pago/{evento.Id}")" class="btn-continuar">
-                        Continuar con el pago
-                    </a>
-                </div>
+                    <div class="fila-dato">
+                        <label>Puntos bonus disponibles:</label>
+                        <span>@puntosBonusDisponiblesCliente puntos</span>
+                    </div>
 
+                    <div class="fila-descuento">
+                        <label>Aplicar descuento:</label>
+
+                        <div class="opciones-descuento">
+                            <div class="opcion">
+                                <input type="radio"
+                                       name="descuento"
+                                       checked="@(idPuntoBonusSeleccionado == 4)"
+                                       @onchange="@(() => SeleccionarDescuento(0, 0.00m))" />
+                                <span>No usar puntos</span>
+                            </div>
+
+                            <div class="opcion">
+                                <input type="radio"
+                                       name="descuento"
+                                       disabled="@(puntosBonusDisponiblesCliente < 100)"
+                                       checked="@(idPuntoBonusSeleccionado == 1)"
+                                       @onchange="@(() => SeleccionarDescuento(1, 0.10m))" />
+                                <span>100 puntos = 10% de desc. (-S/. @((Subtotal * 0.10m).ToString("0.00")))</span>
+                            </div>
+
+                            <div class="opcion">
+                                <input type="radio"
+                                       name="descuento"
+                                       disabled="@(puntosBonusDisponiblesCliente < 200)"
+                                       checked="@(idPuntoBonusSeleccionado == 2)"
+                                       @onchange="@(() => SeleccionarDescuento(2, 0.20m))" />
+                                <span>200 puntos = 20% de desc. (-S/. @((Subtotal * 0.20m).ToString("0.00")))</span>
+                            </div>
+
+                            <div class="opcion">
+                                <input type="radio"
+                                       name="descuento"
+                                       disabled="@(puntosBonusDisponiblesCliente < 300)"
+                                       checked="@(idPuntoBonusSeleccionado == 3)"
+                                       @onchange="@(() => SeleccionarDescuento(3, 0.30m))" />
+                                <span>300 puntos = 30% de desc. (-S/. @((Subtotal * 0.30m).ToString("0.00")))</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="fila-dato total">
+                        <label>Total:</label>
+                        <span>S/. @Total.ToString("0.00")</span>
+                    </div>
+
+                    <div class="acciones">
+                        <a href="@($"/public/detalle-evento/{Id}")" class="btn-volver">Volver</a>
+                        <a href="@($"/cliente/confirmar-pago/{idClienteLogueado}/{Id}/{cantidadEntradas}/{idPuntoBonusSeleccionado}/{Subtotal}/{Total}")" class="btn-continuar">
+                            Continuar con el pago
+                        </a>
+                    </div>
+
+                </div>
             </div>
+
         </div>
-
-    </div>
-
+    }
 </div>
 
-@code{
+@code {
+    [Parameter]
+    public int Id { get; set; }
 
+    public int cantidadEntradas = 1;
+    public int idPuntoBonusSeleccionado = 4;
+    public decimal porcentajeDescuento = 0.00m;
+
+    // Variables dinámicas para el cliente de la sesión
+    public int idClienteLogueado;
+    public int puntosBonusDisponiblesCliente = 0;
+
+    private EventoViewModel? evento;
+
+    protected override async Task OnParametersSetAsync()
+    {
+        // 1. Jalamos el evento de la URL
+        evento = await EventoService.verDetalleEventoAsync(Id);
+
+        // 2. Extraemos el estado de autenticación de Blazor
+        var authState = await AuthStateProvider.GetAuthenticationStateAsync();
+        var user = authState.User;
+
+        if (user.Identity != null && user.Identity.IsAuthenticated)
+        {
+            // 🌟 DIAGNÓSTICO: Imprime todos tus claims disponibles en la consola para que verifiques sus nombres reales
+            foreach (var claim in user.Claims)
+            {
+                Console.WriteLine($"👉 Tipo de Claim encontrado: '{claim.Type}' | Valor: '{claim.Value}'");
+            }
+
+            // 3. Intento de captura flexible (Prueba tu clave personalizada, el estándar de .NET, o "id" a secas)
+            var idClaim = user.FindFirst(c => c.Type == "IdUsuario")?.Value
+                       ?? user.FindFirst(c => c.Type == System.Security.Claims.ClaimTypes.NameIdentifier)?.Value
+                       ?? user.FindFirst(c => c.Type == "id")?.Value;
+
+            if (int.TryParse(idClaim, out int idParseado))
+            {
+                idClienteLogueado = idParseado;
+
+                // 4. Disparamos tu servicio
+                puntosBonusDisponiblesCliente = await UsuarioService.ObtenerPuntosBonusAsync(idClienteLogueado);
+
+                Console.WriteLine($"✅ ID Cliente Detectado: {idClienteLogueado}. Puntos devueltos por el servicio: {puntosBonusDisponiblesCliente}");
+            }
+            else
+            {
+                Console.WriteLine("❌ ERROR: El Claim con el ID del usuario fue encontrado pero no se pudo transformar a un número entero entero (int).");
+            }
+        }
+        else
+        {
+            Console.WriteLine("❌ ERROR: El usuario no está autenticado en el contexto de Blazor.");
+        }
+    }
+
+    private decimal Subtotal => (decimal)(evento?.precio ?? 0) * cantidadEntradas;
+
+    private decimal Total
+    {
+        get
+        {
+            decimal descuentoCalculado = Subtotal * porcentajeDescuento;
+            decimal total = Subtotal - descuentoCalculado;
+            return total < 0 ? 0 : total;
+        }
+    }
+
+    private void AumentarCantidad() => cantidadEntradas++;
+
+    private void DisminuirCantidad()
+    {
+        if (cantidadEntradas > 1) cantidadEntradas--;
+    }
+
+    private void SeleccionarDescuento(int idBonus, decimal porcentaje)
+    {
+        idPuntoBonusSeleccionado = idBonus;
+        porcentajeDescuento = porcentaje;
+    }
 }
-
 
 <style>
     .resumen-compra-page {
@@ -338,154 +446,3 @@
         }
     }
 </style>
-
-@code {
-    [Parameter]
-    public int Id { get; set; }
-
-    private int cantidadEntradas = 1;
-    private int puntosBonus = 100;
-    private decimal descuentoSeleccionado = 10;
-
-    private EventoResumen evento = new EventoResumen(
-        1,
-        "Nombre de un Evento muy Interesante",
-        "FRÍOS",
-        "1ra Temporada",
-        "15 MARZO   8:00 PM",
-        "Av. No sé 123, San Miguel",
-        45,
-        "poster-frio"
-    );
-
-    private List<EventoResumen> eventos = new List<EventoResumen>
-    {
-        new EventoResumen(
-            1,
-            "Nombre de un Evento muy Interesante",
-            "FRÍOS",
-            "1ra Temporada",
-            "15 MARZO   8:00 PM",
-            "Av. No sé 123, San Miguel",
-            45,
-            "poster-frio"
-        ),
-
-        new EventoResumen(
-            2,
-            "Poemax",
-            "POEMAX",
-            "Stand-up comedy y poesía",
-            "07 MAYO   10:30 PM",
-            "Pasaje Porta 132, Miraflores",
-            50,
-            "poster-poemax"
-        ),
-
-        new EventoResumen(
-            3,
-            "Obra de Teatro: Hamlet",
-            "HAMLET",
-            "Obra teatral",
-            "12 JULIO   7:30 PM",
-            "Teatro Municipal de Lima",
-            90,
-            "poster-teatro"
-        ),
-
-        new EventoResumen(
-            4,
-            "Concierto Rock Nocturno",
-            "ROCK",
-            "Música en vivo",
-            "20 AGOSTO   9:00 PM",
-            "Av. La Marina 456, Pueblo Libre",
-            75,
-            "poster-concierto"
-        )
-    };
-
-    private decimal Subtotal
-    {
-        get
-        {
-            return evento.PrecioUnitario * cantidadEntradas;
-        }
-    }
-
-    private decimal Total
-    {
-        get
-        {
-            decimal total = Subtotal - descuentoSeleccionado;
-
-            if (total < 0)
-            {
-                return 0;
-            }
-
-            return total;
-        }
-    }
-
-    protected override void OnParametersSet()
-    {
-        evento = ObtenerEvento(Id);
-    }
-
-    private void AumentarCantidad()
-    {
-        cantidadEntradas++;
-    }
-
-    private void DisminuirCantidad()
-    {
-        if (cantidadEntradas > 1)
-        {
-            cantidadEntradas--;
-        }
-    }
-
-    private void SeleccionarDescuento(decimal descuento)
-    {
-        descuentoSeleccionado = descuento;
-    }
-
-    private EventoResumen ObtenerEvento(int id)
-    {
-        foreach (EventoResumen item in eventos)
-        {
-            if (item.Id == id)
-            {
-                return item;
-            }
-        }
-
-        return eventos[0];
-    }
-
-    private class EventoResumen
-    {
-        public int Id { get; set; }
-        public string Titulo { get; set; }
-        public string TituloPoster { get; set; }
-        public string SubtituloPoster { get; set; }
-        public string FechaPoster { get; set; }
-        public string Ubicacion { get; set; }
-        public decimal PrecioUnitario { get; set; }
-        public string ClasePoster { get; set; }
-
-        public EventoResumen(int id, string titulo, string tituloPoster, string subtituloPoster,
-            string fechaPoster, string ubicacion, decimal precioUnitario, string clasePoster)
-        {
-            Id = id;
-            Titulo = titulo;
-            TituloPoster = tituloPoster;
-            SubtituloPoster = subtituloPoster;
-            FechaPoster = fechaPoster;
-            Ubicacion = ubicacion;
-            PrecioUnitario = precioUnitario;
-            ClasePoster = clasePoster;
-        }
-    }
-}
