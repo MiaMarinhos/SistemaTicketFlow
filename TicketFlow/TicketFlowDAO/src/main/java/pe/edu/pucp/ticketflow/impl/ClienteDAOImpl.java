@@ -58,54 +58,44 @@ public class ClienteDAOImpl implements IClienteDAO {
 
     @Override
     public Cliente update(Cliente t, Integer id) {
-        String sqlUsuario = "{CALL SP_ACTUALIZAR_USUARIO(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)}";
-        String sqlCliente = "{CALL SP_ACTUALIZAR_CLIENTE(?, ?)}";
+        String sqlUsuario = "{CALL SP_ACTUALIZAR_USUARIO(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)}";
 
-        try (Connection con = DBManager.getInstance().getConnection()) {
+        try (Connection con = DBManager.getInstance().getConnection();
+             CallableStatement csUsuario = con.prepareCall(sqlUsuario)) {
 
-            con.setAutoCommit(false);
+            csUsuario.setInt(1, id);
+            csUsuario.setString(2, t.getDni());
+            csUsuario.setString(3, t.getNombre());
+            csUsuario.setString(4, t.getApellidoPaterno());
+            csUsuario.setString(5, t.getApellidoMaterno());
+            csUsuario.setString(6, t.getTelefono());
+            csUsuario.setInt(7, t.getEdad());
 
-            try (CallableStatement csUsuario = con.prepareCall(sqlUsuario);
-                 CallableStatement csCliente = con.prepareCall(sqlCliente)) {
-
-                csUsuario.setInt(1, id);
-                csUsuario.setString(2, t.getDni());
-                csUsuario.setString(3, t.getNombre());
-                csUsuario.setString(4, t.getApellidoPaterno());
-                csUsuario.setString(5, t.getApellidoMaterno());
-                csUsuario.setString(6, t.getTelefono());
-                csUsuario.setString(7, t.getCorreoElectronico());
-                csUsuario.setString(8, t.getContrasena());
-
-                if (t.getFechaNacimiento() != null) {
-                    csUsuario.setDate(9, t.getFechaNacimiento());
-                } else {
-                    csUsuario.setDate(9, null);
-                }
-
-                csUsuario.setInt(10, t.getIdDistrito());
-
-                // Como tu Usuario no tiene getIdEstado(), usamos 1 = ACTIVO.
-                // Esto depende de que hayas insertado ACTIVO como primer estado.
-                csUsuario.setInt(11, 1);
-
-                csUsuario.execute();
-
-                csCliente.setInt(1, id);
-                csCliente.setInt(2, t.getPuntosBonus());
-                csCliente.execute();
-
-                con.commit();
-
-                t.setIdUsuario(id);
-                return t;
-
-            } catch (SQLException e) {
-                con.rollback();
-                throw e;
-            } finally {
-                con.setAutoCommit(true);
+            int idGenero = 1;
+            if (t.getGenero() != null && t.getGenero().getIdGenero() > 0) {
+                idGenero = t.getGenero().getIdGenero();
             }
+            csUsuario.setInt(8, idGenero);
+
+            csUsuario.setString(9, t.getCorreoElectronico());
+            csUsuario.setString(10, t.getContrasena());
+
+            if (t.getFechaNacimiento() != null) {
+                csUsuario.setDate(11, t.getFechaNacimiento());
+            } else {
+                csUsuario.setNull(11, java.sql.Types.DATE);
+            }
+
+            int idDistrito = t.getIdDistrito() > 0 ? t.getIdDistrito() : 1;
+            csUsuario.setInt(12, idDistrito);
+
+            // 1 = ACTIVO
+            csUsuario.setInt(13, 1);
+
+            csUsuario.executeUpdate();
+
+            t.setIdUsuario(id);
+            return t;
 
         } catch (SQLException e) {
             throw new RuntimeException("Error al actualizar cliente", e);

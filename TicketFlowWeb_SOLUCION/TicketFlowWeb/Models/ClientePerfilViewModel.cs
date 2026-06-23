@@ -10,8 +10,14 @@ namespace TicketFlowWeb.Models
         public string telefono { get; set; } = string.Empty;
         public int edad { get; set; }
         public string correoElectronico { get; set; } = string.Empty;
+
+        // Viene del backend, pero no lo mostramos ni editamos en el formulario.
         public string contrasena { get; set; } = string.Empty;
+
         public int idDistrito { get; set; }
+        public Genero? genero { get; set; }
+
+        // Solo lectura. No se edita manualmente.
         public int puntosBonus { get; set; }
     }
 }

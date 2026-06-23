@@ -7,6 +7,7 @@ namespace TicketFlowWeb.Services.UsuarioRS
     public class UsuarioRestService
     {
         private readonly HttpClient _httpClient;
+
         private static readonly JsonSerializerOptions JsonOptions = new()
         {
             PropertyNameCaseInsensitive = true
@@ -69,6 +70,42 @@ namespace TicketFlowWeb.Services.UsuarioRS
             return await response.Content.ReadFromJsonAsync<ClientePerfilViewModel>(JsonOptions);
         }
 
+        public async Task<bool> ActualizarPerfilClienteAsync(int idUsuario, ClientePerfilViewModel perfil)
+        {
+            if (idUsuario <= 0 || perfil is null)
+            {
+                return false;
+            }
+
+            var dto = new
+            {
+                dni = perfil.dni,
+                nombre = perfil.nombre,
+                apellidoPaterno = perfil.apellidoPaterno,
+                apellidoMaterno = perfil.apellidoMaterno,
+                telefono = perfil.telefono,
+                edad = perfil.edad,
+                idGenero = perfil.genero?.idGenero ?? 1,
+                correoElectronico = perfil.correoElectronico,
+
+                
+                contrasena = (string?)null,
+
+                idDistrito = perfil.idDistrito
+            };
+
+            var response = await _httpClient.PutAsJsonAsync($"ClienteRS/perfil/{idUsuario}", dto, JsonOptions);
+
+            if (!response.IsSuccessStatusCode)
+            {
+                var detalle = await response.Content.ReadAsStringAsync();
+                Console.WriteLine($"Error actualizando perfil cliente. HTTP {(int)response.StatusCode}: {detalle}");
+                return false;
+            }
+
+            return true;
+        }
+
         public async Task<List<Distrito>> ObtenerDistritosAsync()
         {
             try
@@ -101,6 +138,5 @@ namespace TicketFlowWeb.Services.UsuarioRS
 
             return await response.Content.ReadFromJsonAsync<int>(JsonOptions);
         }
-
     }
 }

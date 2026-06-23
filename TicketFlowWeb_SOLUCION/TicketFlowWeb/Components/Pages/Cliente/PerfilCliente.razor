@@ -1,6 +1,7 @@
 @page "/cliente/perfil"
 @attribute [Microsoft.AspNetCore.Authorization.Authorize(Roles = "CLIENTE")]
 @using Microsoft.AspNetCore.Components.Authorization
+@using Microsoft.AspNetCore.Components.Forms
 @using System.Security.Claims
 @using TicketFlowWeb.Models
 @inject AuthenticationStateProvider AuthenticationStateProvider
@@ -64,59 +65,175 @@
             }
             else if (perfilCliente is not null)
             {
-                <div class="tabla-perfil">
+                @if (!string.IsNullOrWhiteSpace(mensajeExito))
+                {
+                    <div class="alert alert-success">@mensajeExito</div>
+                }
 
-                    <div class="fila-perfil">
-                        <div class="campo">CÓDIGO:</div>
-                        <div class="valor">@($"CL-{perfilCliente.idUsuario:D4}")</div>
+                @if (!editando)
+                {
+                    <div class="tabla-perfil">
+
+                        <div class="fila-perfil">
+                            <div class="campo">CÓDIGO:</div>
+                            <div class="valor">@($"CL-{perfilCliente.idUsuario:D4}")</div>
+                        </div>
+
+                        <div class="fila-perfil">
+                            <div class="campo">NOMBRE:</div>
+                            <div class="valor">@Mostrar(perfilCliente.nombre)</div>
+                        </div>
+
+                        <div class="fila-perfil">
+                            <div class="campo">APELLIDO PATERNO:</div>
+                            <div class="valor">@Mostrar(perfilCliente.apellidoPaterno)</div>
+                        </div>
+
+                        <div class="fila-perfil">
+                            <div class="campo">APELLIDO MATERNO:</div>
+                            <div class="valor">@Mostrar(perfilCliente.apellidoMaterno)</div>
+                        </div>
+
+                        <div class="fila-perfil">
+                            <div class="campo">DNI:</div>
+                            <div class="valor">@Mostrar(perfilCliente.dni)</div>
+                        </div>
+
+                        <div class="fila-perfil">
+                            <div class="campo">CORREO:</div>
+                            <div class="valor">@Mostrar(perfilCliente.correoElectronico)</div>
+                        </div>
+
+                        <div class="fila-perfil">
+                            <div class="campo">TELÉFONO:</div>
+                            <div class="valor">@Mostrar(perfilCliente.telefono)</div>
+                        </div>
+
+                        <div class="fila-perfil">
+                            <div class="campo">EDAD:</div>
+                            <div class="valor">@perfilCliente.edad</div>
+                        </div>
+
+                        <div class="fila-perfil">
+                            <div class="campo">PREFERENCIA / DISTRITO:</div>
+                            <div class="valor">@ObtenerNombreDistrito(perfilCliente.idDistrito)</div>
+                        </div>
+
+                        <div class="fila-perfil">
+                            <div class="campo">PUNTOS BONUS:</div>
+                            <div class="valor puntos">@perfilCliente.puntosBonus puntos</div>
+                        </div>
+
                     </div>
 
-                    <div class="fila-perfil">
-                        <div class="campo">NOMBRE:</div>
-                        <div class="valor">@Mostrar(perfilCliente.nombre)</div>
+                    <div class="acciones-perfil">
+                        <button type="button" class="btn-perfil secundario" @onclick="ActivarEdicion">
+                            Editar perfil
+                        </button>
+
+                        <a href="/cliente/mis-entradas" class="btn-perfil secundario">
+                            Ver mis entradas
+                        </a>
+
+                        <a href="/cliente/eventos" class="btn-perfil principal">
+                            Descubrir eventos
+                        </a>
                     </div>
+                }
+                else
+                {
+                    <EditForm Model="@editModel" OnValidSubmit="GuardarPerfil">
+                        <DataAnnotationsValidator />
 
-                    <div class="fila-perfil">
-                        <div class="campo">APELLIDO PATERNO:</div>
-                        <div class="valor">@Mostrar(perfilCliente.apellidoPaterno)</div>
-                    </div>
+                        <div class="tabla-perfil">
 
-                    <div class="fila-perfil">
-                        <div class="campo">APELLIDO MATERNO:</div>
-                        <div class="valor">@Mostrar(perfilCliente.apellidoMaterno)</div>
-                    </div>
+                            <div class="fila-perfil">
+                                <div class="campo">CÓDIGO:</div>
+                                <div class="valor">@($"CL-{editModel.idUsuario:D4}")</div>
+                            </div>
 
-                    <div class="fila-perfil">
-                        <div class="campo">DNI:</div>
-                        <div class="valor">@Mostrar(perfilCliente.dni)</div>
-                    </div>
+                            <div class="fila-perfil">
+                                <div class="campo">NOMBRE:</div>
+                                <div class="valor">
+                                    <InputText class="form-control" @bind-Value="editModel.nombre" />
+                                </div>
+                            </div>
 
-                    <div class="fila-perfil">
-                        <div class="campo">CORREO:</div>
-                        <div class="valor">@Mostrar(perfilCliente.correoElectronico)</div>
-                    </div>
+                            <div class="fila-perfil">
+                                <div class="campo">APELLIDO PATERNO:</div>
+                                <div class="valor">
+                                    <InputText class="form-control" @bind-Value="editModel.apellidoPaterno" />
+                                </div>
+                            </div>
 
-                    <div class="fila-perfil">
-                        <div class="campo">TELÉFONO:</div>
-                        <div class="valor">@Mostrar(perfilCliente.telefono)</div>
-                    </div>
+                            <div class="fila-perfil">
+                                <div class="campo">APELLIDO MATERNO:</div>
+                                <div class="valor">
+                                    <InputText class="form-control" @bind-Value="editModel.apellidoMaterno" />
+                                </div>
+                            </div>
 
-                    <div class="fila-perfil">
-                        <div class="campo">PUNTOS BONUS:</div>
-                        <div class="valor puntos">@perfilCliente.puntosBonus puntos</div>
-                    </div>
+                            <div class="fila-perfil">
+                                <div class="campo">DNI:</div>
+                                <div class="valor">
+                                    <InputText class="form-control" @bind-Value="editModel.dni" />
+                                </div>
+                            </div>
 
-                </div>
+                            <div class="fila-perfil">
+                                <div class="campo">CORREO:</div>
+                                <div class="valor">
+                                    <InputText class="form-control" @bind-Value="editModel.correoElectronico" />
+                                </div>
+                            </div>
 
-                <div class="acciones-perfil">
-                    <a href="/cliente/mis-entradas" class="btn-perfil secundario">
-                        Ver mis entradas
-                    </a>
+                            <div class="fila-perfil">
+                                <div class="campo">TELÉFONO:</div>
+                                <div class="valor">
+                                    <InputText class="form-control" @bind-Value="editModel.telefono" />
+                                </div>
+                            </div>
 
-                    <a href="/cliente/eventos" class="btn-perfil principal">
-                        Descubrir eventos
-                    </a>
-                </div>
+                            <div class="fila-perfil">
+                                <div class="campo">EDAD:</div>
+                                <div class="valor">
+                                    <InputNumber class="form-control" @bind-Value="editModel.edad" />
+                                </div>
+                            </div>
+
+                            <div class="fila-perfil">
+                                <div class="campo">PREFERENCIA / DISTRITO:</div>
+                                <div class="valor">
+                                    <InputSelect class="form-control" @bind-Value="editModel.idDistrito">
+                                        @foreach (var distrito in distritos)
+                                        {
+                                            <option value="@distrito.idDistrito">@distrito.nombre</option>
+                                        }
+                                    </InputSelect>
+                                </div>
+                            </div>
+
+                            <div class="fila-perfil">
+                                <div class="campo">PUNTOS BONUS:</div>
+                                <div class="valor puntos">
+                                    @perfilCliente.puntosBonus puntos
+                                    <small class="nota-puntos">Los puntos bonus no se editan manualmente.</small>
+                                </div>
+                            </div>
+
+                        </div>
+
+                        <div class="acciones-perfil">
+                            <button type="submit" class="btn-perfil principal" disabled="@guardando">
+                                @(guardando ? "Guardando..." : "Guardar cambios")
+                            </button>
+
+                            <button type="button" class="btn-perfil secundario" @onclick="CancelarEdicion">
+                                Cancelar
+                            </button>
+                        </div>
+                    </EditForm>
+                }
             }
 
         </section>
@@ -128,8 +245,16 @@
 @code {
     private string nombreCliente = "Cliente";
     private ClientePerfilViewModel? perfilCliente;
+    private ClientePerfilViewModel editModel = new();
+
+    private List<Distrito> distritos = new();
+
     private bool cargando = true;
+    private bool editando = false;
+    private bool guardando = false;
+
     private string? mensajeError;
+    private string? mensajeExito;
 
     protected override async Task OnInitializedAsync()
     {
@@ -153,12 +278,24 @@
                 return;
             }
 
+            distritos = await UsuarioService.ObtenerDistritosAsync();
+
             perfilCliente = await UsuarioService.ObtenerPerfilClienteAsync(idUsuario);
 
             if (perfilCliente is null)
             {
                 mensajeError = "No se pudo cargar el perfil desde el backend.";
                 return;
+            }
+
+            if (perfilCliente.idDistrito <= 0 && distritos.Count > 0)
+            {
+                perfilCliente.idDistrito = distritos[0].idDistrito;
+            }
+
+            if (perfilCliente.genero is null)
+            {
+                perfilCliente.genero = new Genero { idGenero = 1 };
             }
 
             nombreCliente = Mostrar(perfilCliente.nombre, "Cliente");
@@ -171,6 +308,129 @@
         {
             cargando = false;
         }
+    }
+
+    private void ActivarEdicion()
+    {
+        if (perfilCliente is null)
+        {
+            return;
+        }
+
+        mensajeError = null;
+        mensajeExito = null;
+
+        editModel = CopiarPerfil(perfilCliente);
+
+        if (editModel.idDistrito <= 0 && distritos.Count > 0)
+        {
+            editModel.idDistrito = distritos[0].idDistrito;
+        }
+
+        if (editModel.genero is null)
+        {
+            editModel.genero = new Genero { idGenero = 1 };
+        }
+
+        editando = true;
+    }
+
+    private void CancelarEdicion()
+    {
+        editando = false;
+        mensajeError = null;
+        mensajeExito = null;
+    }
+
+    private async Task GuardarPerfil()
+    {
+        if (perfilCliente is null)
+        {
+            return;
+        }
+
+        try
+        {
+            guardando = true;
+            mensajeError = null;
+            mensajeExito = null;
+
+            if (string.IsNullOrWhiteSpace(editModel.nombre) ||
+                string.IsNullOrWhiteSpace(editModel.apellidoPaterno) ||
+                string.IsNullOrWhiteSpace(editModel.apellidoMaterno) ||
+                string.IsNullOrWhiteSpace(editModel.dni) ||
+                string.IsNullOrWhiteSpace(editModel.correoElectronico) ||
+                string.IsNullOrWhiteSpace(editModel.telefono))
+            {
+                mensajeError = "Completa todos los campos obligatorios.";
+                return;
+            }
+
+            if (editModel.edad <= 0)
+            {
+                mensajeError = "La edad debe ser mayor a 0.";
+                return;
+            }
+
+            var ok = await UsuarioService.ActualizarPerfilClienteAsync(editModel.idUsuario, editModel);
+
+            if (!ok)
+            {
+                mensajeError = "No se pudo actualizar el perfil en el backend.";
+                return;
+            }
+
+            var actualizado = await UsuarioService.ObtenerPerfilClienteAsync(editModel.idUsuario);
+
+            if (actualizado is not null)
+            {
+                if (actualizado.idDistrito <= 0)
+                {
+                    actualizado.idDistrito = editModel.idDistrito;
+                }
+
+                perfilCliente = actualizado;
+                nombreCliente = Mostrar(perfilCliente.nombre, "Cliente");
+            }
+
+            editando = false;
+            mensajeExito = "Perfil actualizado correctamente.";
+        }
+        catch (Exception ex)
+        {
+            mensajeError = $"Error actualizando perfil: {ex.Message}";
+        }
+        finally
+        {
+            guardando = false;
+        }
+    }
+
+    private static ClientePerfilViewModel CopiarPerfil(ClientePerfilViewModel c)
+    {
+        return new ClientePerfilViewModel
+        {
+            idUsuario = c.idUsuario,
+            dni = c.dni,
+            nombre = c.nombre,
+            apellidoPaterno = c.apellidoPaterno,
+            apellidoMaterno = c.apellidoMaterno,
+            telefono = c.telefono,
+            edad = c.edad,
+            correoElectronico = c.correoElectronico,
+            contrasena = c.contrasena,
+            idDistrito = c.idDistrito,
+            puntosBonus = c.puntosBonus,
+            genero = c.genero is null
+                ? new Genero { idGenero = 1 }
+                : new Genero { idGenero = c.genero.idGenero, nombre = c.genero.nombre }
+        };
+    }
+
+    private string ObtenerNombreDistrito(int idDistrito)
+    {
+        var distrito = distritos.FirstOrDefault(d => d.idDistrito == idDistrito);
+        return distrito is null ? "No definido" : distrito.nombre;
     }
 
     private static string Mostrar(string? valor, string defecto = "-")
@@ -331,6 +591,16 @@
     .puntos {
         font-weight: bold;
         color: #15095f;
+        flex-direction: column;
+        align-items: flex-start;
+        justify-content: center;
+    }
+
+    .nota-puntos {
+        margin-top: 4px;
+        font-size: 12px;
+        color: #777;
+        font-weight: normal;
     }
 
     .acciones-perfil {
@@ -347,6 +617,7 @@
         border-radius: 28px;
         font-size: 17px;
         font-weight: bold;
+        cursor: pointer;
     }
 
         .btn-perfil.secundario {
@@ -368,6 +639,32 @@
         .btn-perfil.principal:hover {
             background-color: #241080;
         }
+
+    .form-control {
+        width: 100%;
+        padding: 9px 12px;
+        border: 1px solid #ccc;
+        border-radius: 8px;
+        font-size: 15px;
+    }
+
+    .alert {
+        max-width: 760px;
+        margin-bottom: 20px;
+        padding: 14px 18px;
+        border-radius: 10px;
+        font-weight: bold;
+    }
+
+    .alert-warning {
+        background-color: #fff3cd;
+        color: #664d03;
+    }
+
+    .alert-success {
+        background-color: #d1e7dd;
+        color: #0f5132;
+    }
 
     @@media (max-width: 900px) {
         .perfil-cliente-page {
