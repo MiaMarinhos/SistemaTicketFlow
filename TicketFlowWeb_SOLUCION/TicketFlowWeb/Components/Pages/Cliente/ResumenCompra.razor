@@ -354,10 +354,14 @@
         }
 
         .opcion span {
-            border: 2px solid white;
-            border-radius: 8px;
-            padding: 12px;
+            border: none;
+            padding: 0;
             font-size: 17px;
+            font-weight: bold;
+        }
+
+        .opcion input:disabled + span {
+            opacity: 0.45;
         }
 
     .total {

@@ -68,12 +68,9 @@
                         </div>
                     </div>
 
-                    @* 📥 BOTÓN DESCARGAR ENTRADA (Extremo Derecho) *@
-                    <div class="accion-derecha">
-                        <a href="@($"/cliente/descargar-entrada/{compra.idCompra}")" class="btn-descargar">
-                            Descarga tu entrada
-                        </a>
-                    </div>
+                    <button type="button" class="btn-descargar btn-reporte-pendiente" disabled>
+                        Descargar entrada
+                    </button>
                 </div>
             }
         </section>
@@ -289,5 +286,15 @@
         text-align: center;
         color: #cccccc;
         font-size: 16px;
+    }
+
+    button.btn-descargar {
+        border: none;
+        font-family: inherit;
+    }
+
+    .btn-reporte-pendiente {
+        opacity: 0.65;
+        cursor: not-allowed;
     }
 </style>

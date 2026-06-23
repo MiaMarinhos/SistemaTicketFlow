@@ -73,16 +73,16 @@
                             <div class="opcion-pago">
                                 <input type="radio"
                                        name="metodoPago"
-                                       checked="@(metodoPago == "Yape")"
-                                       @onchange="@(() => SeleccionarMetodo("Yape"))" />
+                                       checked="@(metodoPago == "YAPE")"
+                                       @onchange="@(() => SeleccionarMetodo("YAPE"))" />
                                 <span>Yape</span>
                             </div>
 
                             <div class="opcion-pago">
                                 <input type="radio"
                                        name="metodoPago"
-                                       checked="@(metodoPago == "Plin")"
-                                       @onchange="@(() => SeleccionarMetodo("Plin"))" />
+                                       checked="@(metodoPago == "PLIN")"
+                                       @onchange="@(() => SeleccionarMetodo("PLIN"))" />
                                 <span>Plin (Próximamente)</span>
                             </div>
 
@@ -97,7 +97,7 @@
                     </div>
 
                     @* LADO DERECHO: El QR dinámico de Yape *@
-                    @if (metodoPago == "Yape")
+                    @if (metodoPago == "YAPE")
                     {
                         <div class="contenedor-qr" style="background: rgba(255, 255, 255, 0.1); border: 2px dashed #00ffd0; padding: 20px; border-radius: 12px; text-align: center; width: 280px; flex-shrink: 0;">
                             <h4 style="color: #00ffd0; font-weight: bold; margin-bottom: 10px; font-size: 16px;">¡Escanea y Yapea!</h4>
@@ -117,8 +117,11 @@
                     </a>
 
                     @* Botón de confirmación ejecuta método en C# para registrar en BD antes de ir a descargar *@
-                    <button type="button" @onclick="ProcesarRegistroCompra" class="btn-confirmar" style="cursor: pointer;">
-                        Confirmar pago
+                    <button type="button"
+                            @onclick="ProcesarRegistroCompra"
+                            class="btn-confirmar"
+                            disabled="@procesandoPago">
+                        @(procesandoPago ? "Procesando..." : "Confirmar pago")
                     </button>
                 </div>
 
@@ -136,7 +139,8 @@
     [Parameter] public decimal Total { get; set; }
     [Parameter] public int idClienteLogueado { get; set; }
 
-    private string metodoPago = "Yape"; // Por defecto inicializa en Yape
+    private string metodoPago = "YAPE";
+    private bool procesandoPago = false;
     private EventoViewModel? eventoReal;
 
     private string urlQrYape = "https://lh3.googleusercontent.com/d/1QHJXW8xyDvfFp9IfAmseD0sOyq7V2ssl";
@@ -156,6 +160,13 @@
 
     private async Task ProcesarRegistroCompra()
     {
+        if (procesandoPago)
+        {
+            return;
+        }
+
+        procesandoPago = true;
+
         var nuevaCompraReq = new Models.COMPRA.RegistroCompraVM
         {
             idCliente = idClienteLogueado,
@@ -169,24 +180,23 @@
 
         try
         {
-            // Ejecutamos el servicio inyectado original
             var resultadoCompra = await CompraService.RegistrarCompraAsync(nuevaCompraReq);
 
             if (resultadoCompra != null)
             {
-                await JS.InvokeVoidAsync("alert", $"✅ ¡Compra realizada con éxito!");
-
-                // Redireccionamos usando el ID de compra real autogenerado
-                Navigation.NavigateTo($"/cliente/mis-entradas/");
+                await JS.InvokeVoidAsync("alert", "✅ ¡Compra realizada con éxito!");
+                Navigation.NavigateTo("/cliente/mis-entradas", forceLoad: true);
             }
             else
             {
-                await JS.InvokeVoidAsync("alert", "⚠️ Hubo un problema al procesar la respuesta del servidor.");
+                procesandoPago = false;
+                await JS.InvokeVoidAsync("alert", "⚠️ Hubo un problema al procesar la compra.");
             }
         }
         catch (Exception ex)
         {
-            await JS.InvokeVoidAsync("alert", $"❌ Error Crítico: {ex.Message}");
+            procesandoPago = false;
+            await JS.InvokeVoidAsync("alert", $"❌ Error crítico: {ex.Message}");
         }
     }
 }
@@ -282,10 +292,15 @@
     }
 
     .opcion-pago span {
-        border: 2px solid white;
-        border-radius: 8px;
-        padding: 13px;
+        border: none;
+        padding: 0;
         font-size: 18px;
+        font-weight: bold;
+    }
+
+    .btn-confirmar:disabled {
+        opacity: 0.65;
+        cursor: not-allowed;
     }
 
     .acciones {
