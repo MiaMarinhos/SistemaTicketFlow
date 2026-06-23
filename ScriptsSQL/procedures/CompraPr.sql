@@ -153,6 +153,22 @@ WHERE e.idAnfitrion = p_idAnfitrion;
 END$$
 DELIMITER ;
 
+--Listar compras por cliente
+DELIMITER $$
+
+DROP PROCEDURE IF EXISTS sp_listar_compras_por_cliente $$
+
+CREATE PROCEDURE sp_listar_compras_por_cliente(
+    IN p_idCliente INT
+)
+BEGIN
+SELECT c.* FROM compras c
+WHERE c.idCliente = p_idCliente;
+END$$
+DELIMITER ;
+
+
+
 -- Buscar Compra por Usuario
 DELIMITER $$
 

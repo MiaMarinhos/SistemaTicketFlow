@@ -196,4 +196,16 @@ public class Compra {
         this.cliente = cliente;
         this.evento = evento;
     }
+    public Compra(int entradasCompradas, String metodoPago, double montoParcial,
+                  double montoTotal, int idpuntoBonus,int idCliente, int idEvento){
+
+        this.entradasCompradas = entradasCompradas;
+        this.metodoPago = metodoPago;
+        this.montoParcial = montoParcial;
+        this.montoTotal = montoTotal;
+        this.idpuntoBonus = idpuntoBonus;
+        this.idCliente = idCliente;
+        this.idEvento = idEvento;
+    }
+
 }

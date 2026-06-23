@@ -156,10 +156,7 @@
 
     private async Task ProcesarRegistroCompra()
     {
-        // 1. Log inicial para confirmar que el botón reacciona al click
-        await JS.InvokeVoidAsync("alert", "¡Botón presionado! Iniciando comunicación con Java...");
-
-        var nuevaCompraReq = new CompraViewModel
+        var nuevaCompraReq = new Models.COMPRA.RegistroCompraVM
         {
             idCliente = idClienteLogueado,
             idEvento = Id,
@@ -172,25 +169,24 @@
 
         try
         {
-            // 2. Disparamos la petición HTTP hacia GlassFish
+            // Ejecutamos el servicio inyectado original
             var resultadoCompra = await CompraService.RegistrarCompraAsync(nuevaCompraReq);
 
             if (resultadoCompra != null)
             {
-                await JS.InvokeVoidAsync("alert", "✅ ¡Compra realizada con éxito!");
+                await JS.InvokeVoidAsync("alert", $"✅ ¡Compra realizada con éxito!");
 
-                // 3. Forzamos la navegación
-                Navigation.NavigateTo($"/cliente/descargar-entrada/{Id}");
-
-                // 4. Avisamos a Blazor que el estado cambió para que ejecute la redirección
-                StateHasChanged();
+                // Redireccionamos usando el ID de compra real autogenerado
+                Navigation.NavigateTo($"/cliente/mis-entradas/");
+            }
+            else
+            {
+                await JS.InvokeVoidAsync("alert", "⚠️ Hubo un problema al procesar la respuesta del servidor.");
             }
         }
         catch (Exception ex)
         {
-            // Si el HttpClient falla, este alert te dirá el mensaje exacto del error
-            await JS.InvokeVoidAsync("alert", $"❌ Error Crítico de comunicación: {ex.Message}");
-            Console.WriteLine($"❌ EXPLOTÓ la comunicación con el servidor: {ex.Message}");
+            await JS.InvokeVoidAsync("alert", $"❌ Error Crítico: {ex.Message}");
         }
     }
 }

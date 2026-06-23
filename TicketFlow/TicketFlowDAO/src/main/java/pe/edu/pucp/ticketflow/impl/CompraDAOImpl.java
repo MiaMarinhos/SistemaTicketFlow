@@ -177,6 +177,29 @@ public class CompraDAOImpl implements ICompraDAO{
         }
     }
 
+    @Override
+    public List<Compra> listarComprasPorCliente(Integer idCliente) {
+        List<Compra> lista = new ArrayList<>();
+        String sql = "{CALL sp_listar_compras_por_cliente(?)}";
+
+        try (Connection con = DBManager.getInstance().getConnection();
+             CallableStatement cs = con.prepareCall(sql)) {
+            cs.setInt(1, idCliente);
+
+            try (ResultSet rs = cs.executeQuery()) {
+                while(rs.next()){
+                    Compra t = new Compra();
+                    mapear(rs, t);
+                    lista.add(t);
+                }
+            }
+            return lista;
+
+        } catch (SQLException e) {
+            throw new RuntimeException("Error en listar Compras por Cliente", e);
+        }
+    }
+
     private void mapear(ResultSet rs, Compra t) throws SQLException{
         t.setIdCompra(rs.getInt("idCompras"));
         t.setEntradasCompradas(rs.getInt("entradas_compradas"));

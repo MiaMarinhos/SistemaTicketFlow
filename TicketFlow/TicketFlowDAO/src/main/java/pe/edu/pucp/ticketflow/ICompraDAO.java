@@ -9,4 +9,6 @@ public interface ICompraDAO extends IBaseDAO<Compra, Integer> {
     List<Compra> listarComprasPorAnfitrion(Integer idAnfitrion);
     List<Compra> buscarPorUsuario(String nombre);
     List<Compra> filtrarPorEstado(Integer idEstado);
+    List<Compra> listarComprasPorCliente(Integer idCliente);
+
 }

@@ -5,9 +5,12 @@ import pe.edu.pucp.ticketflow.evento.model.Evento;
 import pe.edu.pucp.ticketflow.compra.model.Compra;
 import pe.edu.pucp.ticketflow.compra.model.EstadoCompra;
 import pe.edu.pucp.ticketflow.exception.BusinessLogicException;
+import pe.edu.pucp.ticketflow.usuario.model.Cliente;
 
 import java.time.LocalDate;
 import java.time.LocalTime;
+import java.util.ArrayList;
+import java.util.List;
 
 public class ComprasBLImpl implements IComprasBL {
 
@@ -15,18 +18,11 @@ public class ComprasBLImpl implements IComprasBL {
     private IEstadoComprasDAO estadoComprasDAO = new EstadoComprasDAOImpl();
     private IClienteDAO clienteDAO = new ClienteDAOImpl();
     private IEventoDAO eventoDAO = new EventoDAOImpl();
+
     @Override
     public Compra registrarCompra(Compra compraReq) throws BusinessLogicException {
         try {
             // 1. Obtener los datos reales del evento desde la BD (Seguridad)
-            Evento evento = eventoDAO.read(compraReq.getIdEvento());
-            if (evento == null) {
-                throw new IllegalArgumentException("El evento especificado no existe.");
-            }
-            if (evento.getCapacidad_entradas() < compraReq.getEntradasCompradas()) {
-                throw new IllegalStateException("No hay suficientes entradas disponibles.");
-            }
-
             // 3. Generar ID de Comprobante Automático por Computadora (9 dígitos)
             // Prefijo 26 (Año 2026) + 7 dígitos aleatorios únicos
             int min = 1000000;
@@ -44,6 +40,31 @@ public class ComprasBLImpl implements IComprasBL {
             compraDAO.create(compraReq);
 
             return compraReq;
+        }
+        catch (Exception ex){
+            if (ex instanceof BusinessLogicException) {
+                throw (BusinessLogicException)ex;
+            } else {
+                throw new BusinessLogicException(ex);
+            }
+        }
+    }
+
+    @Override
+    public List<Compra> listarComprasPorCliente(Integer idCliente) throws BusinessLogicException {
+        try {
+            List<Compra> compras = new ArrayList<>();
+            compras = compraDAO.listarComprasPorCliente(idCliente);
+            for(Compra c : compras){
+                Evento evento = eventoDAO.read(c.getIdEvento());
+                c.setEvento(evento);
+                Cliente cliente = clienteDAO.read(c.getIdCliente());
+                c.setCliente(cliente);
+                EstadoCompra estado = estadoComprasDAO.read(c.getIdEstado());
+                c.setEstado(estado);
+            }
+
+            return compras;
         }
         catch (Exception ex){
             if (ex instanceof BusinessLogicException) {

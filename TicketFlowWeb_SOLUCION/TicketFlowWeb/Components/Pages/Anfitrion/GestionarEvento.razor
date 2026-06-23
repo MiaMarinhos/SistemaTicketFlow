@@ -326,17 +326,17 @@
     }
 
     // Nota: Como 'id' en tu modelo es string, los métodos ahora reciben string
-    private void VerDetalle(string id)
+    private void VerDetalle(int id)
     {
         NavigationManager.NavigateTo($"/cliente/detalle-evento/{id}");
     }
 
-    private void IrAEditar(string id)
+    private void IrAEditar(int id)
     {
         NavigationManager.NavigateTo($"/anfitrion/editar-evento/{id}");
     }
 
-    private void EliminarEvento(string id)
+    private void EliminarEvento(int id)
     {
         var item = eventosOriginales.FirstOrDefault(e => e.id == id);
         if (item != null) eventosOriginales.Remove(item);

@@ -228,7 +228,7 @@
                     foreach (var compra in comprasBackend)
                     {
                         // Buscamos el nombre del evento cruzando el idEvento de la compra con la lista de eventos
-                        var eventoRelacionado = eventosBackend?.FirstOrDefault(e => e.id == compra.idEvento.ToString());
+                        var eventoRelacionado = eventosBackend?.FirstOrDefault(e => e.id == compra.idEvento);
                         string nombreEvento = eventoRelacionado?.titulo ?? "Evento Desconocido";
 
                         // El nombre del cliente asumo que el backend te lo manda dentro del objeto anidado `cliente`.
@@ -244,8 +244,8 @@
                             IdPagoFormat = pagoIdFormateado,
                             NombreEvento = nombreEvento,
                             NombreCliente = nombreCliente,
-                            MetodoPago = string.IsNullOrEmpty(compra.metodoPago) ? "No especificado" : compra.metodoPago,
-                            FechaPago = string.IsNullOrEmpty(compra.fechaCompra) ? "Pendiente" : compra.fechaCompra,
+                            MetodoPago = string.IsNullOrEmpty(compra.metodoPago ) ? "No especificado" : compra.metodoPago,
+                            FechaPago = string.IsNullOrEmpty(compra?.fechaCompraS) ? "Pendiente" : compra.fechaCompraS,
                             MontoTotal = compra.montoTotal
                         });
                     }

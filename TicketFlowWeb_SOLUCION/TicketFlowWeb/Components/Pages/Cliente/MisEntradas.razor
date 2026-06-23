@@ -1,357 +1,293 @@
 ﻿@page "/cliente/mis-entradas"
+@using Microsoft.AspNetCore.Components.Authorization
+@using System.Security.Claims
+@using TicketFlowWeb.Models
+@using TicketFlowWeb.Services.CompraRS
+
+@inject AuthenticationStateProvider AuthenticationStateProvider
+@inject NavigationManager Navigation
+@inject CompraRestService CompraService
+@inject IJSRuntime JS
 
 <div class="mis-entradas-page">
 
     <section class="bienvenida-cliente">
-        <h1>Bienvenido Luis</h1>
-        <a href="/solicitud-anfitrion" class="btn-anfitrion">Entrar como anfitrión</a>
+        <h1>ENTRADAS COMPRADAS</h1>
+        <a href="/cliente/perfil" class="btn-anfitrion">VOLVER</a>
     </section>
 
-    <section class="entradas-section">
-        <h2>TUS EVENTOS</h2>
+    @if (!string.IsNullOrEmpty(mensajeError))
+    {
+        <div class="alert alert-danger">
+            @mensajeError
+        </div>
+    }
+    else if (compras == null)
+    {
+        <p class="msg-info">Cargando tu historial de entradas desde el servidor...</p>
+    }
+    else if (!compras.Any())
+    {
+        <p class="msg-info">Aún no has comprado ninguna entrada. ¡Anímate a asistir a un evento!</p>
+    }
+    else
+    {
+        <section class="entradas-section">
+            @foreach (var compra in compras)
+            {
+                <div class="entrada-rectangulo">
 
-        <div class="contenedor-carrusel">
-            <button class="flecha">‹</button>
+                    @* 🖼️ Miniatura del póster (Izquierda) *@
+                    @if (compra.evento != null)
+                    {
+                        <div class="mini-poster">
+                            <img src="@compra.evento.img" alt="Poster" />
+                        </div>
+                    }
 
-            <div class="entradas-grid">
-
-                @foreach (EntradaCliente entrada in entradas)
-                {
-                    <div class="entrada-card">
-
-                        <div class="poster @entrada.ClasePoster">
-                            <div class="poster-contenido">
-                                <h3>@entrada.TituloPoster</h3>
-                                <p>@entrada.Subtitulo</p>
-                            </div>
+                    @* ℹ️ Zona central: Distribución de datos en columnas dinámicas *@
+                    <div class="info-compra-central">
+                        <div>
+                            <h3>@(compra.evento?.titulo ?? "Evento")</h3>
+                            <p class="organizador">Organiza: <strong>@(compra.evento?.anfitrion?.nombre ?? "Anfitrión")</strong></p>
                         </div>
 
-                        <div class="info-entrada">
-                            <h3>@entrada.Titulo</h3>
-                            <p class="autor">---------- @entrada.Autor</p>
-
-                            <p><strong>Fecha:</strong> @entrada.Fecha</p>
-                            <p><strong>Hora:</strong> @entrada.Hora</p>
-                            <p><strong>Lugar:</strong> @entrada.Lugar</p>
-
-                            <a href="@($"/cliente/descargar-entrada/{entrada.Id}")" class="btn-descargar">
-                                Descarga tu entrada
-                            </a>
+                        <div class="detalle-gris">
+                            <p>📍 <strong>Lugar:</strong> @(compra.evento?.ubicacion)</p>
+                            <p>🏢 @(compra.evento?.nombre_establecimiento)</p>
                         </div>
 
+                        <div class="detalle-gris">
+                            <p>📅 <strong>Fecha:</strong> @compra.fechaCompraS</p>
+                            <p>🎟️ <strong>Entradas:</strong> @compra.entradasCompradas unids.</p>
+                        </div>
+
+                        <div class="detalle-gris">
+                            <p>💰 <strong>Total Pagado:</strong></p>
+                            <span class="precio-total">S/. @compra.montoTotal.ToString("0.00")</span>
+                        </div>
                     </div>
-                }
 
-            </div>
-
-            <button class="flecha">›</button>
-        </div>
-
-        <div class="puntos">
-            <span></span>
-            <span></span>
-            <span></span>
-            <span></span>
-        </div>
-    </section>
-
+                    @* 📥 BOTÓN DESCARGAR ENTRADA (Extremo Derecho) *@
+                    <div class="accion-derecha">
+                        <a href="@($"/cliente/descargar-entrada/{compra.idCompra}")" class="btn-descargar">
+                            Descarga tu entrada
+                        </a>
+                    </div>
+                </div>
+            }
+        </section>
+    }
 </div>
+
+@code {
+    private List<Models.COMPRA.detalleCompraCliente>? compras;
+    private string? mensajeError;
+
+    protected override async Task OnInitializedAsync()
+    {
+        try
+        {
+            var authState = await AuthenticationStateProvider.GetAuthenticationStateAsync();
+            var usuario = authState.User;
+
+            if (usuario.Identity?.IsAuthenticated != true)
+            {
+                Navigation.NavigateTo("/login", forceLoad: true);
+                return;
+            }
+
+            // Buscamos el ID del usuario en los Claims
+            var idTexto = usuario.FindFirst(ClaimTypes.NameIdentifier)?.Value
+                           ?? usuario.FindFirst("IdUsuario")?.Value;
+
+            if (!int.TryParse(idTexto, out var idUsuario))
+            {
+                mensajeError = "No se encontró el ID del usuario en la sesión. Vuelve a iniciar sesión.";
+                return;
+            }
+            // Consumo efectivo del servicio
+            compras = await CompraService.ListarComprasPorClienteAsync(idUsuario);
+        }
+        catch (Exception ex)
+        {
+            mensajeError = $"Error cargando las compras: {ex.Message}";
+        }
+    }
+}
 
 <style>
     .mis-entradas-page {
-        min-height: 100vh;
-        background: linear-gradient(180deg, #85e8f0 0%, #7de8ee 55%, #744cff 100%);
-        font-family: Arial, Helvetica, sans-serif;
-        color: #0c073d;
-        padding-bottom: 60px;
+        max-width: 1000px;
+        margin: 0 auto;
+        padding: 20px;
+        font-family: 'Tahoma', sans-serif;
+        color: #ffffff;
     }
 
+    /* Encabezado de la página */
     .bienvenida-cliente {
-        min-height: 210px;
-        background: linear-gradient(rgba(12, 7, 61, 0.35), rgba(12, 7, 61, 0.55)), radial-gradient(circle at center, #4834ad 0%, #231160 55%, #0c073d 100%);
-        color: white;
         display: flex;
+        justify-content: space-between;
         align-items: center;
-        justify-content: center;
-        position: relative;
-        text-align: center;
-        padding: 40px 30px;
+        margin-bottom: 30px;
+        border-bottom: 2px solid #525D76;
+        padding-bottom: 15px;
     }
 
         .bienvenida-cliente h1 {
-            font-size: 64px;
+            font-size: 24px;
             font-weight: bold;
             margin: 0;
+            color: #00ffd0;
         }
 
+    /* Botón Volver */
     .btn-anfitrion {
-        position: absolute;
-        top: 30px;
-        right: 50px;
+        background-color: #525D76;
         color: white;
-        border: 3px solid white;
-        border-radius: 30px;
-        padding: 12px 28px;
+        padding: 10px 20px;
         text-decoration: none;
+        border-radius: 6px;
         font-weight: bold;
-        text-transform: uppercase;
-        font-size: 15px;
+        font-size: 14px;
+        transition: background-color 0.2s ease;
     }
 
         .btn-anfitrion:hover {
-            background-color: white;
-            color: #0c073d;
+            background-color: #3b4456;
         }
 
+    /* Sección contenedora de la lista */
     .entradas-section {
-        padding: 50px 55px;
-    }
-
-        .entradas-section h2 {
-            font-size: 58px;
-            font-weight: bold;
-            text-align: center;
-            margin-bottom: 45px;
-            letter-spacing: 4px;
-            color: #0c2775;
-        }
-
-    .contenedor-carrusel {
-        display: grid;
-        grid-template-columns: 50px 1fr 50px;
-        gap: 20px;
-        align-items: center;
-    }
-
-    .flecha {
-        width: 45px;
-        height: 45px;
-        border-radius: 50%;
-        border: 2px solid #777;
-        background-color: rgba(255, 255, 255, 0.75);
-        color: #333;
-        font-size: 35px;
-        line-height: 35px;
-        cursor: pointer;
-    }
-
-    .entradas-grid {
-        display: grid;
-        grid-template-columns: 1fr 1fr;
-        gap: 45px;
-    }
-
-    .entrada-card {
-        display: grid;
-        grid-template-rows: 260px auto;
-        background-color: rgba(255, 255, 255, 0.25);
-        border-radius: 16px;
-        overflow: hidden;
-        box-shadow: 0 10px 22px rgba(0, 0, 0, 0.18);
-    }
-
-    .poster {
-        border: 4px solid #111;
         display: flex;
+        flex-direction: column;
+        gap: 20px;
+    }
+
+    /* 📦 EL RECTÁNGULO PRINCIPAL DE LA COMPRA */
+    .entrada-rectangulo {
+        display: flex;
+        background: rgba(255, 255, 255, 0.05);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        border-radius: 12px;
+        overflow: hidden;
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
         align-items: center;
-        justify-content: center;
-        color: white;
-        text-align: center;
+        padding: 15px 25px;
+        transition: transform 0.2s ease, background-color 0.2s ease, border-color 0.2s ease;
     }
 
-    .poster-frio {
-        background: linear-gradient(135deg, #111, #565656);
-    }
-
-    .poster-poemax {
-        background: linear-gradient(135deg, #000, #1c1648);
-    }
-
-    .poster-teatro {
-        background: linear-gradient(135deg, #21083f, #6931b8);
-    }
-
-    .poster-concierto {
-        background: linear-gradient(135deg, #08213f, #1787b8);
-    }
-
-    .poster h3 {
-        font-size: 46px;
-        font-weight: bold;
-        margin-bottom: 8px;
-    }
-
-    .poster p {
-        font-size: 19px;
-        margin: 0;
-    }
-
-    .info-entrada {
-        padding: 24px 28px 30px 28px;
-    }
-
-        .info-entrada h3 {
-            font-size: 28px;
-            font-weight: bold;
-            margin-bottom: 5px;
-            color: #0c2775;
+        /* Efecto hover sobre el rectángulo */
+        .entrada-rectangulo:hover {
+            transform: translateY(-2px);
+            background: rgba(255, 255, 255, 0.08);
+            border-color: rgba(0, 255, 208, 0.4);
         }
 
-    .autor {
-        font-weight: bold;
-        margin-bottom: 15px;
+    /* 🖼️ Miniatura del póster (Izquierda) */
+    .mini-poster {
+        width: 100px;
+        height: 100px;
+        flex-shrink: 0;
+        margin-right: 25px;
     }
 
-    .info-entrada p {
-        font-size: 17px;
-        margin-bottom: 8px;
+        .mini-poster img {
+            width: 100px;
+            height: 100px;
+            object-fit: cover;
+            border-radius: 8px;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+    /* ℹ️ Zona central: Distribución de datos en columnas auto-ajustables */
+    .info-compra-central {
+        flex: 1;
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+        gap: 15px;
+        align-items: center;
+    }
+
+        .info-compra-central h3 {
+            margin: 0 0 5px 0;
+            font-size: 18px;
+            color: #ffffff;
+            font-weight: bold;
+        }
+
+        .info-compra-central p {
+            margin: 0;
+        }
+
+        .info-compra-central .organizador {
+            font-size: 13px;
+            color: #00ffd0;
+        }
+
+        .info-compra-central .detalle-gris {
+            font-size: 14px;
+            color: #cccccc;
+        }
+
+            .info-compra-central .detalle-gris p {
+                margin-bottom: 4px;
+            }
+
+                .info-compra-central .detalle-gris p:last-child {
+                    margin-bottom: 0;
+                }
+
+        .info-compra-central .precio-total {
+            font-weight: bold;
+            color: #ffffff;
+            font-size: 16px;
+        }
+
+    /* 📥 BOTÓN DESCARGAR ENTRADA (Extremo Derecho) */
+    .accion-derecha {
+        flex-shrink: 0;
+        margin-left: 25px;
     }
 
     .btn-descargar {
         display: inline-block;
-        margin-top: 18px;
-        background-color: #13075c;
-        color: white;
+        background-color: #00ffd0;
+        color: #111111;
+        padding: 12px 24px;
         text-decoration: none;
-        padding: 14px 30px;
-        border-radius: 28px;
+        border-radius: 8px;
         font-weight: bold;
-        text-transform: uppercase;
+        font-size: 14px;
+        text-align: center;
+        box-shadow: 0 4px 10px rgba(0, 255, 208, 0.2);
+        transition: background-color 0.2s ease, transform 0.1s ease, box-shadow 0.2s ease;
     }
 
         .btn-descargar:hover {
-            background-color: white;
-            color: #13075c;
+            background-color: #00cca6;
+            box-shadow: 0 6px 15px rgba(0, 255, 208, 0.4);
         }
 
-    .puntos {
-        display: flex;
-        justify-content: center;
-        gap: 9px;
-        margin-top: 35px;
+        .btn-descargar:active {
+            transform: scale(0.98);
+        }
+
+    /* Alertas de error */
+    .alert-danger {
+        background-color: rgba(220, 53, 69, 0.2);
+        border: 1px solid #dc3545;
+        color: #ea868f;
+        padding: 15px;
+        border-radius: 6px;
+        margin-bottom: 20px;
     }
 
-        .puntos span {
-            width: 18px;
-            height: 18px;
-            background-color: #100848;
-            border-radius: 50%;
-            display: block;
-        }
-
-    @@media (max-width: 900px) {
-        .bienvenida-cliente h1 {
-            font-size: 42px;
-        }
-
-        .btn-anfitrion {
-            position: static;
-            margin-left: 20px;
-        }
-
-        .bienvenida-cliente {
-            flex-direction: column;
-            gap: 20px;
-        }
-
-        .entradas-section {
-            padding: 35px 25px;
-        }
-
-            .entradas-section h2 {
-                font-size: 38px;
-            }
-
-        .contenedor-carrusel {
-            grid-template-columns: 1fr;
-        }
-
-        .flecha {
-            display: none;
-        }
-
-        .entradas-grid {
-            grid-template-columns: 1fr;
-        }
+    /* Mensajes informativos de carga o vacío */
+    .msg-info {
+        text-align: center;
+        color: #cccccc;
+        font-size: 16px;
     }
 </style>
-
-@code {
-    private List<EntradaCliente> entradas = new List<EntradaCliente>
-    {
-        new EntradaCliente(
-            1,
-            "Nombre de un Evento muy Interesante",
-            "FRÍOS",
-            "1ra Temporada",
-            "AUTOR 1",
-            "15/03/2026",
-            "8:00 pm",
-            "Av. No sé 123, San Miguel",
-            "poster-frio"
-        ),
-
-        new EntradaCliente(
-            2,
-            "Poemax",
-            "POEMAX",
-            "Stand-up comedy y poesía",
-            "AUTOR 2",
-            "07/05/2026",
-            "10:30 pm",
-            "Pasaje Porta 132, Miraflores",
-            "poster-poemax"
-        ),
-
-        new EntradaCliente(
-            3,
-            "Obra de Teatro: Hamlet",
-            "HAMLET",
-            "Obra teatral",
-            "AUTOR 3",
-            "12/07/2026",
-            "7:30 pm",
-            "Teatro Municipal de Lima",
-            "poster-teatro"
-        ),
-
-        new EntradaCliente(
-            4,
-            "Concierto Rock Nocturno",
-            "ROCK",
-            "Música en vivo",
-            "AUTOR 4",
-            "20/08/2026",
-            "9:00 pm",
-            "Av. La Marina 456, Pueblo Libre",
-            "poster-concierto"
-        )
-    };
-
-    private class EntradaCliente
-    {
-        public int Id { get; set; }
-        public string Titulo { get; set; }
-        public string TituloPoster { get; set; }
-        public string Subtitulo { get; set; }
-        public string Autor { get; set; }
-        public string Fecha { get; set; }
-        public string Hora { get; set; }
-        public string Lugar { get; set; }
-        public string ClasePoster { get; set; }
-
-        public EntradaCliente(int id, string titulo, string tituloPoster, string subtitulo,
-            string autor, string fecha, string hora, string lugar, string clasePoster)
-        {
-            Id = id;
-            Titulo = titulo;
-            TituloPoster = tituloPoster;
-            Subtitulo = subtitulo;
-            Autor = autor;
-            Fecha = fecha;
-            Hora = hora;
-            Lugar = lugar;
-            ClasePoster = clasePoster;
-        }
-    }
-}

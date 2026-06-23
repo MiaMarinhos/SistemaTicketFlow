@@ -290,7 +290,7 @@
                 foreach (var ev in misEventos)
                 {
                     // Comparamos el idEvento de la compra (int) con el id del evento (string)
-                    int vendidas = compras?.Where(c => c.idEvento.ToString() == ev.id).Sum(c => c.entradasCompradas) ?? 0;
+                    int vendidas = compras?.Where(c => c.idEvento == ev.id).Sum(c => c.entradasCompradas) ?? 0;
 
                     int disponibles = ev.capacidad_entradas - vendidas;
                     if (disponibles < 0) disponibles = 0;
@@ -329,7 +329,7 @@
 
     private class InventarioEventoDto
     {
-        public string Id { get; set; } = string.Empty;
+        public int Id { get; set; }
         public string Titulo { get; set; } = string.Empty;
         public string FechaTexto { get; set; } = string.Empty;
         public decimal Precio { get; set; }
