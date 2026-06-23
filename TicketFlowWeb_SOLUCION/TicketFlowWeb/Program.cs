@@ -1,9 +1,12 @@
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Components;
 using TicketFlowWeb.Components;
+using TicketFlowWeb.Models;
 using TicketFlowWeb.Services;
 using TicketFlowWeb.Services.EventoRS;
 using TicketFlowWeb.Services.UsuarioRS;
+
+using Servicios.compra;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -20,6 +23,14 @@ builder.Services.AddHttpClient<UsuarioRestService>(client =>
     client.BaseAddress = new Uri("http://localhost:8080/TicketFlow/api/");
 });
 
+
+builder.Services.AddScoped<CompraRS>();
+
+//Builder General
+builder.Services.AddScoped(sp => new HttpClient
+{
+    BaseAddress = new Uri("http://localhost:8080/CosysServices/cosys/")
+});
 //----------------------------------------------------------
 
 builder.Services.AddScoped<IServicioSesionAuth, ServicioSesionAuth>();
