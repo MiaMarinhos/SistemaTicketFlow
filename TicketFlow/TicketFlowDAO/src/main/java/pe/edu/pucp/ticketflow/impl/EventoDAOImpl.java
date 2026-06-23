@@ -168,7 +168,25 @@ public class EventoDAOImpl implements IEventoDAO {
                 while (rs.next()) {
 
                     Evento evento = new Evento();
-                    mapearEvento(rs, evento);
+
+                    evento.setIdEvento(rs.getInt("idEvento"));
+                    evento.setTitulo(rs.getString("titulo"));
+                    evento.setDescripcion(rs.getString("descripcion"));
+                    evento.setCapacidad_entradas(rs.getInt("capacidad_entradas"));
+                    evento.setFecha(rs.getDate("fecha"));
+                    evento.setHora_inicio(rs.getTime("hora_inicio"));
+                    evento.setHora_fin(rs.getTime("hora_fin"));
+                    evento.setUbicacion(rs.getString("ubicacion"));
+                    evento.setNombre_establecimiento(
+                            rs.getString("nombre_establecimiento")
+                    );
+                    evento.setImg(rs.getString("img"));
+                    evento.setPrecio(rs.getDouble("precio"));
+
+                    categoria_evento cat = new categoria_evento();
+                    cat.setIdCategoria_evento(rs.getInt("idCategoria_evento"));
+                    evento.setCategoria(cat);
+
                     eventos.add(evento);
                 }
 

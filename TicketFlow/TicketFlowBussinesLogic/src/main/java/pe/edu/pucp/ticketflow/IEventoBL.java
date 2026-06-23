@@ -10,6 +10,7 @@ public interface IEventoBL {
     Evento mostrarEvento(Integer id) throws BusinessLogicException;
     Evento editarEvento(Evento evento, Integer id) throws BusinessLogicException;
     Evento ocultarEvento(Evento evento, Integer id) throws BusinessLogicException;
+    List<Evento> buscarEventoPorNombre(String nombre) throws BusinessLogicException;
     List<Evento> verTodosLosEventos() throws BusinessLogicException;
     List<Evento> verTodosLosEventosPorCategoria(String categoria) throws BusinessLogicException;
     Evento verDetalleEvento(Integer id) throws BusinessLogicException;

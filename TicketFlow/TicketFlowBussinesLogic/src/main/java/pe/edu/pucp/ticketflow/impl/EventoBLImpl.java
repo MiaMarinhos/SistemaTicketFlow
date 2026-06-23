@@ -123,4 +123,17 @@ public class EventoBLImpl implements IEventoBL {
             }
         }
     }
+    @Override
+    public List<Evento> buscarEventoPorNombre(String nombre) throws BusinessLogicException{
+        try {
+            return eventoDAO.buscarPorTitulo(nombre);
+        }
+        catch (Exception ex){
+            if (ex instanceof BusinessLogicException) {
+                throw (BusinessLogicException)ex;
+            } else {
+                throw new BusinessLogicException(ex);
+            }
+        }
+    }
 }

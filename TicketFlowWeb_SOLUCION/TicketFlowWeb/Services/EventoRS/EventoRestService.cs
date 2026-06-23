@@ -94,6 +94,23 @@ namespace TicketFlowWeb.Services.EventoRS
                 return new EventoViewModel();
             }
         }
+        public async Task<List<EventoDTO>> BuscarPorNombreAsync(string nombre)
+        {
+            try
+            {
+                var evento = await _httpClient.GetFromJsonAsync<List<EventoDTO>>(
+                    $"EventoRS/Buscar/{nombre}",
+                    JsonOptions
+                );
+
+                return evento ?? new List<EventoDTO>();
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error en la busqueda por titulo: {ex.Message}");
+                return new List<EventoDTO>();
+            }
+        }
 
     }
 }

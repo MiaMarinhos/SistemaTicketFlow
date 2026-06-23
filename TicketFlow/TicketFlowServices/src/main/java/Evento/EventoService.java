@@ -145,7 +145,23 @@ public class EventoService {
             return Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity(Map.of("error", "Error interno.")).build();
         }
     }
+    @GET
+    @Path("/Buscar/{nombre}")
+    @Produces(MediaType.APPLICATION_JSON)
 
+    public Response buscarEventoPorNombre(@PathParam("nombre") String nombre){
+        try{
+            List<Evento>eventos=eventoBL.buscarEventoPorNombre(nombre);
+            List<EventoDTO> eventosDTO = new ArrayList<>();
+            for(Evento e:eventos){
+                eventosDTO.add(convertirDTO(e));
+            }
+            return  Response.ok(eventosDTO).build();
+        }
+        catch(pe.edu.pucp.ticketflow.exception.BusinessLogicException e){
+            return Response.status(Response.Status.BAD_REQUEST).entity(Map.of("error", e.getMessage())).build();
+        }
+    }
 
     @POST
     public Response registrarEvento(Evento evento) {

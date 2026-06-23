@@ -136,6 +136,7 @@ INSERT INTO estado_evento(estado) VALUES
 -- =====================================
 -- EVENTO
 -- =====================================
+
 INSERT INTO evento(
 idEvento,titulo,descripcion,capacidad_entradas,entradas_disponibles,
 fecha,hora_inicio,hora_fin,ubicacion,
