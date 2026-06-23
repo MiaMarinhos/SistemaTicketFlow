@@ -10,17 +10,16 @@ import pe.edu.pucp.ticketflow.IComprasBL;
 import pe.edu.pucp.ticketflow.compra.model.Compra;
 import pe.edu.pucp.ticketflow.impl.ComprasBLImpl;
 
-<<<<<<< HEAD
+
 import java.util.Map;
 
-=======
->>>>>>> a54a2e19af7d2b41fb4627a5d5cd2414cd4cd0dd
+
 @Path("CompraRS")
 @Produces(MediaType.APPLICATION_JSON)
 @Consumes(MediaType.APPLICATION_JSON)
 
 public class CompraService {
-<<<<<<< HEAD
+
     private final IComprasBL comprasBL;
 
     public CompraService(){
@@ -37,12 +36,15 @@ public class CompraService {
                     .entity(Map.of("mensaje", "Compra creado"))
                     .build();
         }
-        catch (Exception e){
+        catch (Exception e) {
             e.printStackTrace();
             return Response.status(Response.Status.INTERNAL_SERVER_ERROR)
                     .entity(Map.of("error", e.getMessage()))
                     .build();
-=======
+
+        }
+    }
+
     private IComprasBL compraBL = new ComprasBLImpl();
 
     @POST
@@ -61,7 +63,7 @@ public class CompraService {
         } catch (Exception e) {
             return Response.status(Response.Status.INTERNAL_SERVER_ERROR)
                     .entity("{\"error\":\"Error interno en el servidor: " + e.getMessage() + "\"}").build();
->>>>>>> a54a2e19af7d2b41fb4627a5d5cd2414cd4cd0dd
+
         }
     }
 }

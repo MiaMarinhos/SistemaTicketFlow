@@ -2,14 +2,14 @@ using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Authorization;
 using Microsoft.AspNetCore.Components.Server;
+using Servicios.compra;
 using TicketFlowWeb.Components;
 using TicketFlowWeb.Models;
 using TicketFlowWeb.Services;
+using TicketFlowWeb.Services.AnfitrionRS;
 using TicketFlowWeb.Services.CompraRS;
 using TicketFlowWeb.Services.EventoRS;
 using TicketFlowWeb.Services.UsuarioRS;
-
-using Servicios.compra;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -26,6 +26,10 @@ builder.Services.AddHttpClient<UsuarioRestService>(client =>
     client.BaseAddress = new Uri("http://localhost:8080/TicketFlow/api/");
 });
 builder.Services.AddHttpClient<CompraRestService>(client =>
+{
+    client.BaseAddress = new Uri("http://localhost:8080/TicketFlow/api/");
+});
+builder.Services.AddHttpClient<AnfitrionRestService>(client =>
 {
     client.BaseAddress = new Uri("http://localhost:8080/TicketFlow/api/");
 });
