@@ -65,6 +65,7 @@ public class UsuarioDAOImpl implements IUsuarioDAO {
                 }
             }
         } catch (SQLException e) {
+            e.printStackTrace();
             throw new RuntimeException("Error al leer usuario", e);
         }
         return null;
@@ -72,7 +73,8 @@ public class UsuarioDAOImpl implements IUsuarioDAO {
 
     @Override
     public Usuario update(Usuario t, Integer id) {
-        String sql = "{CALL SP_ACTUALIZAR_USUARIO(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)}";
+        String sql = "{CALL SP_ACTUALIZAR_USUARIO(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)}";
+
         try (Connection con = DBManager.getInstance().getConnection();
              CallableStatement cs = con.prepareCall(sql)) {
 
@@ -82,16 +84,41 @@ public class UsuarioDAOImpl implements IUsuarioDAO {
             cs.setString(4, t.getApellidoPaterno());
             cs.setString(5, t.getApellidoMaterno());
             cs.setString(6, t.getTelefono());
-            cs.setString(7, t.getCorreoElectronico());
-            cs.setString(8, t.getContrasena());
-            cs.setDate(9, t.getFechaNacimiento());
-            cs.setInt(10, t.getDistrito().getIdDistrito());
-            cs.setInt(11, t.getEstado().getIdEstadoUsuario());
+            cs.setInt(7, t.getEdad());
+
+            if (t.getGenero() != null) {
+                cs.setInt(8, t.getGenero().getIdGenero());
+            } else {
+                cs.setInt(8, 1);
+            }
+
+            cs.setString(9, t.getCorreoElectronico());
+            cs.setString(10, t.getContrasena());
+            cs.setDate(11, t.getFechaNacimiento());
+
+            if (t.getDistrito() != null) {
+                cs.setInt(12, t.getDistrito().getIdDistrito());
+            } else {
+                cs.setInt(12, t.getIdDistrito());
+            }
+
+            if (t.getEstado() != null) {
+                cs.setInt(13, t.getEstado().getIdEstadoUsuario());
+            } else {
+                cs.setInt(13, 1);
+            }
 
             cs.execute();
+
+            t.setIdUsuario(id);
             return t;
+
         } catch (SQLException e) {
-            throw new RuntimeException("Error al actualizar usuario", e);
+            e.printStackTrace();
+            throw new RuntimeException(
+                    "Error al actualizar usuario: " + e.getMessage(),
+                    e
+            );
         }
     }
 
@@ -128,6 +155,7 @@ public class UsuarioDAOImpl implements IUsuarioDAO {
                 lista.add(u);
             }
         } catch (SQLException e) {
+            e.printStackTrace();
             throw new RuntimeException("Error al listar usuarios", e);
         }
         return lista;
@@ -357,20 +385,31 @@ public class UsuarioDAOImpl implements IUsuarioDAO {
         u.setApellidoPaterno(rs.getString("apellido_paterno"));
         u.setApellidoMaterno(rs.getString("apellido_materno"));
         u.setTelefono(rs.getString("telefono"));
+        u.setEdad(rs.getInt("edad"));
         u.setCorreoElectronico(rs.getString("correo_electronico"));
         u.setContrasena(rs.getString("contrasena"));
         u.setFechaRegistro(rs.getDate("fecha_registro"));
         u.setFechaNacimiento(rs.getDate("fecha_nacimiento"));
         u.setIdDistrito(rs.getInt("idDistrito"));
 
-        EstadoUsuario e = new EstadoUsuario();
-        e.setIdEstadoUsuario(rs.getInt("idEstado_usuario"));
-        e.setNombre(rs.getString("nombre_estado"));
-        u.setEstado(e);
+        Genero genero = new Genero();
+        genero.setIdGenero(rs.getInt("idGenero"));
+        genero.setNombre(rs.getString("nombre_genero"));
+        u.setGenero(genero);
 
-        TipoUsuario t = new TipoUsuario();
-        t.setIdTipoUsuario(rs.getInt("idTipo_usuario"));
-        t.setTipoUsuario(rs.getString("nombre_tipo_usuario"));
-        u.setTipo(t);
+        Distrito distrito = new Distrito();
+        distrito.setIdDistrito(rs.getInt("idDistrito"));
+        distrito.setNombre(rs.getString("nombre_distrito"));
+        u.setDistrito(distrito);
+
+        EstadoUsuario estado = new EstadoUsuario();
+        estado.setIdEstadoUsuario(rs.getInt("idEstado_usuario"));
+        estado.setNombre(rs.getString("nombre_estado"));
+        u.setEstado(estado);
+
+        TipoUsuario tipo = new TipoUsuario();
+        tipo.setIdTipoUsuario(rs.getInt("idTipo_usuario"));
+        tipo.setTipoUsuario(rs.getString("nombre_tipo_usuario"));
+        u.setTipo(tipo);
     }
 }

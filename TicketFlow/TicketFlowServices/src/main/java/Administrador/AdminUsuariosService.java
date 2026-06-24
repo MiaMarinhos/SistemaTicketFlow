@@ -1,13 +1,12 @@
 package Administrador;
 
-import jakarta.ws.rs.GET;
-import jakarta.ws.rs.Path;
-import jakarta.ws.rs.Produces;
+import jakarta.ws.rs.*;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
 import pe.edu.pucp.ticketflow.IAdministradorBL;
 import pe.edu.pucp.ticketflow.exception.BusinessLogicException;
 import pe.edu.pucp.ticketflow.impl.AdministradorBLImpl;
+import pe.edu.pucp.ticketflow.usuario.model.Cliente;
 import pe.edu.pucp.ticketflow.usuario.model.Usuario;
 
 import java.util.List;
@@ -41,6 +40,87 @@ public class AdminUsuariosService {
 
             return Response.status(Response.Status.INTERNAL_SERVER_ERROR)
                     .entity(Map.of("error", "Ocurrió un error inesperado: " + e.getMessage()))
+                    .build();
+        }
+    }
+
+    @GET
+    @Path("{id}")
+    public Response obtenerUsuario(@PathParam("id") Integer id) {
+        try {
+            Usuario usuario = administradorBL.buscarUsuarioPorId(id);
+
+            return Response.ok(usuario).build();
+        }
+        catch (BusinessLogicException e) {
+            return Response.status(Response.Status.BAD_REQUEST)
+                    .entity(Map.of("error", e.getMessage()))
+                    .build();
+        }
+        catch (Exception e) {
+            e.printStackTrace();
+
+            return Response.status(Response.Status.INTERNAL_SERVER_ERROR)
+                    .entity(Map.of("error", "Ocurrió un error inesperado: " + e.getMessage()))
+                    .build();
+        }
+    }
+
+    @PUT
+    @Path("actualizar/{id}")
+    @Consumes(MediaType.APPLICATION_JSON)
+    @Produces(MediaType.APPLICATION_JSON)
+    public Response actualizarUsuario(
+            @PathParam("id") Integer id,
+            Cliente usuario) {
+
+        try {
+            usuario.setIdUsuario(id);
+
+            Usuario actualizado = administradorBL.editarUsuario(usuario);
+
+            return Response.ok(actualizado).build();
+
+        } catch (BusinessLogicException e) {
+            return Response.status(Response.Status.BAD_REQUEST)
+                    .entity(Map.of("error", e.getMessage()))
+                    .build();
+
+        } catch (Exception e) {
+            e.printStackTrace();
+
+            return Response.status(Response.Status.INTERNAL_SERVER_ERROR)
+                    .entity(Map.of("error", "Ocurrió un error inesperado: " + e.getMessage()))
+                    .build();
+        }
+    }
+
+    @PUT
+    @Path("/bloquear/{id}")
+    @Produces(MediaType.APPLICATION_JSON)
+    public Response bloquearUsuario(@PathParam("id") Integer id) {
+        try {
+            Usuario usuario = administradorBL.bloquearUsuario(id);
+            return Response.ok(usuario).build();
+
+        } catch (Exception e) {
+            return Response.status(Response.Status.INTERNAL_SERVER_ERROR)
+                    .entity("Error al bloquear usuario: " + e.getMessage())
+                    .build();
+        }
+    }
+
+    @PUT
+    @Path("/desbloquear/{id}")
+    @Produces(MediaType.APPLICATION_JSON)
+    public Response desbloquearUsuario(@PathParam("id") Integer id) {
+        try {
+            Usuario usuario = administradorBL.desbloquearUsuario(id);
+            return Response.ok(usuario).build();
+
+        } catch (Exception e) {
+            return Response.status(Response.Status.INTERNAL_SERVER_ERROR)
+                    .entity("Error al desbloquear usuario: " + e.getMessage())
                     .build();
         }
     }

@@ -2,8 +2,10 @@
 @using Microsoft.AspNetCore.Authorization
 @using TicketFlowWeb.Models
 @using TicketFlowWeb.Services.AdministradorRS
+
 @attribute [Authorize(Roles = "ADMIN")]
 @layout AdminLayout
+
 @inject AdministradorRestService AdminService
 
 <PageTitle>Panel de Usuarios</PageTitle>
@@ -43,6 +45,7 @@
                     <th>Acciones</th>
                 </tr>
             </thead>
+
             <tbody>
                 @foreach (var usuario in UsuariosFiltrados)
                 {
@@ -52,18 +55,40 @@
                         <td>@usuario.correoElectronico</td>
                         <td>@usuario.tipo?.tipoUsuario</td>
                         <td>@usuario.estado?.Nombre</td>
+
                         <td>
-                            <button class="btn btn-outline-dark btn-sm">
+                            <button class="btn btn-outline-dark btn-sm"
+                                    data-bs-toggle="modal"
+                                    data-bs-target="#verUsuarioModal"
+                                    @onclick="() => VerUsuario(usuario.idUsuario)">
                                 <i class="bi bi-eye"></i>
                             </button>
 
-                            <button class="btn btn-outline-dark btn-sm">
+                            <button class="btn btn-outline-dark btn-sm"
+                                    data-bs-toggle="modal"
+                                    data-bs-target="#editarUsuarioModal"
+                                    @onclick="() => EditarUsuario(usuario.idUsuario)">
                                 <i class="bi bi-brush"></i>
                             </button>
 
-                            <button class="btn btn-outline-dark btn-sm">
-                                <i class="bi bi-lock"></i>
-                            </button>
+                            @if (usuario.estado?.Nombre == "ELIMINADO")
+                            {
+                                <button class="btn btn-outline-success btn-sm"
+                                        data-bs-toggle="modal"
+                                        data-bs-target="#bloquearUsuarioModal"
+                                        @onclick="() => SeleccionarUsuario(usuario)">
+                                    <i class="bi bi-unlock"></i>
+                                </button>
+                            }
+                            else
+                            {
+                                <button class="btn btn-outline-danger btn-sm"
+                                        data-bs-toggle="modal"
+                                        data-bs-target="#bloquearUsuarioModal"
+                                        @onclick="() => SeleccionarUsuario(usuario)">
+                                    <i class="bi bi-lock"></i>
+                                </button>
+                            }
                         </td>
                     </tr>
                 }
@@ -72,10 +97,187 @@
     }
 </div>
 
+<!-- MODAL VER USUARIO -->
+<div class="modal fade" id="verUsuarioModal" tabindex="-1">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+
+            <div class="modal-header">
+                <h5 class="modal-title">Información del Usuario</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+
+            <div class="modal-body">
+                @if (usuarioSeleccionado != null)
+                {
+                    <p><strong>ID:</strong> @usuarioSeleccionado.idUsuario</p>
+                    <p><strong>DNI:</strong> @usuarioSeleccionado.dni</p>
+                    <p><strong>Nombre:</strong> @usuarioSeleccionado.nombre</p>
+                    <p><strong>Apellido Paterno:</strong> @usuarioSeleccionado.apellidoPaterno</p>
+                    <p><strong>Apellido Materno:</strong> @usuarioSeleccionado.apellidoMaterno</p>
+                    <p><strong>Correo:</strong> @usuarioSeleccionado.correoElectronico</p>
+                    <p><strong>Teléfono:</strong> @usuarioSeleccionado.telefono</p>
+                    <p><strong>Edad:</strong> @usuarioSeleccionado.edad</p>
+                    <p><strong>Tipo:</strong> @usuarioSeleccionado.tipo?.tipoUsuario</p>
+                    <p><strong>Estado:</strong> @usuarioSeleccionado.estado?.Nombre</p>
+                }
+                else
+                {
+                    <p>Cargando información...</p>
+                }
+            </div>
+
+        </div>
+    </div>
+</div>
+
+<!-- MODAL EDITAR USUARIO -->
+<div class="modal fade" id="editarUsuarioModal" tabindex="-1">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+
+            <div class="modal-header">
+                <h5 class="modal-title">Editar Usuario</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+
+            <div class="modal-body">
+                @if (usuarioSeleccionado != null)
+                {
+                    <div class="mb-3">
+                        <label class="form-label">DNI</label>
+                        <input class="form-control" @bind="usuarioSeleccionado.dni" />
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label">Nombre</label>
+                        <input class="form-control" @bind="usuarioSeleccionado.nombre" />
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label">Apellido Paterno</label>
+                        <input class="form-control" @bind="usuarioSeleccionado.apellidoPaterno" />
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label">Apellido Materno</label>
+                        <input class="form-control" @bind="usuarioSeleccionado.apellidoMaterno" />
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label">Correo</label>
+                        <input class="form-control" @bind="usuarioSeleccionado.correoElectronico" />
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label">Teléfono</label>
+                        <input class="form-control" @bind="usuarioSeleccionado.telefono" />
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label">Edad</label>
+                        <input type="number" class="form-control" @bind="usuarioSeleccionado.edad" />
+                    </div>
+                }
+                else
+                {
+                    <p>Cargando usuario...</p>
+                }
+            </div>
+
+            <div class="modal-footer">
+                <button class="btn btn-secondary" data-bs-dismiss="modal">
+                    Cancelar
+                </button>
+
+                <button class="btn btn-primary"
+                        data-bs-dismiss="modal"
+                        @onclick="GuardarCambiosUsuario">
+                    Guardar cambios
+                </button>
+            </div>
+
+        </div>
+    </div>
+</div>
+
+<!-- MODAL BLOQUEAR / DESBLOQUEAR USUARIO -->
+<div class="modal fade" id="bloquearUsuarioModal" tabindex="-1">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+
+            <div class="modal-header">
+                @if (usuarioSeleccionado?.estado?.Nombre == "ELIMINADO")
+                {
+                    <h5 class="modal-title">Desbloquear Usuario</h5>
+                }
+                else
+                {
+                    <h5 class="modal-title">Eliminar Usuario</h5>
+                }
+
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+
+            <div class="modal-body">
+                @if (usuarioSeleccionado != null)
+                {
+                    @if (usuarioSeleccionado.estado?.Nombre == "ELIMINADO")
+                    {
+                        <p>
+                            ¿Desea desbloquear al usuario
+                            <strong>@usuarioSeleccionado.nombre @usuarioSeleccionado.apellidoPaterno</strong>?
+                        </p>
+                        <p class="text-muted mb-0">
+                            El usuario volverá a estar ACTIVO.
+                        </p>
+                    }
+                    else
+                    {
+                        <p>
+                            ¿Desea eliminar al usuario
+                            <strong>@usuarioSeleccionado.nombre @usuarioSeleccionado.apellidoPaterno</strong>?
+                        </p>
+                        <p class="text-muted mb-0">
+                            Esta acción cambiará su estado a ELIMINADO.
+                        </p>
+                    }
+                }
+            </div>
+
+            <div class="modal-footer">
+                <button class="btn btn-secondary" data-bs-dismiss="modal">
+                    Cancelar
+                </button>
+
+                @if (usuarioSeleccionado?.estado?.Nombre == "ELIMINADO")
+                {
+                    <button class="btn btn-success"
+                            data-bs-dismiss="modal"
+                            @onclick="BloquearUsuario">
+                        Desbloquear
+                    </button>
+                }
+                else
+                {
+                    <button class="btn btn-danger"
+                            data-bs-dismiss="modal"
+                            @onclick="BloquearUsuario">
+                        Eliminar
+                    </button>
+                }
+            </div>
+
+        </div>
+    </div>
+</div>
+
 @code {
     private string textoBusqueda = "";
     private string estadoFiltro = "";
+
     private List<Usuario>? usuarios;
+    private Usuario? usuarioSeleccionado;
 
     protected override async Task OnInitializedAsync()
     {
@@ -89,6 +291,75 @@
                 string.IsNullOrWhiteSpace(textoBusqueda) ||
                 $"{u.nombre} {u.apellidoPaterno} {u.apellidoMaterno} {u.correoElectronico}"
                     .Contains(textoBusqueda, StringComparison.OrdinalIgnoreCase));
+
+    private async Task VerUsuario(int id)
+    {
+        usuarioSeleccionado = null;
+        usuarioSeleccionado = await AdminService.ObtenerUsuario(id);
+    }
+
+    private async Task EditarUsuario(int id)
+    {
+        usuarioSeleccionado = null;
+        usuarioSeleccionado = await AdminService.ObtenerUsuario(id);
+    }
+
+    private void SeleccionarUsuario(Usuario usuario)
+    {
+        usuarioSeleccionado = usuario;
+    }
+
+    private async Task GuardarCambiosUsuario()
+    {
+        if (usuarioSeleccionado == null)
+            return;
+
+        if (usuarioSeleccionado.idDistrito <= 0)
+            usuarioSeleccionado.idDistrito = 1;
+
+        if (usuarioSeleccionado.distrito == null ||
+            usuarioSeleccionado.distrito.IdDistrito <= 0)
+        {
+            usuarioSeleccionado.distrito = new DistritoViewModel
+            {
+                IdDistrito = usuarioSeleccionado.idDistrito
+            };
+        }
+
+        usuarioSeleccionado.genero ??= new GeneroViewModel
+        {
+            IdGenero = 1
+        };
+
+        usuarioSeleccionado.estado ??= new EstadoUsuarioViewModel
+        {
+            IdEstadoUsuario = 1
+        };
+
+        await AdminService.ActualizarUsuario(
+            usuarioSeleccionado.idUsuario,
+            usuarioSeleccionado
+        );
+
+        usuarios = await AdminService.ListarUsuarios();
+    }
+
+    private async Task BloquearUsuario()
+    {
+        if (usuarioSeleccionado == null)
+            return;
+
+        if (usuarioSeleccionado.estado?.Nombre == "ELIMINADO")
+        {
+            await AdminService.DesbloquearUsuario(usuarioSeleccionado.idUsuario);
+        }
+        else
+        {
+            await AdminService.BloquearUsuario(usuarioSeleccionado.idUsuario);
+        }
+
+        usuarios = await AdminService.ListarUsuarios();
+    }
 
     private void LimpiarFiltros()
     {

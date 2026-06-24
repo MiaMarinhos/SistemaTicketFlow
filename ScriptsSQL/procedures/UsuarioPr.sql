@@ -62,20 +62,33 @@ CREATE PROCEDURE SP_LEER_USUARIO(
     IN p_idUsuario INT
 )
 BEGIN
-SELECT
-    u.*,
-    e.idEstado_usuario,
-    e.estado AS nombre_estado,
-    tu.idTipo_usuario,
-    tu.nombre AS nombre_tipo_usuario
-FROM usuario u
-         INNER JOIN estado_usuario e
-                    ON u.idEstado = e.idEstado_usuario
-         INNER JOIN usuario_x_tipo uxt
-                    ON u.idUsuario = uxt.idUsuario
-         INNER JOIN tipo_usuario tu
-                    ON uxt.idTipo_usuario = tu.idTipo_usuario
-WHERE u.idUsuario = p_idUsuario;
+    SELECT
+        u.*,
+
+        e.idEstado_usuario,
+        e.estado AS nombre_estado,
+
+        tu.idTipo_usuario,
+        tu.nombre AS nombre_tipo_usuario,
+
+        g.idGenero,
+        g.genero AS nombre_genero,
+
+        d.idDistrito,
+        d.nombre AS nombre_distrito
+
+    FROM usuario u
+    INNER JOIN estado_usuario e
+        ON u.idEstado = e.idEstado_usuario
+    INNER JOIN usuario_x_tipo uxt
+        ON u.idUsuario = uxt.idUsuario
+    INNER JOIN tipo_usuario tu
+        ON uxt.idTipo_usuario = tu.idTipo_usuario
+    INNER JOIN genero g
+        ON u.idGenero = g.idGenero
+    INNER JOIN distrito d
+        ON u.idDistrito = d.idDistrito
+    WHERE u.idUsuario = p_idUsuario;
 END //
 
 DELIMITER ;
@@ -151,19 +164,39 @@ DROP PROCEDURE IF EXISTS SP_LISTAR_USUARIOS //
 
 CREATE PROCEDURE SP_LISTAR_USUARIOS()
 BEGIN
-SELECT
-    u.*,
-    e.idEstado_usuario,
-    e.estado AS nombre_estado,
-    tu.idTipo_usuario,
-    tu.nombre AS nombre_tipo_usuario
-FROM usuario u
-         INNER JOIN estado_usuario e
-                    ON u.idEstado = e.idEstado_usuario
-         INNER JOIN usuario_x_tipo uxt
-                    ON u.idUsuario = uxt.idUsuario
-         INNER JOIN tipo_usuario tu
-                    ON uxt.idTipo_usuario = tu.idTipo_usuario;
+    SELECT
+        u.*,
+
+        e.idEstado_usuario,
+        e.estado AS nombre_estado,
+
+        tu.idTipo_usuario,
+        tu.nombre AS nombre_tipo_usuario,
+
+        g.idGenero,
+        g.genero AS nombre_genero,
+
+        d.idDistrito,
+        d.nombre AS nombre_distrito
+
+    FROM usuario u
+
+    INNER JOIN estado_usuario e
+        ON u.idEstado = e.idEstado_usuario
+
+    INNER JOIN usuario_x_tipo uxt
+        ON u.idUsuario = uxt.idUsuario
+
+    INNER JOIN tipo_usuario tu
+        ON uxt.idTipo_usuario = tu.idTipo_usuario
+
+    INNER JOIN genero g
+        ON u.idGenero = g.idGenero
+
+    INNER JOIN distrito d
+        ON u.idDistrito = d.idDistrito
+
+    ORDER BY u.idUsuario, tu.idTipo_usuario;
 END //
 
 DELIMITER ;

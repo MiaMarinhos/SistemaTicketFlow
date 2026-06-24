@@ -124,6 +124,21 @@ public class AdministradorBLImpl implements IAdministradorBL {
     }
 
     @Override
+    public Usuario buscarUsuarioPorId(Integer id) throws BusinessLogicException {
+        if (id == null || id <= 0) {
+            throw new BusinessLogicException("Debe seleccionar un usuario válido.");
+        }
+
+        Usuario usuario = usuarioDAO.read(id);
+
+        if (usuario == null) {
+            throw new BusinessLogicException("No existe un usuario con el ID indicado.");
+        }
+
+        return usuario;
+    }
+
+    @Override
     public List<Usuario> buscarUsuario(String nombre)  throws BusinessLogicException{
 
         if(nombre == null || nombre.trim().isEmpty()){

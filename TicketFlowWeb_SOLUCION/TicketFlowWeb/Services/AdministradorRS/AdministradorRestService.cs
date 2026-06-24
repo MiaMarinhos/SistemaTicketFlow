@@ -123,5 +123,45 @@ namespace TicketFlowWeb.Services.AdministradorRS
 
             return await response.Content.ReadFromJsonAsync<EventoViewModel>();
         }
+
+        public async Task<Usuario?> ObtenerUsuario(int id)
+        {
+            return await _http.GetFromJsonAsync<Usuario>($"AdminUsuarios/{id}");
+        }
+
+
+
+        public async Task<Usuario?> ActualizarUsuario(int id, Usuario usuario)
+        {
+            var response = await _http.PutAsJsonAsync($"AdminUsuarios/actualizar/{id}", usuario);
+            var contenido = await response.Content.ReadAsStringAsync();
+
+            if (!response.IsSuccessStatusCode)
+                throw new Exception(contenido);
+
+            return await response.Content.ReadFromJsonAsync<Usuario>();
+        }
+
+        public async Task<Usuario?> BloquearUsuario(int id)
+        {
+            var response = await _http.PutAsync($"AdminUsuarios/bloquear/{id}", null);
+            var contenido = await response.Content.ReadAsStringAsync();
+
+            if (!response.IsSuccessStatusCode)
+                throw new Exception(contenido);
+
+            return await response.Content.ReadFromJsonAsync<Usuario>();
+        }
+
+        public async Task<Usuario?> DesbloquearUsuario(int id)
+        {
+            var response = await _http.PutAsync($"AdminUsuarios/desbloquear/{id}", null);
+            var contenido = await response.Content.ReadAsStringAsync();
+
+            if (!response.IsSuccessStatusCode)
+                throw new Exception(contenido);
+
+            return await response.Content.ReadFromJsonAsync<Usuario>();
+        }
     }
 }

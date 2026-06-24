@@ -22,6 +22,7 @@ public interface IAdministradorBL {
 
     //GESTION DE USUARIOS
     List<Usuario> listarUsuarios()  throws BusinessLogicException;
+    Usuario buscarUsuarioPorId(Integer id) throws BusinessLogicException;
     List<Usuario> buscarUsuario(String nombre)  throws BusinessLogicException;
     List<Usuario> filtrarUsuariosPorTipo(Integer idTipoUsuario)  throws BusinessLogicException;
     List<Usuario> filtrarUsuariosPorEstado(Integer idEstado)  throws BusinessLogicException;
