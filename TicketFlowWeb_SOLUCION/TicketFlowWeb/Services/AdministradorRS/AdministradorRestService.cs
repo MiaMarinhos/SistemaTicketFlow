@@ -57,5 +57,34 @@ namespace TicketFlowWeb.Services.AdministradorRS
                 "AdminSolicitudes/listar"
             ) ?? new List<SolicitudViewModel>();
         }
+        public async Task<SolicitudViewModel?> AprobarSolicitud(int id)
+        {
+            var response = await _http.PutAsync(
+                $"AdminSolicitudes/aprobar/{id}",
+                null
+            );
+
+            var contenido = await response.Content.ReadAsStringAsync();
+
+            if (!response.IsSuccessStatusCode)
+                throw new Exception(contenido);
+
+            return await response.Content.ReadFromJsonAsync<SolicitudViewModel>();
+        }
+
+        public async Task<SolicitudViewModel?> RechazarSolicitud(int id)
+        {
+            var response = await _http.PutAsync(
+                $"AdminSolicitudes/rechazar/{id}",
+                null
+            );
+
+            var contenido = await response.Content.ReadAsStringAsync();
+
+            if (!response.IsSuccessStatusCode)
+                throw new Exception(contenido);
+
+            return await response.Content.ReadFromJsonAsync<SolicitudViewModel>();
+        }
     }
 }

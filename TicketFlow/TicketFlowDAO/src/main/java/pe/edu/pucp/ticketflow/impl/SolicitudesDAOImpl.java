@@ -206,9 +206,13 @@ public class SolicitudesDAOImpl implements ISolicitudesDAO {
             cs.setInt(1, idSolicitud);
             cs.execute();
 
-            return read(idSolicitud);
+            Solicitud solicitud = new Solicitud();
+            solicitud.setIdSolicitudes(idSolicitud);
+            solicitud.setIdEstadoSolicitud(2);
+            return solicitud;
 
         } catch (SQLException e) {
+            e.printStackTrace();
             throw new RuntimeException("Error al aprobar solicitud", e);
         }
     }
@@ -225,9 +229,13 @@ public class SolicitudesDAOImpl implements ISolicitudesDAO {
 
             cs.execute();
 
-            return read(idSolicitud);
+            Solicitud solicitud = new Solicitud();
+            solicitud.setIdSolicitudes(idSolicitud);
+            solicitud.setIdEstadoSolicitud(3);
+            return solicitud;
 
         } catch (SQLException e) {
+            e.printStackTrace();
             throw new RuntimeException("Error al rechazar solicitud", e);
         }
     }

@@ -155,6 +155,7 @@
 </div>
 
 <!-- MODAL APROBAR -->
+<!-- MODAL APROBAR -->
 <div class="modal fade" id="aprobarSolicitudModal" tabindex="-1">
     <div class="modal-dialog modal-dialog-centered">
         <div class="modal-content">
@@ -165,6 +166,18 @@
 
             <div class="modal-body">
                 ¿Desea aprobar esta solicitud?
+            </div>
+
+            <div class="modal-footer">
+                <button class="btn btn-secondary" data-bs-dismiss="modal">
+                    Cancelar
+                </button>
+
+                <button class="btn btn-success"
+                        data-bs-dismiss="modal"
+                        @onclick="ConfirmarAprobacion">
+                    Aceptar
+                </button>
             </div>
         </div>
     </div>
@@ -181,6 +194,18 @@
 
             <div class="modal-body">
                 ¿Desea rechazar esta solicitud?
+            </div>
+
+            <div class="modal-footer">
+                <button class="btn btn-secondary" data-bs-dismiss="modal">
+                    Cancelar
+                </button>
+
+                <button class="btn btn-danger"
+                        data-bs-dismiss="modal"
+                        @onclick="ConfirmarRechazo">
+                    Aceptar
+                </button>
             </div>
         </div>
     </div>
@@ -233,5 +258,25 @@
     private void LimpiarFiltros()
     {
         textoBusqueda = "";
+    }
+
+    private async Task ConfirmarAprobacion()
+    {
+        if (solicitudSeleccionada == null)
+            return;
+
+        await AdminService.AprobarSolicitud(solicitudSeleccionada.IdSolicitudes);
+
+        solicitudes = await AdminService.ListarSolicitudes();
+    }
+
+    private async Task ConfirmarRechazo()
+    {
+        if (solicitudSeleccionada == null)
+            return;
+
+        await AdminService.RechazarSolicitud(solicitudSeleccionada.IdSolicitudes);
+
+        solicitudes = await AdminService.ListarSolicitudes();
     }
 }

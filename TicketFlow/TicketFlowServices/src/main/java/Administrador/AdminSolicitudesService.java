@@ -1,8 +1,6 @@
 package Administrador;
 
-import jakarta.ws.rs.GET;
-import jakarta.ws.rs.Path;
-import jakarta.ws.rs.Produces;
+import jakarta.ws.rs.*;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
 
@@ -53,6 +51,44 @@ public class AdminSolicitudesService {
                             "error",
                             e.getMessage()
                     ))
+                    .build();
+        }
+    }
+
+    @PUT
+    @Path("aprobar/{id}")
+    @Produces(MediaType.APPLICATION_JSON)
+    public Response aprobarSolicitud(@PathParam("id") Integer id) {
+        try {
+            Solicitud solicitud = administradorBL.aprobarSolicitud(id);
+            return Response.ok(solicitud).build();
+        } catch (BusinessLogicException e) {
+            return Response.status(Response.Status.BAD_REQUEST)
+                    .entity(Map.of("error", e.getMessage()))
+                    .build();
+        } catch (Exception e) {
+            e.printStackTrace();
+            return Response.status(Response.Status.INTERNAL_SERVER_ERROR)
+                    .entity(Map.of("error", e.getMessage()))
+                    .build();
+        }
+    }
+
+    @PUT
+    @Path("rechazar/{id}")
+    @Produces(MediaType.APPLICATION_JSON)
+    public Response rechazarSolicitud(@PathParam("id") Integer id) {
+        try {
+            Solicitud solicitud = administradorBL.rechazarSolicitud(id);
+            return Response.ok(solicitud).build();
+        } catch (BusinessLogicException e) {
+            return Response.status(Response.Status.BAD_REQUEST)
+                    .entity(Map.of("error", e.getMessage()))
+                    .build();
+        } catch (Exception e) {
+            e.printStackTrace();
+            return Response.status(Response.Status.INTERNAL_SERVER_ERROR)
+                    .entity(Map.of("error", e.getMessage()))
                     .build();
         }
     }

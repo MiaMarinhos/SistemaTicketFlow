@@ -452,27 +452,51 @@ INSERT INTO estado_solicitudes(estado) VALUES
 -- SOLICITUDES
 -- =====================================
 INSERT INTO solicitudes(
-telefono_contacto,
-correo_contacto,
-motivo,
-idAdministrador,
-idUsuario,
-idEstado)
+    telefono_contacto,
+    correo_contacto,
+    motivo,
+    idAdministrador,
+    idUsuario,
+    idEstado
+)
 VALUES
 (
-'999888777',
-'juan@correo.com',
-'Deseo convertirme en anfitrión',
-3,
-1,
-1
+    '999111222',
+    'juan@correo.com',
+    'Deseo convertirme en anfitrión',
+    1,
+    1,
+    1
 ),
-
 (
-'999777666',
-'ana@correo.com',
-'Solicitud para publicar eventos',
-3,
-4,
-2
+    '999444555',
+    'ana@correo.com',
+    'Solicitud para publicar eventos deportivos',
+    1,
+    4,
+    1
+),
+(
+    '988111222',
+    'juan@correo.com',
+    'Deseo organizar conciertos y eventos musicales',
+    1,
+    1,
+    1
+),
+(
+    '988444555',
+    'ana@correo.com',
+    'Solicitud para gestionar eventos culturales',
+    1,
+    4,
+    1
+),
+(
+    '977111222',
+    'juan@correo.com',
+    'Quiero publicar eventos empresariales',
+    1,
+    1,
+    1
 );
