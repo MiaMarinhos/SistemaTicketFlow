@@ -227,17 +227,26 @@ DELIMITER $$
 
 CREATE PROCEDURE USP_LISTAR_SOLICITUDES()
 BEGIN
+    SELECT
+        s.idSolicitudes,
+        s.telefono_contacto,
+        s.correo_contacto,
+        s.motivo,
+        s.idAdministrador,
+        s.idUsuario,
+        s.idEstado,
 
-SELECT
-    idSolicitudes,
-    telefono_contacto,
-    correo_contacto,
-    motivo,
-    idAdministrador,
-    idUsuario,
-    idEstado
-FROM solicitudes;
+        u.nombre,
+        u.apellido_paterno,
+        u.apellido_materno,
 
+        es.estado AS estado_solicitud
+    FROM solicitudes s
+    INNER JOIN usuario u
+        ON s.idUsuario = u.idUsuario
+    INNER JOIN estado_solicitudes es
+        ON s.idEstado = es.idEstado_solicitudes
+    ORDER BY s.idSolicitudes;
 END$$
 
 DELIMITER ;

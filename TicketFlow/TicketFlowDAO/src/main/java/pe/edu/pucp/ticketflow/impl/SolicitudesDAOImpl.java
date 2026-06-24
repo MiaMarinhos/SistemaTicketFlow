@@ -2,7 +2,9 @@ package pe.edu.pucp.ticketflow.impl;
 
 import pe.edu.pucp.ticketflow.ISolicitudesDAO;
 import pe.edu.pucp.ticketflow.dao.manager.DBManager;
+import pe.edu.pucp.ticketflow.solicitud.model.EstadoSolicitud;
 import pe.edu.pucp.ticketflow.solicitud.model.Solicitud;
+import pe.edu.pucp.ticketflow.usuario.model.Cliente;
 
 import java.sql.*;
 import java.util.ArrayList;
@@ -124,7 +126,11 @@ public class SolicitudesDAOImpl implements ISolicitudesDAO {
             return lista;
 
         } catch (SQLException e) {
-            throw new RuntimeException("Error al listar solicitudes", e);
+            e.printStackTrace();
+            throw new RuntimeException(
+                    "Error al listar solicitudes: " + e.getMessage(),
+                    e
+            );
         }
     }
 
@@ -236,5 +242,19 @@ public class SolicitudesDAOImpl implements ISolicitudesDAO {
         t.setIdAdministrador(rs.getInt("idAdministrador"));
         t.setIdCliente(rs.getInt("idUsuario"));
         t.setIdEstadoSolicitud(rs.getInt("idEstado"));
+
+        Cliente cliente = new Cliente();
+        cliente.setIdUsuario(rs.getInt("idUsuario"));
+        cliente.setNombre(rs.getString("nombre"));
+        cliente.setApellidoPaterno(rs.getString("apellido_paterno"));
+        cliente.setApellidoMaterno(rs.getString("apellido_materno"));
+
+        t.setCliente(cliente);
+
+        EstadoSolicitud estado = new EstadoSolicitud();
+        estado.setIdEstadoSolicitud(rs.getInt("idEstado"));
+        estado.setEstado(rs.getString("estado_solicitud"));
+
+        t.setEstadoSolicitud(estado);
     }
 }

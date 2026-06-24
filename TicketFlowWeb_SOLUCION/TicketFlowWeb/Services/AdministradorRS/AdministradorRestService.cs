@@ -49,5 +49,13 @@ namespace TicketFlowWeb.Services.AdministradorRS
                 "AdminUsuarios/listar"
             ) ?? new List<Usuario>();
         }
+
+        //Solicitudes
+        public async Task<List<SolicitudViewModel>> ListarSolicitudes()
+        {
+            return await _http.GetFromJsonAsync<List<SolicitudViewModel>>(
+                "AdminSolicitudes/listar"
+            ) ?? new List<SolicitudViewModel>();
+        }
     }
 }

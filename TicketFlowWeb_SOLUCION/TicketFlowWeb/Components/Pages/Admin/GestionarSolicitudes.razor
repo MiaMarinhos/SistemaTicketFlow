@@ -1,8 +1,12 @@
 ﻿@page "/admin/solicitudes"
 @using Microsoft.AspNetCore.Authorization
+@using TicketFlowWeb.Models
+@using TicketFlowWeb.Services.AdministradorRS
 
 @attribute [Authorize(Roles = "ADMIN")]
 @layout AdminLayout
+
+@inject AdministradorRestService AdminService
 
 <PageTitle>Panel de Solicitudes</PageTitle>
 
@@ -13,7 +17,7 @@
         <label>Buscar:</label>
         <input type="text"
                class="form-control filtro-input"
-               placeholder="Buscar nombre..."
+               placeholder="Buscar..."
                @bind="textoBusqueda"
                @bind:event="oninput" />
 
@@ -44,15 +48,14 @@
                     @foreach (var solicitud in SolicitudesFiltradas)
                     {
                         <tr>
-                            <td>@solicitud.Id</td>
-                            <td>@solicitud.Nombre</td>
-                            <td>@solicitud.ApellidoPaterno</td>
-                            <td>@solicitud.Contacto</td>
+                            <td>@solicitud.IdSolicitudes</td>
+                            <td>@solicitud.Cliente?.nombre</td>
+                            <td>@solicitud.Cliente?.apellidoPaterno</td>
+                            <td>@solicitud.TelefonoContacto</td>
                             <td>@solicitud.Motivo</td>
-                            <td>@solicitud.Estado</td>
+                            <td>@solicitud.EstadoSolicitud?.Estado</td>
 
                             <td>
-                                <!-- Ver -->
                                 <button class="btn btn-outline-dark btn-sm"
                                         data-bs-toggle="modal"
                                         data-bs-target="#verSolicitudModal"
@@ -60,7 +63,6 @@
                                     <i class="bi bi-eye"></i>
                                 </button>
 
-                                <!-- Editar -->
                                 <button class="btn btn-outline-warning btn-sm"
                                         data-bs-toggle="modal"
                                         data-bs-target="#editarSolicitudModal"
@@ -68,9 +70,8 @@
                                     <i class="bi bi-pencil"></i>
                                 </button>
 
-                                @if (solicitud.Estado == "Pendiente")
+                                @if (solicitud.IdEstadoSolicitud == 1)
                                 {
-                                    <!-- Aprobar -->
                                     <button class="btn btn-outline-success btn-sm"
                                             data-bs-toggle="modal"
                                             data-bs-target="#aprobarSolicitudModal"
@@ -78,7 +79,6 @@
                                         <i class="bi bi-check-lg"></i>
                                     </button>
 
-                                    <!-- Rechazar -->
                                     <button class="btn btn-outline-danger btn-sm"
                                             data-bs-toggle="modal"
                                             data-bs-target="#rechazarSolicitudModal"
@@ -88,7 +88,6 @@
                                 }
                                 else
                                 {
-                                    <!-- Eliminar -->
                                     <button class="btn btn-outline-success btn-sm"
                                             data-bs-toggle="modal"
                                             data-bs-target="#eliminarSolicitudModal"
@@ -126,12 +125,12 @@
             <div class="modal-body">
                 @if (solicitudSeleccionada != null)
                 {
-                    <p><strong>ID:</strong> @solicitudSeleccionada.Id</p>
-                    <p><strong>Nombre:</strong> @solicitudSeleccionada.Nombre</p>
-                    <p><strong>Apellido:</strong> @solicitudSeleccionada.ApellidoPaterno</p>
-                    <p><strong>Contacto:</strong> @solicitudSeleccionada.Contacto</p>
+                    <p><strong>ID:</strong> @solicitudSeleccionada.IdSolicitudes</p>
+                    <p><strong>ID Cliente:</strong> @solicitudSeleccionada.IdCliente</p>
+                    <p><strong>Correo:</strong> @solicitudSeleccionada.Correo</p>
+                    <p><strong>Teléfono:</strong> @solicitudSeleccionada.Telefono</p>
                     <p><strong>Motivo:</strong> @solicitudSeleccionada.Motivo</p>
-                    <p><strong>Estado:</strong> @solicitudSeleccionada.Estado</p>
+                    <p><strong>Estado:</strong> @solicitudSeleccionada.IdEstadoSolicitud</p>
                 }
             </div>
 
@@ -140,11 +139,9 @@
 </div>
 
 <!-- MODAL EDITAR -->
-
 <div class="modal fade" id="editarSolicitudModal" tabindex="-1">
     <div class="modal-dialog modal-dialog-centered">
         <div class="modal-content">
-
             <div class="modal-header">
                 <h5 class="modal-title">Editar Solicitud</h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
@@ -153,17 +150,14 @@
             <div class="modal-body">
                 <p>Formulario de edición pendiente.</p>
             </div>
-
         </div>
     </div>
 </div>
 
 <!-- MODAL APROBAR -->
-
 <div class="modal fade" id="aprobarSolicitudModal" tabindex="-1">
     <div class="modal-dialog modal-dialog-centered">
         <div class="modal-content">
-
             <div class="modal-header">
                 <h5 class="modal-title">Aprobar Solicitud</h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
@@ -172,17 +166,14 @@
             <div class="modal-body">
                 ¿Desea aprobar esta solicitud?
             </div>
-
         </div>
     </div>
 </div>
 
 <!-- MODAL RECHAZAR -->
-
 <div class="modal fade" id="rechazarSolicitudModal" tabindex="-1">
     <div class="modal-dialog modal-dialog-centered">
         <div class="modal-content">
-
             <div class="modal-header">
                 <h5 class="modal-title">Rechazar Solicitud</h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
@@ -191,17 +182,14 @@
             <div class="modal-body">
                 ¿Desea rechazar esta solicitud?
             </div>
-
         </div>
     </div>
 </div>
 
 <!-- MODAL ELIMINAR -->
-
 <div class="modal fade" id="eliminarSolicitudModal" tabindex="-1">
     <div class="modal-dialog modal-dialog-centered">
         <div class="modal-content">
-
             <div class="modal-header">
                 <h5 class="modal-title">Eliminar Solicitud</h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
@@ -210,7 +198,6 @@
             <div class="modal-body">
                 ¿Desea eliminar esta solicitud?
             </div>
-
         </div>
     </div>
 </div>
@@ -219,79 +206,26 @@
 
     private string textoBusqueda = "";
 
-    private Solicitud? solicitudSeleccionada;
+    private SolicitudViewModel? solicitudSeleccionada;
 
-    private IEnumerable<Solicitud> SolicitudesFiltradas =>
+    private List<SolicitudViewModel> solicitudes = new();
+
+    protected override async Task OnInitializedAsync()
+    {
+        solicitudes = await AdminService.ListarSolicitudes();
+    }
+
+    private IEnumerable<SolicitudViewModel> SolicitudesFiltradas =>
         string.IsNullOrWhiteSpace(textoBusqueda)
         ? solicitudes
         : solicitudes.Where(s =>
-            s.Nombre.Contains(textoBusqueda,
-            StringComparison.OrdinalIgnoreCase));
+            s.Correo.Contains(textoBusqueda,
+                StringComparison.OrdinalIgnoreCase)
+            ||
+            s.Motivo.Contains(textoBusqueda,
+                StringComparison.OrdinalIgnoreCase));
 
-    private List<Solicitud> solicitudes = new()
-    {
-        new Solicitud
-        {
-            Id = 1,
-            Nombre = "Juan Carlos",
-            ApellidoPaterno = "Pérez",
-            Contacto = "juan.perez@gmail.com",
-            Motivo = "Eventos deportivos",
-            Estado = "Pendiente"
-        },
-
-        new Solicitud
-        {
-            Id = 2,
-            Nombre = "Andrea Lucía",
-            ApellidoPaterno = "Torres",
-            Contacto = "andrea.torres@gmail.com",
-            Motivo = "Eventos culturales",
-            Estado = "Pendiente"
-        },
-
-        new Solicitud
-        {
-            Id = 3,
-            Nombre = "Sebastián",
-            ApellidoPaterno = "Rojas",
-            Contacto = "sebastian.rojas@gmail.com",
-            Motivo = "Eventos musicales",
-            Estado = "Pendiente"
-        },
-
-        new Solicitud
-        {
-            Id = 4,
-            Nombre = "Valeria",
-            ApellidoPaterno = "Mendoza",
-            Contacto = "valeria.mendoza@gmail.com",
-            Motivo = "Talleres y actividades educativas",
-            Estado = "Pendiente"
-        },
-
-        new Solicitud
-        {
-            Id = 5,
-            Nombre = "Diego Alonso",
-            ApellidoPaterno = "Navarro",
-            Contacto = "diego.navarro@gmail.com",
-            Motivo = "Eventos empresariales",
-            Estado = "Aprobada"
-        },
-
-        new Solicitud
-        {
-            Id = 6,
-            Nombre = "Camila Fernanda",
-            ApellidoPaterno = "Herrera",
-            Contacto = "camila.herrera@gmail.com",
-            Motivo = "Eventos sociales",
-            Estado = "Rechazada"
-        }
-    };
-
-    private void SeleccionarSolicitud(Solicitud solicitud)
+    private void SeleccionarSolicitud(SolicitudViewModel solicitud)
     {
         solicitudSeleccionada = solicitud;
     }
@@ -299,15 +233,5 @@
     private void LimpiarFiltros()
     {
         textoBusqueda = "";
-    }
-
-    public class Solicitud
-    {
-        public int Id { get; set; }
-        public string Nombre { get; set; } = "";
-        public string ApellidoPaterno { get; set; } = "";
-        public string Contacto { get; set; } = "";
-        public string Motivo { get; set; } = "";
-        public string Estado { get; set; } = "";
     }
 }
