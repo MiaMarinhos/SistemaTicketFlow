@@ -9,7 +9,7 @@
 
 @attribute [Authorize]
 
-@inject EventoRestService EventoService 
+@inject EventoRestService EventoService
 @inject UsuarioRestService UsuarioService
 @inject AuthenticationStateProvider AuthStateProvider
 
@@ -24,14 +24,9 @@
     else
     {
         <div class="resumen-contenedor">
-            @*
-            <div class="poster-evento @ClasePosterDinamica">
-                <div class="poster-contenido">
-                    </div>
-            </div>
-            *@
-            <div class="resumen-contenedor">
-                <img src="@evento.img" alt="Portada del Evento" class="poster-contenido" />
+
+            <div class="columna-imagen">
+                <img src="@evento.img" alt="Portada del Evento" class="imagen-evento" />
             </div>
 
             <div class="panel-compra">
@@ -130,7 +125,6 @@
     // Variables dinámicas para el cliente de la sesión
     public int idClienteLogueado;
     public int puntosBonusDisponiblesCliente = 0;
-
     private EventoViewModel? evento;
 
     protected override async Task OnParametersSetAsync()
@@ -144,13 +138,12 @@
 
         if (user.Identity != null && user.Identity.IsAuthenticated)
         {
-            // 🌟 DIAGNÓSTICO: Imprime todos tus claims disponibles en la consola para que verifiques sus nombres reales
             foreach (var claim in user.Claims)
             {
                 Console.WriteLine($"👉 Tipo de Claim encontrado: '{claim.Type}' | Valor: '{claim.Value}'");
             }
 
-            // 3. Intento de captura flexible (Prueba tu clave personalizada, el estándar de .NET, o "id" a secas)
+            // 3. Intento de captura flexible
             var idClaim = user.FindFirst(c => c.Type == "IdUsuario")?.Value
                        ?? user.FindFirst(c => c.Type == System.Security.Claims.ClaimTypes.NameIdentifier)?.Value
                        ?? user.FindFirst(c => c.Type == "id")?.Value;
@@ -158,15 +151,13 @@
             if (int.TryParse(idClaim, out int idParseado))
             {
                 idClienteLogueado = idParseado;
-
                 // 4. Disparamos tu servicio
                 puntosBonusDisponiblesCliente = await UsuarioService.ObtenerPuntosBonusAsync(idClienteLogueado);
-
                 Console.WriteLine($"✅ ID Cliente Detectado: {idClienteLogueado}. Puntos devueltos por el servicio: {puntosBonusDisponiblesCliente}");
             }
             else
             {
-                Console.WriteLine("❌ ERROR: El Claim con el ID del usuario fue encontrado pero no se pudo transformar a un número entero entero (int).");
+                Console.WriteLine("❌ ERROR: El Claim con el ID del usuario fue encontrado pero no se pudo transformar a un número entero.");
             }
         }
         else
@@ -176,7 +167,6 @@
     }
 
     private decimal Subtotal => (decimal)(evento?.precio ?? 0) * cantidadEntradas;
-
     private decimal Total
     {
         get
@@ -188,7 +178,6 @@
     }
 
     private void AumentarCantidad() => cantidadEntradas++;
-
     private void DisminuirCantidad()
     {
         if (cantidadEntradas > 1) cantidadEntradas--;
@@ -219,14 +208,20 @@
         margin: 0 auto;
     }
 
-    .poster-evento {
-        height: 600px;
-        border: 4px solid #111;
-        box-shadow: 0 12px 28px rgba(0, 0, 0, 0.45);
+    /* 🎨 NUEVOS ESTILOS PARA ADAPTAR LA IMAGEN PERFECTAMENTE */
+    .columna-imagen {
+        width: 100%;
         display: flex;
         align-items: center;
-        justify-content: center;
-        text-align: center;
+    }
+
+    .imagen-evento {
+        width: 100%;
+        max-height: 600px;
+        object-fit: cover;
+        border: 4px solid white;
+        border-radius: 15px;
+        box-shadow: 0 12px 28px rgba(0, 0, 0, 0.45);
     }
 
     .poster-frio {
@@ -243,10 +238,6 @@
 
     .poster-concierto {
         background: linear-gradient(135deg, #08213f, #1787b8);
-    }
-
-    .poster-contenido {
-        padding: 30px;
     }
 
     .poster-fecha {
@@ -420,10 +411,6 @@
         .resumen-contenedor {
             grid-template-columns: 1fr;
             gap: 35px;
-        }
-
-        .poster-evento {
-            height: 420px;
         }
 
         .poster-lugar {

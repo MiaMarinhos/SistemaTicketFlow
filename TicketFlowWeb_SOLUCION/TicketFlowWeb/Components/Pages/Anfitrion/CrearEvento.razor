@@ -66,17 +66,17 @@
 
                     <div class="fila-formulario-derecha">
                         <span class="etiqueta-fija">Fecha</span>
-                        <input type="text" class="custom-input text-white" placeholder="31/05/2026" @bind="FechaFormateada" required />
+                        <input type="text" class="custom-input text-white" placeholder="31/05/2026" @bind="fechaUI" required />
                     </div>
 
                     <div class="fila-formulario-derecha">
                         <span class="etiqueta-fija">Hora de Inicio</span>
-                        <input type="text" class="custom-input" placeholder="10:30 am" @bind="eventoModel.horaInicioModerna" required />
+                        <input type="text" class="custom-input" placeholder="10:30 am" @bind="horaInicioUI" required />
                     </div>
 
                     <div class="fila-formulario-derecha">
                         <span class="etiqueta-fija">Hora de Fin</span>
-                        <input type="text" class="custom-input" placeholder="12:30 pm" @bind="eventoModel.horaFinModerna" required />
+                        <input type="text" class="custom-input" placeholder="12:30 pm" @bind="horaFinUI" required />
                     </div>
 
                     <div class="fila-formulario-derecha">
@@ -115,7 +115,7 @@
 </div>
 
 <style>
-    /* SE MANTIENEN TODOS TUS ESTILOS EXACTAMENTE IGUAL */
+    /* Estilos se mantienen intactos */
     .crear-evento-page {
         background-color: #121212;
         font-family: system-ui, -apple-system, sans-serif;
@@ -239,21 +239,14 @@
     private EventoViewModel eventoModel = new EventoViewModel();
     private bool estaGuardando = false;
 
-    // Variables temporales para evitar errores de enlace (Binding) en Blazor
+    // Variables temporales para la Interfaz Gráfica
     private string nombreDistrito = string.Empty;
     private string nombreRegion = string.Empty;
 
-    private string FechaFormateada
-    {
-        get => eventoModel.fechaModerna?.ToString("dd/MM/yyyy") ?? DateTime.Today.ToString("dd/MM/yyyy");
-        set
-        {
-            if (DateTime.TryParseExact(value, "dd/MM/yyyy", null, System.Globalization.DateTimeStyles.None, out DateTime fechaParsed))
-                eventoModel.fechaModerna = fechaParsed;
-            else if (DateTime.TryParse(value, out DateTime fechaFlexible))
-                eventoModel.fechaModerna = fechaFlexible;
-        }
-    }
+    // Variables para capturar lo que el usuario escribe (amigable)
+    private string fechaUI = DateTime.Today.ToString("dd/MM/yyyy");
+    private string horaInicioUI = string.Empty;
+    private string horaFinUI = string.Empty;
 
     private int NumeroEntradasValidado
     {
@@ -280,7 +273,6 @@
 
         try
         {
-            // 1. Identificar al usuario logueado
             var authState = await AuthStateProvider.GetAuthenticationStateAsync();
             var user = authState.User;
 
@@ -288,19 +280,39 @@
             {
                 var idClaim = user.FindFirst("IdUsuario")?.Value;
 
-                if (int.TryParse(idClaim, out int idAnfitrion))
+                if (int.TryParse(idClaim, out int idAnfitrionLogueado))
                 {
-                    // 2. Le asignamos al evento quién es su dueño (Anfitrión)
-                    eventoModel.anfitrion = new Anfitrion { idUsuario = idAnfitrion };
+                    // 1. Asignar el Anfitrión
+                    eventoModel.idAnfitrion = idAnfitrionLogueado;
+                    eventoModel.anfitrion = new Anfitrion { idUsuario = idAnfitrionLogueado };
 
-                    // Opcional: Configurar Distrito si tienes un modelo para enviarlo
-                    // eventoModel.distrito = new Distrito { nombre = nombreDistrito, region = nombreRegion };
+                    // 2. 💡 FORZAR LLAVES FORÁNEAS OBLIGATORIAS PARA JAVA
+                    eventoModel.FK_idDistrito = 1;
+                    eventoModel.FK_idCategoria_evento = 1;
+                    eventoModel.FK_idEstadoPublicacion = 1;
+                    eventoModel.FK_idEstadoEvento = 1;
 
-                    // 3. Lo mandamos al Backend Java
-                    // NOTA: Asegúrate de tener este método CrearEventoAsync en tu AnfitrionRestService.cs
+                    // 3. 💡 TRADUCIR FECHAS Y HORAS PARA QUE JAVA LAS ENTIENDA
+                    // Parseamos la fecha (De "dd/MM/yyyy" a "yyyy-MM-dd")
+                    if (DateTime.TryParseExact(fechaUI, "dd/MM/yyyy", null, System.Globalization.DateTimeStyles.None, out DateTime fechaParsed))
+                        eventoModel.fecha = fechaParsed.ToString("yyyy-MM-dd");
+                    else
+                        eventoModel.fecha = DateTime.Today.ToString("yyyy-MM-dd");
+
+                    // Parseamos hora de inicio (De "08:00 pm" a "20:00:00")
+                    if (DateTime.TryParse(horaInicioUI, out DateTime hInicio))
+                        eventoModel.hora_inicio = hInicio.ToString("HH:mm:ss");
+                    else
+                        eventoModel.hora_inicio = "20:00:00"; // Default si escriben mal
+
+                    // Parseamos hora de fin
+                    if (DateTime.TryParse(horaFinUI, out DateTime hFin))
+                        eventoModel.hora_fin = hFin.ToString("HH:mm:ss");
+                    else
+                        eventoModel.hora_fin = "22:00:00"; // Default si escriben mal
+
+                    // 4. Mandamos al Backend
                     await AnfitrionService.CrearEventoAsync(eventoModel);
-
-                    // 4. Si todo sale bien, lo redirigimos a "Mis Eventos" para que vea su nuevo show
                     NavigationManager.NavigateTo("/anfitrion/gestionar-evento");
                 }
             }

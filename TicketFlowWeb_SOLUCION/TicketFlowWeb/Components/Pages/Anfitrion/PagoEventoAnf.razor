@@ -228,7 +228,7 @@
                     foreach (var compra in comprasBackend)
                     {
                         // Buscamos el nombre del evento cruzando el idEvento de la compra con la lista de eventos
-                        var eventoRelacionado = eventosBackend?.FirstOrDefault(e => e.id == compra.idEvento);
+                        var eventoRelacionado = eventosBackend?.FirstOrDefault(e => e.idEvento == compra.idEvento);
                         string nombreEvento = eventoRelacionado?.titulo ?? "Evento Desconocido";
 
                         // El nombre del cliente asumo que el backend te lo manda dentro del objeto anidado `cliente`.

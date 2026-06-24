@@ -1,6 +1,7 @@
 ﻿@page "/public/detalle-evento/{Id:int}"
 @using TicketFlowWeb.Services.EventoRS
 @inject EventoRestService EventoService
+
 <div class="detalle-evento-page">
     @if (eventoReal == null)
     {
@@ -41,16 +42,14 @@
                     <div class="acciones-nuevas">
                         <a href="@($"/cliente/compra/{Id}")" class="btn-comprar">Comprar entrada</a>
                     </div>
-                    
                 </div>
             </div>
-
 
             <div class="columna-vacia-izq">
                 <div class="recuadro-anfitrion">
                     <div class="anfitrion-titulo">ORGANIZADO POR</div>
-                    <h3>@eventoReal.anfitrion.nombre</h3>
-                    @if (!string.IsNullOrEmpty(razonSocialAnfitrion))
+                    <h3>@(eventoReal.anfitrion?.nombre ?? "Anfitrión Desconocido")</h3>
+                    @if (!string.IsNullOrEmpty(eventoReal.anfitrion?.razonSocial))
                     {
                         <p class="mb-0 text-white-50">@eventoReal.anfitrion.razonSocial</p>
                     }
@@ -65,15 +64,15 @@
                     </div>
                     <div class="fila-dato-nuevo">
                         <label>Fecha</label>
-                        <span>@(eventoReal.fechaModerna?.ToString("dd/MM/yyyy") ?? "---")</span>
+                        <span>@(string.IsNullOrEmpty(eventoReal.fecha) ? "---" : eventoReal.fecha)</span>
                     </div>
                     <div class="fila-dato-nuevo">
                         <label>Hora</label>
-                        <span>@eventoReal.horaInicioModerna - @eventoReal.horaFinModerna</span>
+                        <span>@eventoReal.hora_inicio - @eventoReal.hora_fin</span>
                     </div>
 
                     <div class="acciones-nuevas">
-                        <a href="/public/descubrir" class="btn-volver">Volver</a>
+                        <a href="/anfitrion/gestionar-evento" class="btn-volver">Volver</a>
                         <a href="@($"/cliente/compra/{Id}")" class="btn-comprar">Comprar entrada</a>
                     </div>
 
@@ -95,16 +94,6 @@
                         <span>@(eventoReal.distrito?.nombre ?? "---") - @(eventoReal.distrito?.region?.nombre ?? "---")</span>
                     </div>
                 </div>
-                @*
-                <div class="recuadro-anfitrion">
-                    <div class="anfitrion-titulo">ORGANIZADO POR</div>
-                    <h3>@nombreAnfitrion</h3>
-                    @if (!string.IsNullOrEmpty(razonSocialAnfitrion))
-                    {
-                        <p class="mb-0 text-white-50">@razonSocialAnfitrion</p>
-                    }
-                </div>
-                *@
             </div>
 
         </div>
@@ -140,7 +129,7 @@
         object-fit: cover;
         border: 4px solid white;
         border-radius: 15px;
-        background-color: #222; /* 👈 Esto evita que el contenedor colapse si Google te bloquea */
+        background-color: #222;
     }
 
     /* Columnas 2 y 3 unificadas para la Cabecera */
@@ -182,7 +171,7 @@
         font-weight: bold;
     }
 
-    /* Fila de Descripción completa (Abarca de la col 1 a la 3) */
+    /* Fila de Descripción completa */
     .columna-descripcion-completa {
         grid-column: 1 / span 3;
     }
@@ -324,12 +313,9 @@
 
     private Models.EventoViewModel eventoReal;
 
-    private string nombreAnfitrion = "Cargando...";
-    private string razonSocialAnfitrion = "";
-
     protected override async Task OnInitializedAsync()
     {
+        // Llama al backend para traer todos los datos del evento
         eventoReal = await EventoService.verDetalleEventoAsync(Id);
-
     }
 }

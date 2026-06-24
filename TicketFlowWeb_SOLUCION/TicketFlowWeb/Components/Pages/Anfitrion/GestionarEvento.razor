@@ -74,11 +74,11 @@
                             @foreach (var ev in EventosFiltrados)
                             {
                                 <tr>
-                                    <td class="fw-bold text-muted" style="width: 50px;">@ev.id</td>
+                                    <td class="fw-bold text-muted" style="width: 50px;">@ev.idEvento</td>
 
                                     <td class="fw-bold text-indigo">@ev.titulo</td>
 
-                                    <td><span class="badge-fecha">@(ev.fechaModerna?.ToString("dd/MM/yyyy") ?? "Por definir")</span></td>
+                                    <td><span class="badge-fecha">@(ev.fecha?? "Por definir")</span></td>
 
                                     <td class="text-secondary custom-truncate">@(string.IsNullOrEmpty(ev.ubicacion) ? "Ubicación pendiente" : ev.ubicacion)</td>
 
@@ -92,15 +92,15 @@
 
                                     <td class="text-center">
                                         <div class="d-flex justify-content-center gap-2">
-                                            <button class="btn-accion-icono btn-ver" title="Ver Detalle" @onclick="() => VerDetalle(ev.id)">
+                                            <button class="btn-accion-icono btn-ver" title="Ver Detalle" @onclick="() => VerDetalle(ev.idEvento)">
                                                 👁️
                                             </button>
 
-                                            <button class="btn-accion-icono btn-editar" title="Editar Evento" @onclick="() => IrAEditar(ev.id)">
+                                            <button class="btn-accion-icono btn-editar" title="Editar Evento" @onclick="() => IrAEditar(ev.idEvento)">
                                                 ✏️
                                             </button>
 
-                                            <button class="btn-accion-icono btn-eliminar" title="Eliminar Evento" @onclick="() => EliminarEvento(ev.id)">
+                                            <button class="btn-accion-icono btn-eliminar" title="Eliminar Evento" @onclick="() => EliminarEvento(ev.idEvento)">
                                                 🗑️
                                             </button>
                                         </div>
@@ -317,7 +317,8 @@
 
                 if (todosLosEventos != null)
                 {
-                    eventosOriginales = todosLosEventos.Where(e => e.anfitrion != null && e.anfitrion.idUsuario == idAnfitrion).ToList();
+                    // 👇 EL FILTRO ARREGLADO
+                    eventosOriginales = todosLosEventos.Where(e => e.idAnfitrion == idAnfitrion).ToList();
                 }
             }
         }
@@ -325,10 +326,9 @@
         cargando = false;
     }
 
-    // Nota: Como 'id' en tu modelo es string, los métodos ahora reciben string
     private void VerDetalle(int id)
     {
-        NavigationManager.NavigateTo($"/cliente/detalle-evento/{id}");
+        NavigationManager.NavigateTo($"/public/detalle-evento/{id}");
     }
 
     private void IrAEditar(int id)
@@ -338,7 +338,7 @@
 
     private void EliminarEvento(int id)
     {
-        var item = eventosOriginales.FirstOrDefault(e => e.id == id);
+        var item = eventosOriginales.FirstOrDefault(e => e.idEvento == id);
         if (item != null) eventosOriginales.Remove(item);
     }
 }

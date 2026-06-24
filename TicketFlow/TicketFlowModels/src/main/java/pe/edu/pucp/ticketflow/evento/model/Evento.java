@@ -15,10 +15,9 @@ public class Evento {
     private int capacidad_entradas;
     private categoria_evento categoria;
     private int FK_idCategoria_evento;
-    private Date fecha;
-    private Time hora_inicio;
-    private Time hora_fin;
-
+    private String fecha;
+    private String hora_inicio;
+    private String hora_fin;
     private java.time.LocalDate fechaModerna;
     private java.time.LocalTime horaInicioModerna;
     private java.time.LocalTime horaFinModerna;
@@ -43,7 +42,7 @@ public class Evento {
     //se usaria cuando creamos uno nuevo para agregarlo a la base de datos
     //Por eso, activo se pone automaticamente como true
     public Evento(String titulo,String descripcion,int capacidad_entradas,
-                  categoria_evento categoria, Date fecha,Time hora_inicio,Time hora_fin,
+                  categoria_evento categoria, String fecha,String hora_inicio,String hora_fin,
                   String ubicacion,String nombre_establecimiento,String img,double precio,
                   Distrito distrito,int idAnfitrion,EstadoPublicacion estadoPublicacion, EstadoEvento estadoEvento,
                   Anfitrion anfitrion) {
@@ -67,7 +66,7 @@ public class Evento {
     }
     //este se usa cuando se lee, por eso pasamos "activo" como parametro
     public Evento(int idEvento,String titulo,String descripcion,int capacidad_entradas,
-                  int FK_idCategoria_evento, Date fecha,Time hora_inicio,Time hora_fin,
+                  int FK_idCategoria_evento, String fecha,String hora_inicio,String hora_fin,
                   String ubicacion,String nombre_establecimiento,String img,double precio,
                   int FK_idDistrito,int idAnfitrion,int FK_idEstadoPublicacion,int FK_idEstadoEvento,
                   boolean activo, Anfitrion anfitrion) {
@@ -131,27 +130,27 @@ public class Evento {
         this.categoria = categoria;
     }
 
-    public Date getFecha() {
+    public String getFecha() {
         return fecha;
     }
 
-    public void setFecha(Date fecha) {
+    public void setFecha(String fecha) {
         this.fecha = fecha;
     }
 
-    public Time getHora_inicio() {
+    public String getHora_inicio() {
         return hora_inicio;
     }
 
-    public void setHora_inicio(Time hora_inicio) {
+    public void setHora_inicio(String hora_inicio) {
         this.hora_inicio = hora_inicio;
     }
 
-    public Time getHora_fin() {
+    public String getHora_fin() {
         return hora_fin;
     }
 
-    public void setHora_fin(Time hora_fin) {
+    public void setHora_fin(String hora_fin) {
         this.hora_fin = hora_fin;
     }
 
@@ -269,7 +268,7 @@ public class Evento {
 
 
     public Evento(int idEvento,String titulo,String descripcion,int capacidad_entradas,
-                  Date fecha,Time hora_inicio,Time hora_fin,
+                  String fecha,String hora_inicio,String hora_fin,
                   String ubicacion,String nombre_establecimiento,String img,double precio,
                   Distrito distrito, Anfitrion anfitrion, categoria_evento categoria) {
         this.idEvento = idEvento;

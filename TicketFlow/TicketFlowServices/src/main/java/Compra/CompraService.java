@@ -7,7 +7,6 @@ import pe.edu.pucp.ticketflow.IComprasBL;
 import pe.edu.pucp.ticketflow.compra.model.Compra;
 import pe.edu.pucp.ticketflow.impl.ComprasBLImpl;
 
-
 import java.util.List;
 import java.util.Map;
 
@@ -15,10 +14,10 @@ import java.util.Map;
 @Path("CompraRS")
 @Produces(MediaType.APPLICATION_JSON)
 @Consumes(MediaType.APPLICATION_JSON)
-
 public class CompraService {
 
     private final IComprasBL comprasBL;
+    private IComprasBL compraBL = new ComprasBLImpl();
 
     public CompraService(){
         comprasBL = new ComprasBLImpl();
@@ -43,8 +42,6 @@ public class CompraService {
         }
     }
 
-    private IComprasBL compraBL = new ComprasBLImpl();
-
     @POST
     @Path("/registrar")
     public Response registrarCompra(Compra compraRequest) {
@@ -65,7 +62,6 @@ public class CompraService {
         }
     }
 
-
     @GET
     @Path("/listar/{idCliente}")
     public Response listarComprasPorCliente(@PathParam("idCliente") Integer idCliente) {
@@ -77,26 +73,8 @@ public class CompraService {
             if (listaCompras == null) {
                 return Response.ok("[]").build();
             }
-            for(Compra c : listaCompras){
-                if (c.getEvento().getFecha() != null) {
-                    java.time.LocalDate fechaModerna = new java.sql.Timestamp(c.getEvento().getFecha().getTime())
-                            .toLocalDateTime().toLocalDate();
-                    // Si creaste el campo fechaModerna en Evento, lo asignas:
-                    c.getEvento().setFechaModerna(fechaModerna);
-                    c.getEvento().setFecha(null);
-                }
-                if (c.getEvento().getHora_inicio() != null) {
-                    java.time.LocalTime horaInicioModerna = java.time.LocalTime.parse(c.getEvento().getHora_inicio().toString());
-                    c.getEvento().setHoraInicioModerna(horaInicioModerna);
-                    c.getEvento().setHora_inicio(null);
-                }
-                if (c.getEvento().getHora_fin() != null) {
-                    java.time.LocalTime horaFinModerna = java.time.LocalTime.parse(c.getEvento().getHora_fin().toString());
-                    c.getEvento().setHoraFinModerna(horaFinModerna);
-                    c.getEvento().setHora_fin(null);
-                }
-            }
 
+            // 💡 Se eliminó el bucle FOR de conversiones porque ahora los datos de fecha y hora viajan correctamente como texto.
 
             // Retorna la lista con un estado 200 OK (GlassFish se encarga de convertirla a JSON)
             return Response.ok(listaCompras).build();
@@ -107,6 +85,4 @@ public class CompraService {
                     .entity("{\"error\":\"Error interno en el servidor: " + e.getMessage() + "\"}").build();
         }
     }
-
-
 }

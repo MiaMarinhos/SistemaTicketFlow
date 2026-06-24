@@ -275,31 +275,37 @@
 
             if (int.TryParse(idClaim, out int idAnfitrion))
             {
-                // 1. Traemos los eventos de este anfitrión
                 var todosLosEventos = await AnfitrionService.VerTodosLosEventosAsync();
-                var misEventos = todosLosEventos?.Where(e => e.anfitrion != null && e.anfitrion.idUsuario == idAnfitrion).ToList() ?? new();
-
-                // 2. Traemos TODAS las compras hechas a los eventos de este anfitrión
+                var misEventos = todosLosEventos?.Where(e => e.idAnfitrion == idAnfitrion).ToList() ?? new();
                 var compras = await AnfitrionService.VerComprasDeSusEventosAsync(idAnfitrion);
 
                 listadoInventario.Clear();
                 totalVendidas = 0;
                 totalEmitidas = 0;
 
-                // 3. Cruzamos y agrupamos los datos (AQUÍ ESTÁ LA MAGIA)
                 foreach (var ev in misEventos)
                 {
-                    // Comparamos el idEvento de la compra (int) con el id del evento (string)
-                    int vendidas = compras?.Where(c => c.idEvento == ev.id).Sum(c => c.entradasCompradas) ?? 0;
+                    // ¡AHORA AMBOS SON INT! (c.idEvento y ev.idEvento)
+                    int vendidas = compras?.Where(c => c.idEvento == ev.idEvento).Sum(c => c.entradasCompradas) ?? 0;
 
                     int disponibles = ev.capacidad_entradas - vendidas;
                     if (disponibles < 0) disponibles = 0;
 
+                    // Formateamos la nueva fecha que viene de Java
+                    string fechaFormateada = "Pendiente";
+                    if (!string.IsNullOrEmpty(ev.fecha))
+                    {
+                        if (DateTime.TryParse(ev.fecha, out DateTime f))
+                            fechaFormateada = f.ToString("dd/MM/yyyy");
+                        else
+                            fechaFormateada = ev.fecha;
+                    }
+
                     listadoInventario.Add(new InventarioEventoDto
                     {
-                        Id = ev.id, // Tu ID de evento es string
+                        Id = ev.idEvento, // Cambiado de ev.id a ev.idEvento
                         Titulo = string.IsNullOrEmpty(ev.titulo) ? "Sin título" : ev.titulo,
-                        FechaTexto = ev.fechaModerna?.ToString("dd/MM/yyyy") ?? "Pendiente",
+                        FechaTexto = fechaFormateada, // Cambiado a la nueva fecha
                         Precio = ev.precio,
                         EntradasVendidas = vendidas,
                         EntradasDisponibles = disponibles,
@@ -310,7 +316,6 @@
                     totalEmitidas += ev.capacidad_entradas;
                 }
 
-                // 4. Calculamos los KPIs usando LINQ para encontrar los máximos
                 if (listadoInventario.Any())
                 {
                     var masVendido = listadoInventario.OrderByDescending(x => x.EntradasVendidas).First();
@@ -329,7 +334,7 @@
 
     private class InventarioEventoDto
     {
-        public int Id { get; set; }
+        public int Id { get; set; } // Lo dejamos como int
         public string Titulo { get; set; } = string.Empty;
         public string FechaTexto { get; set; } = string.Empty;
         public decimal Precio { get; set; }

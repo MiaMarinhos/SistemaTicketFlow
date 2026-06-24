@@ -68,11 +68,15 @@ namespace TicketFlowWeb.Services.AnfitrionRS
         public async Task<EventoViewModel?> CrearEventoAsync(EventoViewModel evento)
         {
             var response = await _httpClient.PostAsJsonAsync("AnfitrionRS/eventos/crear", evento, JsonOptions);
+
             if (response.IsSuccessStatusCode)
             {
                 return await response.Content.ReadFromJsonAsync<EventoViewModel>(JsonOptions);
             }
-            return null;
+
+            // 🛑 PONEMOS EL FRENO Y LEEMOS EL ERROR SECRETO DE JAVA
+            var errorSecreto = await response.Content.ReadAsStringAsync();
+            throw new Exception($"¡Java rechazó el evento! Código: {response.StatusCode}. Detalle: {errorSecreto}");
         }
 
         public async Task<EventoViewModel?> ObtenerEventoAsync(int idEvento)

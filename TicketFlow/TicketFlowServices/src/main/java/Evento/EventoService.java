@@ -13,7 +13,6 @@ import pe.edu.pucp.ticketflow.evento.model.Evento;
 import pe.edu.pucp.ticketflow.exception.BusinessLogicException;
 import pe.edu.pucp.ticketflow.impl.EventoBLImpl;
 
-
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -21,7 +20,6 @@ import java.util.Map;
 @Path("EventoRS")
 @Produces(MediaType.APPLICATION_JSON)
 @Consumes(MediaType.APPLICATION_JSON)
-
 public class EventoService {
     private final IEventoBL eventoBL;
 
@@ -32,10 +30,8 @@ public class EventoService {
     @GET
     @Produces(MediaType.APPLICATION_JSON)
     public Response listarEventos() {
-
         try {
             List<Evento> eventos = eventoBL.verTodosLosEventos();
-
             List<EventoDTO> eventosDTO = new ArrayList<>();
 
             for (Evento e : eventos) {
@@ -53,17 +49,14 @@ public class EventoService {
                     .entity(Map.of("error", "Error interno"))
                     .build();
         }
-
     }
 
     @GET
     @Path("/Filtrar/{categoria}")
     @Produces(MediaType.APPLICATION_JSON)
     public Response ListarEventosPorCategoria(@PathParam("categoria") String categoria) throws BusinessLogicException {
-
         try {
             List<Evento> eventos = eventoBL.verTodosLosEventosPorCategoria(categoria);
-
             List<EventoDTO> eventosDTO = new ArrayList<>();
 
             for (Evento e : eventos) {
@@ -81,7 +74,6 @@ public class EventoService {
                     .entity(Map.of("error", "Error en servicio Filtrar por Categoria"))
                     .build();
         }
-
     }
 
     @GET
@@ -106,6 +98,7 @@ public class EventoService {
             return Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity(Map.of("error", "Error interno.")).build();
         }
     }
+
     @GET
     @Path("/detalle/{id}")
     @Produces(MediaType.APPLICATION_JSON)
@@ -118,24 +111,9 @@ public class EventoService {
                         .entity(Map.of("mensaje", "Evento no encontrado."))
                         .build();
             }
-            //cambiar direcatamente las fechas y horas aqui
-            if (evento.getFecha() != null) {
-                java.time.LocalDate fechaModerna = new java.sql.Timestamp(evento.getFecha().getTime())
-                        .toLocalDateTime().toLocalDate();
-                // Si creaste el campo fechaModerna en Evento, lo asignas:
-                evento.setFechaModerna(fechaModerna);
-                evento.setFecha(null);
-            }
-            if (evento.getHora_inicio() != null) {
-                java.time.LocalTime horaInicioModerna = java.time.LocalTime.parse(evento.getHora_inicio().toString());
-                evento.setHoraInicioModerna(horaInicioModerna);
-                evento.setHora_inicio(null);
-            }
-            if (evento.getHora_fin() != null) {
-                java.time.LocalTime horaFinModerna = java.time.LocalTime.parse(evento.getHora_fin().toString());
-                evento.setHoraFinModerna(horaFinModerna);
-                evento.setHora_fin(null);
-            }
+
+            // 💡 ELIMINAMOS la conversión manual de fechas. Ya viajan como String.
+
             return Response.ok(evento).build();
         }
         catch (pe.edu.pucp.ticketflow.exception.BusinessLogicException e) {
@@ -145,10 +123,10 @@ public class EventoService {
             return Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity(Map.of("error", "Error interno.")).build();
         }
     }
+
     @GET
     @Path("/Buscar/{nombre}")
     @Produces(MediaType.APPLICATION_JSON)
-
     public Response buscarEventoPorNombre(@PathParam("nombre") String nombre){
         try{
             List<Evento>eventos=eventoBL.buscarEventoPorNombre(nombre);
@@ -168,14 +146,17 @@ public class EventoService {
         try{
             eventoBL.crearEvento(evento);
 
+            // ¡AQUÍ ESTÁ LO QUE FALTABA! El retorno de éxito.
             return Response.status(Response.Status.CREATED)
                     .entity(Map.of("mensaje", "Evento creado"))
                     .build();
         }
         catch (pe.edu.pucp.ticketflow.exception.BusinessLogicException e) {
+            e.printStackTrace(); // Para ver el error en consola
             return Response.status(Response.Status.BAD_REQUEST).entity(Map.of("error", e.getMessage())).build();
         }
         catch (Exception e) {
+            e.printStackTrace(); // Para ver el error en consola
             return Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity(Map.of("error", "Error interno.")).build();
         }
     }
@@ -183,7 +164,7 @@ public class EventoService {
     @PUT
     @Path("{id}")
     public Response actualizarEvento(@PathParam("id") Integer idEvento,
-                                       Evento evento) {
+                                     Evento evento) {
         try{
             evento = eventoBL.editarEvento(evento, idEvento);
 
@@ -206,13 +187,11 @@ public class EventoService {
     @Path("{id}/ocultar")
     public Response ocultarEvento(@PathParam("id") Integer idEvento) {
         try{
-
             List<Evento> eventos = eventoBL.verTodosLosEventos();
 
             return Response.ok(
                     Map.of("cantidad", eventos.size())
             ).build();
-            //return Response.ok(evento).build();
         }
         catch (pe.edu.pucp.ticketflow.exception.BusinessLogicException e) {
             return Response.status(Response.Status.BAD_REQUEST).entity(Map.of("error", e.getMessage())).build();
@@ -223,25 +202,17 @@ public class EventoService {
     }
 
     private EventoDTO convertirDTO(Evento e) {
-
         EventoDTO dto = new EventoDTO();
 
         dto.idEvento = e.getIdEvento();
         dto.titulo = e.getTitulo();
         dto.descripcion = e.getDescripcion();
         dto.capacidad_entradas = e.getCapacidad_entradas();
-
-        dto.fecha = (e.getFecha() != null)
-                ? e.getFecha().toString()
-                : null;
-
-        dto.hora_inicio = (e.getHora_inicio() != null)
-                ? e.getHora_inicio().toString()
-                : null;
-
-        dto.hora_fin = (e.getHora_fin() != null)
-                ? e.getHora_fin().toString()
-                : null;
+        dto.idAnfitrion = e.getIdAnfitrion();
+        // 💡 Asignamos directamente los Strings
+        dto.fecha = e.getFecha();
+        dto.hora_inicio = e.getHora_inicio();
+        dto.hora_fin = e.getHora_fin();
 
         dto.ubicacion = e.getUbicacion();
         dto.nombre_establecimiento = e.getNombre_establecimiento();

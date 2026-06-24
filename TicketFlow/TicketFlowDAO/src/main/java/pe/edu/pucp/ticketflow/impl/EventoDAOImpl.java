@@ -27,9 +27,12 @@ public class EventoDAOImpl implements IEventoDAO {
             cs.setString(2, eve.getTitulo());
             cs.setString(3, eve.getDescripcion());
             cs.setInt(4, eve.getCapacidad_entradas());
-            cs.setDate(5, new java.sql.Date(eve.getFecha().getTime()));
-            cs.setTime(6, eve.getHora_inicio());
-            cs.setTime(7, eve.getHora_fin());
+
+            // CONVERSIÓN DE STRING A SQL DATE/TIME PARA EL INSERT
+            cs.setDate(5, eve.getFecha() != null ? java.sql.Date.valueOf(eve.getFecha()) : null);
+            cs.setTime(6, eve.getHora_inicio() != null ? java.sql.Time.valueOf(eve.getHora_inicio()) : null);
+            cs.setTime(7, eve.getHora_fin() != null ? java.sql.Time.valueOf(eve.getHora_fin()) : null);
+
             cs.setString(8, eve.getUbicacion());
             cs.setString(9, eve.getNombre_establecimiento());
             cs.setString(10, eve.getImg());
@@ -87,9 +90,12 @@ public class EventoDAOImpl implements IEventoDAO {
             cs.setString(2, evento.getTitulo());
             cs.setString(3, evento.getDescripcion());
             cs.setInt(4, evento.getCapacidad_entradas());
-            cs.setDate(5, new java.sql.Date(evento.getFecha().getTime()));
-            cs.setTime(6, evento.getHora_inicio());
-            cs.setTime(7, evento.getHora_fin());
+
+            // CONVERSIÓN DE STRING A SQL DATE/TIME PARA EL UPDATE
+            cs.setDate(5, evento.getFecha() != null ? java.sql.Date.valueOf(evento.getFecha()) : null);
+            cs.setTime(6, evento.getHora_inicio() != null ? java.sql.Time.valueOf(evento.getHora_inicio()) : null);
+            cs.setTime(7, evento.getHora_fin() != null ? java.sql.Time.valueOf(evento.getHora_fin()) : null);
+
             cs.setString(8, evento.getUbicacion());
             cs.setString(9, evento.getNombre_establecimiento());
             cs.setString(10, evento.getImg());
@@ -173,9 +179,12 @@ public class EventoDAOImpl implements IEventoDAO {
                     evento.setTitulo(rs.getString("titulo"));
                     evento.setDescripcion(rs.getString("descripcion"));
                     evento.setCapacidad_entradas(rs.getInt("capacidad_entradas"));
-                    evento.setFecha(rs.getDate("fecha"));
-                    evento.setHora_inicio(rs.getTime("hora_inicio"));
-                    evento.setHora_fin(rs.getTime("hora_fin"));
+
+                    // CONVERSIÓN DE SQL DATE/TIME A STRING PARA LA LECTURA
+                    evento.setFecha(rs.getDate("fecha") != null ? rs.getDate("fecha").toString() : null);
+                    evento.setHora_inicio(rs.getTime("hora_inicio") != null ? rs.getTime("hora_inicio").toString() : null);
+                    evento.setHora_fin(rs.getTime("hora_fin") != null ? rs.getTime("hora_fin").toString() : null);
+
                     evento.setUbicacion(rs.getString("ubicacion"));
                     evento.setNombre_establecimiento(
                             rs.getString("nombre_establecimiento")
@@ -226,6 +235,7 @@ public class EventoDAOImpl implements IEventoDAO {
             throw new RuntimeException("Error al filtrar eventos por estado", e);
         }
     }
+
     @Override
     public List<Evento> filtrarPorTipo(String Tipo){
         List<Evento> eventos = new ArrayList<>();
@@ -246,9 +256,12 @@ public class EventoDAOImpl implements IEventoDAO {
                     evento.setTitulo(rs.getString("titulo"));
                     evento.setDescripcion(rs.getString("descripcion"));
                     evento.setCapacidad_entradas(rs.getInt("capacidad_entradas"));
-                    evento.setFecha(rs.getDate("fecha"));
-                    evento.setHora_inicio(rs.getTime("hora_inicio"));
-                    evento.setHora_fin(rs.getTime("hora_fin"));
+
+                    // CONVERSIÓN DE SQL DATE/TIME A STRING PARA LA LECTURA
+                    evento.setFecha(rs.getDate("fecha") != null ? rs.getDate("fecha").toString() : null);
+                    evento.setHora_inicio(rs.getTime("hora_inicio") != null ? rs.getTime("hora_inicio").toString() : null);
+                    evento.setHora_fin(rs.getTime("hora_fin") != null ? rs.getTime("hora_fin").toString() : null);
+
                     evento.setUbicacion(rs.getString("ubicacion"));
                     evento.setNombre_establecimiento(
                             rs.getString("nombre_establecimiento")
@@ -309,8 +322,6 @@ public class EventoDAOImpl implements IEventoDAO {
         }
     }
 
-
-
     @Override
     public Evento eliminarEvento(Integer idEvento) {
 
@@ -336,9 +347,12 @@ public class EventoDAOImpl implements IEventoDAO {
         evento.setTitulo(rs.getString("titulo"));
         evento.setDescripcion(rs.getString("descripcion"));
         evento.setCapacidad_entradas(rs.getInt("capacidad_entradas"));
-        evento.setFecha(rs.getDate("fecha"));
-        evento.setHora_inicio(rs.getTime("hora_inicio"));
-        evento.setHora_fin(rs.getTime("hora_fin"));
+
+        // CONVERSIÓN DE SQL DATE/TIME A STRING PARA LA LECTURA
+        evento.setFecha(rs.getDate("fecha") != null ? rs.getDate("fecha").toString() : null);
+        evento.setHora_inicio(rs.getTime("hora_inicio") != null ? rs.getTime("hora_inicio").toString() : null);
+        evento.setHora_fin(rs.getTime("hora_fin") != null ? rs.getTime("hora_fin").toString() : null);
+
         evento.setUbicacion(rs.getString("ubicacion"));
         evento.setNombre_establecimiento(
                 rs.getString("nombre_establecimiento")
@@ -370,9 +384,12 @@ public class EventoDAOImpl implements IEventoDAO {
         evento.setTitulo(rs.getString("titulo"));
         evento.setDescripcion(rs.getString("descripcion"));
         evento.setCapacidad_entradas(rs.getInt("capacidad_entradas"));
-        evento.setFecha(rs.getDate("fecha"));
-        evento.setHora_inicio(rs.getTime("hora_inicio"));
-        evento.setHora_fin(rs.getTime("hora_fin"));
+
+        // CONVERSIÓN DE SQL DATE/TIME A STRING PARA LA LECTURA
+        evento.setFecha(rs.getDate("fecha") != null ? rs.getDate("fecha").toString() : null);
+        evento.setHora_inicio(rs.getTime("hora_inicio") != null ? rs.getTime("hora_inicio").toString() : null);
+        evento.setHora_fin(rs.getTime("hora_fin") != null ? rs.getTime("hora_fin").toString() : null);
+
         evento.setUbicacion(rs.getString("ubicacion"));
         evento.setNombre_establecimiento(
                 rs.getString("nombre_establecimiento")
@@ -401,7 +418,5 @@ public class EventoDAOImpl implements IEventoDAO {
         cat.setIdCategoria_evento(rs.getInt("idCategoria_evento"));
         cat.setNombre(rs.getString("nombre_categoria"));
         evento.setCategoria(cat);
-
     }
 }
-

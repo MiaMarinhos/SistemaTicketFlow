@@ -39,7 +39,7 @@
                             <span class="kpi-titulo-anf">EVENTOS PUBLICADOS</span>
                             <span>🎭</span>
                         </div>
-                        <div class="kpi-valor-anf">@cantidadEventosPublicados</div>
+                        <div class="kpi-valor-anf">@totalEventos</div>
                         <p class="m-0 text-success small">● Todos los shows activos</p>
                     </div>
                 </div>
@@ -50,9 +50,9 @@
                             <span class="kpi-titulo-anf">ENTRADAS VENDIDAS</span>
                             <span>🎟️</span>
                         </div>
-                        <div class="kpi-valor-anf">@entradasVendidas <span class="fs-6 text-muted">/ @capacidadTotal</span></div>
+                        <div class="kpi-valor-anf">@entradasVendidas <span class="fs-6 text-muted">/ @totalEmitidas</span></div>
                         <div class="progress mt-2" style="height: 6px; background-color: #e9e6f5;">
-                            <div class="progress-bar bg-primary" style="width: @(capacidadTotal > 0 ? (entradasVendidas * 100 / capacidadTotal) : 0)%"></div>
+                            <div class="progress-bar bg-primary" style="width: @(totalEmitidas > 0 ? (entradasVendidas * 100 / totalEmitidas) : 0)%"></div>
                         </div>
                     </div>
                 </div>
@@ -82,7 +82,13 @@
                             </tr>
                         </thead>
                         <tbody>
-                            @if (!misEventos.Any())
+                            @if (cargando)
+                            {
+                                <tr>
+                                    <td colspan="4" class="text-center py-4 text-muted">Cargando tu información...</td>
+                                </tr>
+                            }
+                            else if (!misEventos.Any())
                             {
                                 <tr>
                                     <td colspan="4" class="text-center py-4 text-muted">Aún no tienes eventos publicados. ¡Crea el primero!</td>
@@ -94,13 +100,15 @@
                                 {
                                     <tr class="border-bottom">
                                         <td class="py-2 fw-bold" style="color: #15095f;">@evento.titulo</td>
-                                        <td class="py-2 text-muted">@(evento.fechaModerna?.ToString("dd MMM yyyy") ?? "Por definir")</td>
+                                        <td class="py-2 text-muted">
+                                            @(string.IsNullOrEmpty(evento.fecha) ? "Por definir" : evento.fecha)
+                                        </td>
                                         <td class="py-2">
                                             <span class="small text-muted d-block mb-1">Capacidad: @evento.capacidad_entradas personas</span>
                                         </td>
                                         <td class="py-2 text-center">
                                             <span class="badge bg-success text-white rounded-pill px-3">
-                                                Activo
+                                                Publicado
                                             </span>
                                         </td>
                                     </tr>
@@ -537,15 +545,16 @@
 </style>
 
 @code {
+    private bool cargando = true;
     private PerfilAnfitrionViewModel? perfilActual;
+    private string nombreAnfitrion = "Cargando...";
     private List<EventoViewModel> misEventos = new();
 
-    // Lo usaremos para mostrar el error directamente en la pantalla
-    private string nombreAnfitrion = "Cargando...";
-    private int cantidadEventosPublicados = 0;
+    // Variables para los KPIs (Tarjetas superiores)
+    private int totalEventos = 0;
     private int entradasVendidas = 0;
-    private int capacidadTotal = 0;
-    private double ingresosGenerados = 0;
+    private int totalEmitidas = 0;
+    private decimal ingresosGenerados = 0;
 
     protected override async Task OnInitializedAsync()
     {
@@ -558,51 +567,53 @@
             {
                 var idClaim = user.FindFirst("IdUsuario")?.Value;
 
-                // PRUEBA 1: Ver si el ID realmente se guardó en la cookie
-                if (string.IsNullOrEmpty(idClaim))
-                {
-                    nombreAnfitrion = "ERROR: Falta 'IdUsuario' en la cookie";
-                    return;
-                }
-
                 if (int.TryParse(idClaim, out int idAnfitrion))
                 {
-                    // PRUEBA 2: Ver si el Backend Java responde
+                    // Traer el perfil para el saludo
                     perfilActual = await AnfitrionService.BuscarAnfitrionAsync(idAnfitrion);
-
                     if (perfilActual != null)
                     {
-                        nombreAnfitrion = string.IsNullOrWhiteSpace(perfilActual.Nombre)
-                                            ? "Anfitrión"
-                                            : perfilActual.Nombre;
-                    }
-                    else
-                    {
-                        nombreAnfitrion = $"ERROR: El Java devolvió NULL para el ID {idAnfitrion}";
+                        nombreAnfitrion = string.IsNullOrWhiteSpace(perfilActual.Nombre) ? "Anfitrión" : perfilActual.Nombre;
                     }
 
-                    // Intentamos traer los eventos aunque falle el perfil
+                    // 1. Descargar y filtrar SOLO tus eventos
                     var todosLosEventos = await AnfitrionService.VerTodosLosEventosAsync();
-                    if (todosLosEventos != null)
-                    {
-                        misEventos = todosLosEventos.Where(e => e.anfitrion != null && e.anfitrion.idUsuario == idAnfitrion).ToList();
-                        cantidadEventosPublicados = misEventos.Count;
-                        capacidadTotal = misEventos.Sum(e => e.capacidad_entradas);
-                    }
+                    misEventos = todosLosEventos?.Where(e => e.idAnfitrion == idAnfitrion).ToList() ?? new();
 
+                    // Calculamos métricas básicas
+                    totalEventos = misEventos.Count;
+                    totalEmitidas = misEventos.Sum(e => e.capacidad_entradas);
+
+                    // 2. Descargar compras para calcular dinero y tickets
                     var compras = await AnfitrionService.VerComprasDeSusEventosAsync(idAnfitrion);
-                    if (compras != null && compras.Any())
+
+                    entradasVendidas = 0;
+                    ingresosGenerados = 0;
+
+                    if (compras != null)
                     {
-                        entradasVendidas = compras.Sum(c => c.entradasCompradas);
-                        ingresosGenerados = compras.Sum(c => c.montoTotal);
+                        foreach (var compra in compras)
+                        {
+                            entradasVendidas += compra.entradasCompradas;
+
+                            // Buscamos cuánto costaba la entrada de este evento específico
+                            var eventoRelacionado = misEventos.FirstOrDefault(e => e.idEvento == compra.idEvento);
+                            if (eventoRelacionado != null)
+                            {
+                                ingresosGenerados += (compra.entradasCompradas * eventoRelacionado.precio);
+                            }
+                        }
                     }
                 }
             }
         }
         catch (Exception ex)
         {
-            // PRUEBA 3: Si se cae la conexión a GlassFish, lo veremos aquí
             nombreAnfitrion = "Crash: " + ex.Message;
+        }
+        finally
+        {
+            cargando = false;
         }
     }
 }
