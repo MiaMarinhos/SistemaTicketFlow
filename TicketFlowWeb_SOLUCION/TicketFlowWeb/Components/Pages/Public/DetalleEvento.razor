@@ -1,6 +1,11 @@
 ﻿@page "/public/detalle-evento/{Id:int}"
+
 @using TicketFlowWeb.Services.EventoRS
+@using Microsoft.AspNetCore.Components.Authorization
+@using Microsoft.AspNetCore.Authorization
+
 @inject EventoRestService EventoService
+@inject AuthenticationStateProvider AuthStateProvider
 
 <div class="detalle-evento-page">
     @if (eventoReal == null)
@@ -40,7 +45,14 @@
                     </div>
                     <br />
                     <div class="acciones-nuevas">
-                        <a href="@($"/cliente/compra/{Id}")" class="btn-comprar">Comprar entrada</a>
+                        @if (esAnfitrion)
+                        {
+                            <button class="btn-comprar btn-deshabilitado" disabled title="Los anfitriones no pueden comprar entradas.">Comprar entrada</button>
+                        }
+                        else
+                        {
+                            <a href="@($"/cliente/compra/{Id}")" class="btn-comprar">Comprar entrada</a>
+                        }
                     </div>
                 </div>
             </div>
@@ -72,8 +84,16 @@
                     </div>
 
                     <div class="acciones-nuevas">
-                        <a href="/anfitrion/gestionar-evento" class="btn-volver">Volver</a>
-                        <a href="@($"/cliente/compra/{Id}")" class="btn-comprar">Comprar entrada</a>
+                        @if (esAnfitrion)
+                        {
+                            <a href="/anfitrion/gestionar-evento" class="btn-volver">Volver</a>
+                            <button class="btn-comprar btn-deshabilitado" disabled title="Los anfitriones no pueden comprar entradas.">Comprar entrada</button>
+                        }
+                        else
+                        {
+                            <a href="/public/descubrir" class="btn-volver">Volver</a>
+                            <a href="@($"/cliente/compra/{Id}")" class="btn-comprar">Comprar entrada</a>
+                        }
                     </div>
 
                 </div>
@@ -118,7 +138,6 @@
         margin: 0 auto;
     }
 
-    /* Columna 1: Imagen */
     .columna-portada {
         grid-column: 1;
     }
@@ -132,7 +151,6 @@
         background-color: #222;
     }
 
-    /* Columnas 2 y 3 unificadas para la Cabecera */
     .columnas-info-cabecera {
         grid-column: 2 / span 2;
         display: flex;
@@ -171,7 +189,6 @@
         font-weight: bold;
     }
 
-    /* Fila de Descripción completa */
     .columna-descripcion-completa {
         grid-column: 1 / span 3;
     }
@@ -185,7 +202,6 @@
         background: rgba(255, 255, 255, 0.05);
     }
 
-    /* Fila Inferior */
     .columna-vacia-izq {
         grid-column: 1;
     }
@@ -226,7 +242,6 @@
             background: rgba(0, 0, 0, 0.2);
         }
 
-    /* 🌟 RECUADRO DEL ANFITRIÓN */
     .recuadro-anfitrion {
         border: 3px dashed #00ffcc;
         border-radius: 12px;
@@ -264,17 +279,18 @@
         padding: 12px 20px;
         font-size: 16px;
         font-weight: bold;
+        display: inline-block;
+        border: 3px solid white;
     }
 
     .btn-volver {
         color: white;
-        border: 3px solid white;
     }
 
     .btn-comprar {
         color: #160b62;
         background-color: white;
-        border: 3px solid white;
+        cursor: pointer;
     }
 
     .btn-volver:hover {
@@ -282,11 +298,19 @@
         color: #160b62;
     }
 
-    .btn-comprar:hover {
+    .btn-comprar:hover:not(.btn-deshabilitado) {
         background: #dffcff;
     }
 
-    /* Responsivo para móviles */
+    /* 🚫 ESTILO PARA EL BOTÓN BLOQUEADO */
+    .btn-deshabilitado {
+        opacity: 0.4;
+        cursor: not-allowed;
+        background-color: #cccccc !important;
+        border-color: #aaaaaa !important;
+        color: #666666 !important;
+    }
+
     @@media (max-width: 900px) {
         .detalle-grid-principal {
             grid-template-columns: 1fr;
@@ -312,10 +336,21 @@
     public int Id { get; set; }
 
     private Models.EventoViewModel eventoReal;
+    private bool esAnfitrion = false;
 
     protected override async Task OnInitializedAsync()
     {
-        // Llama al backend para traer todos los datos del evento
+        // 1. Cargamos el evento
         eventoReal = await EventoService.verDetalleEventoAsync(Id);
+
+        // 2. Revisamos los credenciales de quien está viendo la página
+        var authState = await AuthStateProvider.GetAuthenticationStateAsync();
+        var user = authState.User;
+
+        // 3. Verificamos si tiene el rol "ANFITRION"
+        if (user.Identity != null && user.Identity.IsAuthenticated)
+        {
+            esAnfitrion = user.IsInRole("ANFITRION");
+        }
     }
 }
