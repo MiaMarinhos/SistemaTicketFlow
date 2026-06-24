@@ -11,6 +11,7 @@ import pe.edu.pucp.ticketflow.IClienteBL;
 import pe.edu.pucp.ticketflow.IUsuarioBL;
 import pe.edu.pucp.ticketflow.impl.ClienteBLImpl;
 import pe.edu.pucp.ticketflow.impl.UsuarioBLImpl;
+import pe.edu.pucp.ticketflow.solicitud.model.Solicitud;
 import pe.edu.pucp.ticketflow.usuario.model.LoginRequest;
 import pe.edu.pucp.ticketflow.usuario.model.Usuario;
 
@@ -46,5 +47,4 @@ public class UsuarioService {
             return Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity(Map.of("error", "Error interno.")).build();
         }
     }
-
 }

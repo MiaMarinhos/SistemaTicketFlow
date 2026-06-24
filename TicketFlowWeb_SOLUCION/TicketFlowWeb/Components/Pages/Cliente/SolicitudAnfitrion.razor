@@ -1,7 +1,13 @@
 ﻿@page "/solicitud-anfitrion"
+@attribute [Microsoft.AspNetCore.Authorization.Authorize(Roles = "CLIENTE")]
+@using Microsoft.AspNetCore.Components.Authorization
 @using System.ComponentModel.DataAnnotations
+@using System.Security.Claims
 @using TicketFlowWeb.Models
-@inject NavigationManager NavigationManager
+@inject AuthenticationStateProvider AuthenticationStateProvider
+@inject TicketFlowWeb.Services.UsuarioRS.UsuarioRestService UsuarioService
+@inject NavigationManager Navigation
+
 
 <PageTitle>TicketFlow - Solicitud de Anfitrión</PageTitle>
 
@@ -22,27 +28,25 @@
 
                 <h3 class="form-titulo fw-bold mb-4">Envía tu Solicitud para ser un Anfitrión</h3>
 
+                @* Mostramos error si existe *@
+                @if (!string.IsNullOrEmpty(mensajeError))
+                {
+                    <div class="alert alert-danger bg-transparent text-warning border-warning">@mensajeError</div>
+                }
+
                 <EditForm Model="@solicitudModel" OnValidSubmit="ProcesarSolicitud" autocomplete="off">
                     <DataAnnotationsValidator />
 
                     <div class="custom-input-group mb-3">
-                        <InputText class="custom-control" placeholder="Razon Social" @bind-Value="solicitudModel.RazonSocial" />
-                        <ValidationMessage For="@(() => solicitudModel.RazonSocial)" class="text-warning small mt-1" />
+                        <InputText class="custom-control" placeholder="Telefono de contacto" @bind-Value="solicitudModel.TelefonoContacto" />
+                        @* Corregido: Nombre de propiedad debe coincidir *@
+                        <ValidationMessage For="@(() => solicitudModel.TelefonoContacto)" class="text-warning small mt-1" />
                     </div>
 
                     <div class="custom-input-group mb-3">
-                        <InputText class="custom-control" placeholder="RUC" maxlength="11" @bind-Value="solicitudModel.Ruc" />
-                        <ValidationMessage For="@(() => solicitudModel.Ruc)" class="text-warning small mt-1" />
-                    </div>
-
-                    <div class="custom-input-group mb-3">
-                        <InputText class="custom-control" placeholder="Telefono de contacto" @bind-Value="solicitudModel.Telefono" />
-                        <ValidationMessage For="@(() => solicitudModel.Telefono)" class="text-warning small mt-1" />
-                    </div>
-
-                    <div class="custom-input-group mb-3">
-                        <InputText type="email" class="custom-control" placeholder="Correo de Contacto" @bind-Value="solicitudModel.Correo" />
-                        <ValidationMessage For="@(() => solicitudModel.Correo)" class="text-warning small mt-1" />
+                        <InputText type="email" class="custom-control" placeholder="Correo de Contacto" @bind-Value="solicitudModel.CorreoContacto" />
+                        @* Corregido: Nombre de propiedad debe coincidir *@
+                        <ValidationMessage For="@(() => solicitudModel.CorreoContacto)" class="text-warning small mt-1" />
                     </div>
 
                     <div class="custom-input-group mb-4">
@@ -51,11 +55,10 @@
                     </div>
 
                     <div class="text-center mt-4">
-                        <button type="submit" class="btn-enviar-solicitud text-uppercase fw-bold">
-                            Enviar Solicitud
+                        <button type="submit" class="btn-enviar-solicitud text-uppercase fw-bold" disabled="@isEnviando">
+                            @(isEnviando ? "Enviando..." : "Enviar Solicitud")
                         </button>
                     </div>
-
                 </EditForm>
             </div>
 
@@ -169,15 +172,76 @@
 </style>
 
 @code {
+    private ClientePerfilViewModel? perfilCliente;
     private SolicitudViewModel solicitudModel = new SolicitudViewModel();
+    private string mensajeError = string.Empty;
+    private bool cargando = true;
+    private bool isEnviando = false;
 
-    private void ProcesarSolicitud()
+    protected override async Task OnInitializedAsync()
     {
-        NavigationManager.NavigateTo("/");
+        try
+        {
+            var authState = await AuthenticationStateProvider.GetAuthenticationStateAsync();
+            var usuario = authState.User;
+
+            if (usuario.Identity?.IsAuthenticated != true)
+            {
+                Navigation.NavigateTo("/login", forceLoad: true);
+                return;
+            }
+
+            var idTexto = usuario.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            if (!int.TryParse(idTexto, out var idUsuario))
+            {
+                mensajeError = "Sesión inválida.";
+                return;
+            }
+
+            perfilCliente = await UsuarioService.ObtenerPerfilClienteAsync(idUsuario);
+
+            if (perfilCliente is null)
+            {
+                mensajeError = "No se pudo cargar el perfil.";
+                return;
+            }
+
+            solicitudModel.IdCliente = idUsuario;
+            solicitudModel.IdAdministrador = 1;
+            solicitudModel.IdEstadoSolicitud = 1;
+        }
+        catch (Exception ex)
+        {
+            mensajeError = $"Error: {ex.Message}";
+        }
+        finally { cargando = false; }
+    }
+
+    private async Task ProcesarSolicitud()
+    {
+        try
+        {
+            isEnviando = true;
+            mensajeError = ""; // Limpiar errores previos
+            
+            // Llamamos al servicio corregido
+            await UsuarioService.EnviarSolicitud(solicitudModel);
+            
+            // Si tiene éxito, regresamos al inicio
+            Navigation.NavigateTo("/");
+        }
+        catch (Exception ex)
+        {
+            mensajeError = "Error al enviar: " + ex.Message;
+        }
+        finally
+        {
+            isEnviando = false;
+        }
     }
 
     private void VolverAtras()
     {
-        NavigationManager.NavigateTo("/");
+        Navigation.NavigateTo("/");
     }
 }

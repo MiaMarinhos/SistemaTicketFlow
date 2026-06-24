@@ -138,5 +138,18 @@ namespace TicketFlowWeb.Services.UsuarioRS
 
             return await response.Content.ReadFromJsonAsync<int>(JsonOptions);
         }
+
+        public async Task EnviarSolicitud(SolicitudViewModel solicitud)
+        {
+            var response = await _httpClient.PostAsJsonAsync("ClienteRS/enviarSolicitud", solicitud);
+
+            if (!response.IsSuccessStatusCode)
+            {
+                var detalle = await response.Content.ReadAsStringAsync();
+                throw new Exception($"Error del servidor: {detalle}");
+            }
+        }
     }
+
+      
 }

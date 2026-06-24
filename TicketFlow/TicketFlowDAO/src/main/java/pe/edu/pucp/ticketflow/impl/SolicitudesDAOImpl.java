@@ -152,6 +152,21 @@ public class SolicitudesDAOImpl implements ISolicitudesDAO {
 
                     Solicitud t = new Solicitud();
                     mapear(rs, t);
+
+                    Cliente cliente = new Cliente();
+                    cliente.setIdUsuario(rs.getInt("idUsuario"));
+                    cliente.setNombre(rs.getString("nombre"));
+                    cliente.setApellidoPaterno(rs.getString("apellido_paterno"));
+                    cliente.setApellidoMaterno(rs.getString("apellido_materno"));
+
+                    t.setCliente(cliente);
+
+                    EstadoSolicitud estado = new EstadoSolicitud();
+                    estado.setIdEstadoSolicitud(rs.getInt("idEstado"));
+                    estado.setEstado(rs.getString("estado_solicitud"));
+
+                    t.setEstadoSolicitud(estado);
+
                     lista.add(t);
                 }
 
@@ -251,18 +266,5 @@ public class SolicitudesDAOImpl implements ISolicitudesDAO {
         t.setIdCliente(rs.getInt("idUsuario"));
         t.setIdEstadoSolicitud(rs.getInt("idEstado"));
 
-        Cliente cliente = new Cliente();
-        cliente.setIdUsuario(rs.getInt("idUsuario"));
-        cliente.setNombre(rs.getString("nombre"));
-        cliente.setApellidoPaterno(rs.getString("apellido_paterno"));
-        cliente.setApellidoMaterno(rs.getString("apellido_materno"));
-
-        t.setCliente(cliente);
-
-        EstadoSolicitud estado = new EstadoSolicitud();
-        estado.setIdEstadoSolicitud(rs.getInt("idEstado"));
-        estado.setEstado(rs.getString("estado_solicitud"));
-
-        t.setEstadoSolicitud(estado);
     }
 }

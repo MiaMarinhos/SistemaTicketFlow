@@ -43,14 +43,11 @@ public class AdminSolicitudesService {
                     .build();
 
         } catch (Exception e) {
-
             e.printStackTrace();
-
             return Response.status(Response.Status.INTERNAL_SERVER_ERROR)
-                    .entity(Map.of(
-                            "error",
-                            e.getMessage()
-                    ))
+                    .entity(Map.of("error", e.getMessage() != null
+                            ? e.getMessage()
+                            : "Error interno del servidor"))
                     .build();
         }
     }
@@ -69,7 +66,9 @@ public class AdminSolicitudesService {
         } catch (Exception e) {
             e.printStackTrace();
             return Response.status(Response.Status.INTERNAL_SERVER_ERROR)
-                    .entity(Map.of("error", e.getMessage()))
+                    .entity(Map.of("error", e.getMessage() != null
+                            ? e.getMessage()
+                            : "Error interno del servidor"))
                     .build();
         }
     }
@@ -88,7 +87,9 @@ public class AdminSolicitudesService {
         } catch (Exception e) {
             e.printStackTrace();
             return Response.status(Response.Status.INTERNAL_SERVER_ERROR)
-                    .entity(Map.of("error", e.getMessage()))
+                    .entity(Map.of("error", e.getMessage() != null
+                            ? e.getMessage()
+                            : "Error interno del servidor"))
                     .build();
         }
     }

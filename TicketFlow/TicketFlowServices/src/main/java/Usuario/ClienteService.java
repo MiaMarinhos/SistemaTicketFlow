@@ -13,6 +13,7 @@ import pe.edu.pucp.ticketflow.IClienteBL;
 import pe.edu.pucp.ticketflow.IUsuarioBL;
 import pe.edu.pucp.ticketflow.impl.ClienteBLImpl;
 import pe.edu.pucp.ticketflow.impl.UsuarioBLImpl;
+import pe.edu.pucp.ticketflow.solicitud.model.Solicitud;
 import pe.edu.pucp.ticketflow.usuario.model.Cliente;
 import pe.edu.pucp.ticketflow.usuario.model.Genero;
 
@@ -149,5 +150,26 @@ public class ClienteService {
 
     private String elegir(String nuevo, String actual) {
         return nuevo != null && !nuevo.isBlank() ? nuevo : actual;
+    }
+
+    @POST
+    @Path("enviarSolicitud")
+    @Produces(MediaType.APPLICATION_JSON)
+    public Response enviarSolicitud(Solicitud solicitud){
+        try {
+            usuarioBL.enviarSolicitud(solicitud);
+            return Response.status(Response.Status.CREATED)
+                    .entity(Map.of("mensaje", "Solicitud enviada"))
+                    .build();
+        }catch (pe.edu.pucp.ticketflow.exception.BusinessLogicException e) {
+            return Response.status(Response.Status.BAD_REQUEST).entity(Map.of("error", e.getMessage())).build();
+        } catch (Exception e) {
+            e.printStackTrace();
+            return Response.status(Response.Status.INTERNAL_SERVER_ERROR)
+                    .entity(Map.of("error", e.getMessage() != null
+                            ? e.getMessage()
+                            : "Error interno del servidor"))
+                    .build();
+        }
     }
 }

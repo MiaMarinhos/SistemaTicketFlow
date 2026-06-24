@@ -127,8 +127,8 @@
                 {
                     <p><strong>ID:</strong> @solicitudSeleccionada.IdSolicitudes</p>
                     <p><strong>ID Cliente:</strong> @solicitudSeleccionada.IdCliente</p>
-                    <p><strong>Correo:</strong> @solicitudSeleccionada.Correo</p>
-                    <p><strong>Teléfono:</strong> @solicitudSeleccionada.Telefono</p>
+                    <p><strong>Correo:</strong> @solicitudSeleccionada.CorreoContacto</p>
+                    <p><strong>Teléfono:</strong> @solicitudSeleccionada.TelefonoContacto</p>
                     <p><strong>Motivo:</strong> @solicitudSeleccionada.Motivo</p>
                     <p><strong>Estado:</strong> @solicitudSeleccionada.IdEstadoSolicitud</p>
                 }
@@ -244,7 +244,7 @@
         string.IsNullOrWhiteSpace(textoBusqueda)
         ? solicitudes
         : solicitudes.Where(s =>
-            s.Correo.Contains(textoBusqueda,
+            s.CorreoContacto.Contains(textoBusqueda,
                 StringComparison.OrdinalIgnoreCase)
             ||
             s.Motivo.Contains(textoBusqueda,
