@@ -78,6 +78,9 @@ VALUES
 INSERT INTO `usuario_x_tipo` VALUES (1,1);
 INSERT INTO `usuario_x_tipo` VALUES (1,2);
 INSERT INTO `usuario_x_tipo` VALUES (1,3);
+INSERT INTO `usuario_x_tipo` VALUES (2,1);
+INSERT INTO `usuario_x_tipo` VALUES (3,1);
+INSERT INTO `usuario_x_tipo` VALUES (4,2);
 
 
 -- =====================================
@@ -93,7 +96,7 @@ INSERT INTO cliente(idCliente,puntos_bonus) VALUES
 INSERT INTO administrador(
 idAdmin,img_qr,monto_total,monto_neto,monto_disponible)
 VALUES
-(3,'admin_qr.png',10000,8500,7000);
+(1,'admin_qr.png',10000,8500,7000);
 
 -- =====================================
 -- ANFITRION

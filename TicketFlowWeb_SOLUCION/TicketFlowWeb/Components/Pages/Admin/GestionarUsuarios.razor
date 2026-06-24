@@ -1,8 +1,10 @@
 ﻿@page "/admin/usuarios"
 @using Microsoft.AspNetCore.Authorization
-
+@using TicketFlowWeb.Models
+@using TicketFlowWeb.Services.AdministradorRS
 @attribute [Authorize(Roles = "ADMIN")]
 @layout AdminLayout
+@inject AdministradorRestService AdminService
 
 <PageTitle>Panel de Usuarios</PageTitle>
 
@@ -24,72 +26,69 @@
 </nav>
 
 <div class="mt-4">
-    <table class="table table-bordered table-hover">
-        <thead class="table-primary">
-            <tr>
-                <th>ID</th>
-                <th>Nombre</th>
-                <th>Correo</th>
-                <th>Tipo</th>
-                <th>Estado</th>
-                <th>Acciones</th>
-            </tr>
-        </thead>
-        <tbody>
-            <tr>
-                <td>1</td>
-                <td>Juan Carlos</td>
-                <td>juanCarlos@gmail.com</td>
-                <td>Cliente</td>
-                <td>Activo</td>
-                <td>
-                    <button class="btn btn-outline-dark btn-sm"
-                            data-bs-toggle="modal"
-                            data-bs-target="#detalleUsuario">
-                        <i class="bi bi-eye"></i>
-                    </button>
-                    <button class="btn btn-outline-dark btn-sm"
-                            data-bs-toggle="modal"
-                            data-bs-target="#editarUsuario">
-                        <i class="bi bi-brush"></i>
-                    </button>
-                    <button class="btn btn-outline-dark btn-sm"
-                            data-bs-toggle="modal"
-                            data-bs-target="#bloquearUsuario">
-                        <i class="bi bi-lock"></i>
-                    </button>
-                </td>
-            </tr>
-            <tr>
-                <td>2</td>
-                <td>Andrea Lucía</td>
-                <td>andrea45@gmail.com</td>
-                <td>Cliente</td>
-                <td>Activo</td>
-                <td>
-                    <button class="btn btn-outline-dark btn-sm"
-                            data-bs-toggle="modal"
-                            data-bs-target="#detalleUsuario">
-                        <i class="bi bi-eye"></i>
-                    </button>
-                    <button class="btn btn-outline-dark btn-sm"
-                            data-bs-toggle="modal"
-                            data-bs-target="#editarUsuario">
-                        <i class="bi bi-brush"></i>
-                    </button>
-                    <button class="btn btn-outline-dark btn-sm"
-                            data-bs-toggle="modal"
-                            data-bs-target="#bloquearUsuario">
-                        <i class="bi bi-lock"></i>
-                    </button>
-                </td>
-            </tr>
-        </tbody>
-    </table>
+    @if (usuarios == null)
+    {
+        <p>Cargando usuarios...</p>
+    }
+    else
+    {
+        <table class="table table-bordered table-hover">
+            <thead class="table-primary">
+                <tr>
+                    <th>ID</th>
+                    <th>Nombre</th>
+                    <th>Correo</th>
+                    <th>Tipo</th>
+                    <th>Estado</th>
+                    <th>Acciones</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var usuario in UsuariosFiltrados)
+                {
+                    <tr>
+                        <td>@usuario.idUsuario</td>
+                        <td>@usuario.nombre @usuario.apellidoPaterno @usuario.apellidoMaterno</td>
+                        <td>@usuario.correoElectronico</td>
+                        <td>@usuario.tipo?.tipoUsuario</td>
+                        <td>@usuario.estado?.Nombre</td>
+                        <td>
+                            <button class="btn btn-outline-dark btn-sm">
+                                <i class="bi bi-eye"></i>
+                            </button>
+
+                            <button class="btn btn-outline-dark btn-sm">
+                                <i class="bi bi-brush"></i>
+                            </button>
+
+                            <button class="btn btn-outline-dark btn-sm">
+                                <i class="bi bi-lock"></i>
+                            </button>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    }
 </div>
-@code{
+
+@code {
     private string textoBusqueda = "";
     private string estadoFiltro = "";
+    private List<Usuario>? usuarios;
+
+    protected override async Task OnInitializedAsync()
+    {
+        usuarios = await AdminService.ListarUsuarios();
+    }
+
+    private IEnumerable<Usuario> UsuariosFiltrados =>
+        usuarios == null
+            ? Enumerable.Empty<Usuario>()
+            : usuarios.Where(u =>
+                string.IsNullOrWhiteSpace(textoBusqueda) ||
+                $"{u.nombre} {u.apellidoPaterno} {u.apellidoMaterno} {u.correoElectronico}"
+                    .Contains(textoBusqueda, StringComparison.OrdinalIgnoreCase));
 
     private void LimpiarFiltros()
     {

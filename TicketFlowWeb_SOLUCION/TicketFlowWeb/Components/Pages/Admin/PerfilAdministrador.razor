@@ -1,95 +1,171 @@
 ﻿@page "/admin/perfil"
 @layout AdminLayout
+@using TicketFlowWeb.Services.AdministradorRS
+@using TicketFlowWeb.Models
+@inject AdministradorRestService AdminService
+@inject IJSRuntime JS
 
 <PageTitle>Mi Perfil</PageTitle>
 
 <h1 class="admin-page-title mb-4">Mi Perfil</h1>
 
-<div class="card shadow-sm border-0">
-    <div class="card-body p-4">
+@if (administrador == null)
+{
+    <p>Cargando perfil...</p>
+}
+else
+{
+    <div class="card shadow-sm border-0">
+        <div class="card-body p-4">
 
-        <div class="row align-items-center mb-4">
+            <div class="row align-items-center mb-4">
+                <div class="col-md-2 text-center">
+                    <i class="bi bi-person-circle text-primary" style="font-size: 6rem;"></i>
+                </div>
 
-            <div class="col-md-2 text-center">
-                <i class="bi bi-person-circle text-primary"
-                   style="font-size: 6rem;"></i>
+                <div class="col-md-10">
+                    <h3 class="mb-1">
+                        @administrador.Nombre @administrador.ApellidoPaterno @administrador.ApellidoMaterno
+                    </h3>
+                    <p class="text-muted mb-0">Administrador del Sistema</p>
+                </div>
             </div>
 
-            <div class="col-md-10">
-                <h3 class="mb-1">Nombrado Persona Apellidado Díaz</h3>
-                <p class="text-muted mb-0">
-                    Administrador del Sistema
-                </p>
+            <hr />
+
+            <div class="row mb-3">
+                <div class="col-md-3 fw-bold">Código</div>
+                <div class="col-md-9">@administrador.IdUsuario</div>
             </div>
 
-        </div>
+            <div class="row mb-3">
+                <div class="col-md-3 fw-bold">Nombre</div>
+                <div class="col-md-9">@administrador.Nombre</div>
+            </div>
 
-        <hr />
+            <div class="row mb-3">
+                <div class="col-md-3 fw-bold">Apellido Paterno</div>
+                <div class="col-md-9">@administrador.ApellidoPaterno</div>
+            </div>
 
-        <div class="row mb-3">
-            <div class="col-md-3 fw-bold">
-                Código
+            <div class="row mb-3">
+                <div class="col-md-3 fw-bold">Apellido Materno</div>
+                <div class="col-md-9">@administrador.ApellidoMaterno</div>
             </div>
-            <div class="col-md-9">
-                1234
-            </div>
-        </div>
 
-        <div class="row mb-3">
-            <div class="col-md-3 fw-bold">
-                Nombre
+            <div class="row mb-3">
+                <div class="col-md-3 fw-bold">Correo</div>
+                <div class="col-md-9">@administrador.CorreoElectronico</div>
             </div>
-            <div class="col-md-9">
-                Nombrado Persona
-            </div>
-        </div>
 
-        <div class="row mb-3">
-            <div class="col-md-3 fw-bold">
-                Apellido Paterno
+            <div class="row mb-3">
+                <div class="col-md-3 fw-bold">Rol</div>
+                <div class="col-md-9">
+                    <span class="badge bg-primary">Administrador</span>
+                </div>
             </div>
-            <div class="col-md-9">
-                Apellidado
-            </div>
-        </div>
 
-        <div class="row mb-3">
-            <div class="col-md-3 fw-bold">
-                Apellido Materno
-            </div>
-            <div class="col-md-9">
-                Díaz
-            </div>
-        </div>
+            <hr />
 
-        <div class="row mb-3">
-            <div class="col-md-3 fw-bold">
-                Correo
-            </div>
-            <div class="col-md-9">
-                admin@ticketflow.com
-            </div>
-        </div>
+            @if (!string.IsNullOrEmpty(mensaje))
+            {
+                <div class="alert alert-success">@mensaje</div>
+            }
 
-        <div class="row mb-3">
-            <div class="col-md-3 fw-bold">
-                Rol
-            </div>
-            <div class="col-md-9">
-                <span class="badge bg-primary">
-                    Administrador
-                </span>
+            <div class="text-end">
+                <button class="btn btn-primary"
+                        data-bs-toggle="modal"
+                        data-bs-target="#modalEditarPerfil">
+                    <i class="bi bi-pencil-square me-2"></i>
+                    Editar Perfil
+                </button>
             </div>
         </div>
-
-        <hr />
-
-        <div class="text-end">
-            <button class="btn btn-primary">
-                <i class="bi bi-pencil-square me-2"></i>
-                Editar Perfil
-            </button>
-        </div>
-
     </div>
-</div>
+
+    <div class="modal fade" id="modalEditarPerfil" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+
+                <div class="modal-header">
+                    <h5 class="modal-title">Editar Perfil</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label class="form-label">Nombre</label>
+                        <input class="form-control" @bind="administrador.Nombre" />
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label">Apellido Paterno</label>
+                        <input class="form-control" @bind="administrador.ApellidoPaterno" />
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label">Apellido Materno</label>
+                        <input class="form-control" @bind="administrador.ApellidoMaterno" />
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label">Correo</label>
+                        <input class="form-control" @bind="administrador.CorreoElectronico" />
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label">Teléfono</label>
+                        <input class="form-control" @bind="administrador.Telefono" />
+                    </div>
+                </div>
+
+                <div class="modal-footer">
+                    <button class="btn btn-secondary" data-bs-dismiss="modal">
+                        Cancelar
+                    </button>
+
+                    <button class="btn btn-primary" @onclick="GuardarCambios">
+                        Guardar cambios
+                    </button>
+                </div>
+
+            </div>
+        </div>
+    </div>
+}
+
+@code {
+    private AdministratorViewModel? administrador;
+    private string mensaje = "";
+
+    protected override async Task OnInitializedAsync()
+    {
+        administrador = await AdminService.ObtenerAdministrador(1);
+    }
+
+    private async Task GuardarCambios()
+    {
+        if (administrador == null)
+            return;
+
+        administrador = await AdminService.ActualizarAdministrador(
+            administrador.IdUsuario,
+            administrador
+        );
+
+        mensaje = "Perfil actualizado correctamente.";
+
+        await JS.InvokeVoidAsync("cerrarModalPerfil");
+    }
+}
+
+<script>
+    window.cerrarModalPerfil = () => {
+        const modalElement = document.getElementById('modalEditarPerfil');
+        const modal = bootstrap.Modal.getInstance(modalElement);
+
+        if (modal) {
+            modal.hide();
+        }
+    };
+</script>

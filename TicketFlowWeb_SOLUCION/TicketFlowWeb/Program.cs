@@ -6,6 +6,7 @@ using Servicios.compra;
 using TicketFlowWeb.Components;
 using TicketFlowWeb.Models;
 using TicketFlowWeb.Services;
+using TicketFlowWeb.Services.AdministradorRS;
 using TicketFlowWeb.Services.AnfitrionRS;
 using TicketFlowWeb.Services.CompraRS;
 using TicketFlowWeb.Services.EventoRS;
@@ -30,6 +31,10 @@ builder.Services.AddHttpClient<CompraRestService>(client =>
     client.BaseAddress = new Uri("http://localhost:8080/TicketFlow/api/");
 });
 builder.Services.AddHttpClient<AnfitrionRestService>(client =>
+{
+    client.BaseAddress = new Uri("http://localhost:8080/TicketFlow/api/");
+});
+builder.Services.AddHttpClient<AdministradorRestService>(client =>
 {
     client.BaseAddress = new Uri("http://localhost:8080/TicketFlow/api/");
 });

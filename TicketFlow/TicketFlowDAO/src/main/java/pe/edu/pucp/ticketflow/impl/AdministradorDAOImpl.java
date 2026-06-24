@@ -35,47 +35,67 @@ public class AdministradorDAOImpl implements IAdministradorDAO {
 
     @Override
     public Administrador read(Integer id) {
-        String sql = "{CALL SP_LEER_ADMINISTRADOR(?)}";
+        String sql = "{CALL SP_LEER_ADMINISTRADOR_NUEVO(?)}";
 
-        try (Connection con = DBManager.getInstance().getConnection();
-             CallableStatement cs = con.prepareCall(sql)) {
+        try (Connection con = DBManager.getInstance().getConnection()) {
 
-            cs.setInt(1, id);
+            System.out.println("=================================");
+            System.out.println("BD URL: " + con.getMetaData().getURL());
+            System.out.println("BD USER: " + con.getMetaData().getUserName());
+            System.out.println("BD CATALOG: " + con.getCatalog());
+            System.out.println("=================================");
 
-            try (ResultSet rs = cs.executeQuery()) {
-                if (rs.next()) {
-                    return mapearAdministrador(rs);
+            try (CallableStatement cs = con.prepareCall(sql)) {
+                cs.setInt(1, id);
+
+                try (ResultSet rs = cs.executeQuery()) {
+                    if (rs.next()) {
+                        return mapearAdministrador(rs);
+                    }
                 }
             }
 
             return null;
 
         } catch (SQLException e) {
-            throw new RuntimeException("Error al leer administrador", e);
+            e.printStackTrace();
+            throw new RuntimeException(
+                    "Error al leer administrador: " + e.getMessage(),
+                    e
+            );
         }
     }
 
     @Override
     public Administrador update(Administrador t, Integer id) {
-        String sqlUsuario = "{CALL SP_ACTUALIZAR_USUARIO(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)}";
+        String sqlUsuario = "{CALL SP_ACTUALIZAR_USUARIO(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)}";
         String sqlAdmin = "{CALL SP_ACTUALIZAR_ADMINISTRADOR(?, ?, ?, ?, ?)}";
+
         try (Connection con = DBManager.getInstance().getConnection()) {
             con.setAutoCommit(false);
+
             try (CallableStatement csUsuario = con.prepareCall(sqlUsuario);
                  CallableStatement csAdmin = con.prepareCall(sqlAdmin)) {
+
                 csUsuario.setInt(1, id);
                 csUsuario.setString(2, t.getDni());
                 csUsuario.setString(3, t.getNombre());
                 csUsuario.setString(4, t.getApellidoPaterno());
                 csUsuario.setString(5, t.getApellidoMaterno());
                 csUsuario.setString(6, t.getTelefono());
-                csUsuario.setString(7, t.getCorreoElectronico());
-                csUsuario.setString(8, t.getContrasena());
-                csUsuario.setDate(9, t.getFechaNacimiento());
-                csUsuario.setInt(10, t.getIdDistrito());
+                csUsuario.setInt(7, t.getEdad());
 
-                // 1 = ACTIVO
-                csUsuario.setInt(11, 1);
+                if (t.getGenero() != null) {
+                    csUsuario.setInt(8, t.getGenero().getIdGenero());
+                } else {
+                    csUsuario.setInt(8, 1);
+                }
+
+                csUsuario.setString(9, t.getCorreoElectronico());
+                csUsuario.setString(10, t.getContrasena());
+                csUsuario.setDate(11, t.getFechaNacimiento());
+                csUsuario.setInt(12, t.getIdDistrito());
+                csUsuario.setInt(13, 1);
 
                 csUsuario.execute();
 
@@ -100,7 +120,11 @@ public class AdministradorDAOImpl implements IAdministradorDAO {
             }
 
         } catch (SQLException e) {
-            throw new RuntimeException("Error al actualizar anfitrión", e);
+            e.printStackTrace();
+            throw new RuntimeException(
+                    "Error al actualizar administrador: " + e.getMessage(),
+                    e
+            );
         }
     }
 

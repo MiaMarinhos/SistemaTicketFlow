@@ -15,7 +15,7 @@ namespace TicketFlowWeb.Models
         public string apellidoMaterno { get; set; } = string.Empty;
         public string telefono { get; set; } = string.Empty;
         public string genero { get; set; } = string.Empty;
-        public string estado { get; set; } = string.Empty;
+        public EstadoUsuarioViewModel? estado { get; set; }
 
         // El objeto anidado para el Rol
         public TipoUsuario? tipo { get; set; }
