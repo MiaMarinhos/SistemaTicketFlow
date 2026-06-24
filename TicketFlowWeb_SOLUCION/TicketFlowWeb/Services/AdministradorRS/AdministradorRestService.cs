@@ -86,5 +86,42 @@ namespace TicketFlowWeb.Services.AdministradorRS
 
             return await response.Content.ReadFromJsonAsync<SolicitudViewModel>();
         }
+        //EVENTOS
+        public async Task<List<EventoViewModel>> ListarEventos()
+        {
+            return await _http.GetFromJsonAsync<List<EventoViewModel>>(
+                "AdminEventos/listar"
+            ) ?? new List<EventoViewModel>();
+        }
+
+        public async Task<EventoViewModel?> AprobarEvento(int id)
+        {
+            var response = await _http.PutAsync(
+                $"AdminEventos/aprobar/{id}",
+                null
+            );
+
+            var contenido = await response.Content.ReadAsStringAsync();
+
+            if (!response.IsSuccessStatusCode)
+                throw new Exception(contenido);
+
+            return await response.Content.ReadFromJsonAsync<EventoViewModel>();
+        }
+
+        public async Task<EventoViewModel?> RechazarEvento(int id)
+        {
+            var response = await _http.PutAsync(
+                $"AdminEventos/rechazar/{id}",
+                null
+            );
+
+            var contenido = await response.Content.ReadAsStringAsync();
+
+            if (!response.IsSuccessStatusCode)
+                throw new Exception(contenido);
+
+            return await response.Content.ReadFromJsonAsync<EventoViewModel>();
+        }
     }
 }

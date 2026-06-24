@@ -29,6 +29,8 @@ namespace TicketFlowWeb.Models
         public Categoria categoria { get; set; }
         public Distrito distrito { get; set; }
         public Anfitrion anfitrion { get; set; }
+
+        public EstadoPublicacion estadoPublicacion { get; set; }
     }
 
     public class Anfitrion

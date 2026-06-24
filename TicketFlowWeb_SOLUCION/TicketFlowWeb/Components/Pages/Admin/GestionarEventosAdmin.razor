@@ -1,8 +1,12 @@
 ﻿@page "/admin/eventos"
 @using Microsoft.AspNetCore.Authorization
+@using TicketFlowWeb.Models
+@using TicketFlowWeb.Services.AdministradorRS
 
 @attribute [Authorize(Roles = "ADMIN")]
 @layout AdminLayout
+
+@inject AdministradorRestService AdminService
 
 <PageTitle>Panel de Eventos</PageTitle>
 
@@ -28,7 +32,7 @@
         <thead class="table-primary">
             <tr>
                 <th>ID</th>
-                <th>Titulo</th>
+                <th>Título</th>
                 <th>Fecha</th>
                 <th>Ubicación</th>
                 <th>Precio</th>
@@ -36,69 +40,179 @@
                 <th>Acciones</th>
             </tr>
         </thead>
+
         <tbody>
-            <tr>
-                <td>1</td>
-                <td>Concierto de Rock</td>
-                <td>15/06/2026</td>
-                <td>Anfiteatro del Parque de la Expocición</td>
-                <td>S/ 85.00</td>
-                <td>Publicado</td>
-                <td>
-                    <button class="btn btn-outline-dark btn-sm"
-                            data-bs-toggle="modal"
-                            data-bs-target="#detalleUsuario">
-                        <i class="bi bi-eye"></i>
-                    </button>
-                    <button class="btn btn-outline-dark btn-sm"
-                            data-bs-toggle="modal"
-                            data-bs-target="#editarUsuario">
-                        <i class="bi bi-brush"></i>
-                    </button>
-                    <button class="btn btn-outline-dark btn-sm"
-                            data-bs-toggle="modal"
-                            data-bs-target="#bloquearUsuario">
-                        <i class="bi bi-trash3"></i>
-                    </button>
-                </td>
-            </tr>
-            <tr>
-                <td>2</td>
-                <td>Festival de Cine Independiente</td>
-                <td>05/08/2026</td>
-                <td>Centro Cultural PUCP, San Isidro</td>
-                <td>S/ 35.00</td>
-                <td>Pendiente</td>
-                <td>
-                    <button class="btn btn-outline-dark btn-sm"
-                            data-bs-toggle="modal"
-                            data-bs-target="#detalleUsuario">
-                        <i class="bi bi-eye"></i>
-                    </button>
-                    <button class="btn btn-outline-dark btn-sm"
-                            data-bs-toggle="modal"
-                            data-bs-target="#editarUsuario">
-                        <i class="bi bi-brush"></i>
-                    </button>
-                    <button class="btn btn-outline-dark btn-sm"
-                            data-bs-toggle="modal"
-                            data-bs-target="#bloquearUsuario">
-                        <i class="bi bi-check-circle"></i>
-                    </button>
-                    <button class="btn btn-outline-dark btn-sm"
-                            data-bs-toggle="modal"
-                            data-bs-target="#bloquearUsuario">
-                        <i class="bi bi-x-circle"></i>
-                    </button>
-                </td>
-            </tr>
+            @foreach (var evento in EventosFiltrados)
+            {
+                <tr>
+                    <td>@evento.idEvento</td>
+                    <td>@evento.titulo</td>
+                    <td>@evento.fecha</td>
+                    <td>@evento.ubicacion</td>
+                    <td>S/ @evento.precio</td>
+                    <td>@evento.estadoPublicacion?.estado</td>
+
+                    <td>
+                        <button class="btn btn-outline-dark btn-sm"
+                                data-bs-toggle="modal"
+                                data-bs-target="#detalleUsuario">
+                            <i class="bi bi-eye"></i>
+                        </button>
+
+                        <button class="btn btn-outline-dark btn-sm"
+                                data-bs-toggle="modal"
+                                data-bs-target="#editarUsuario">
+                            <i class="bi bi-brush"></i>
+                        </button>
+
+                        @if (evento.FK_idEstadoPublicacion == 1)
+                        {
+                            <button class="btn btn-outline-success btn-sm"
+                                    data-bs-toggle="modal"
+                                    data-bs-target="#aprobarEventoModal"
+                                    @onclick="() => SeleccionarEvento(evento)">
+                                <i class="bi bi-check-circle"></i>
+                            </button>
+
+                            <button class="btn btn-outline-danger btn-sm"
+                                    data-bs-toggle="modal"
+                                    data-bs-target="#rechazarEventoModal"
+                                    @onclick="() => SeleccionarEvento(evento)">
+                                <i class="bi bi-x-circle"></i>
+                            </button>
+                        }
+                        else
+                        {
+                            <button class="btn btn-outline-dark btn-sm"
+                                    data-bs-toggle="modal"
+                                    data-bs-target="#bloquearUsuario">
+                                <i class="bi bi-trash3"></i>
+                            </button>
+                        }
+                    </td>
+                </tr>
+            }
         </tbody>
     </table>
+</div>
+
+<!-- MODAL APROBAR EVENTO -->
+<div class="modal fade" id="aprobarEventoModal" tabindex="-1">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+
+            <div class="modal-header">
+                <h5 class="modal-title">Aprobar Evento</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+
+            <div class="modal-body">
+                @if (eventoSeleccionado != null)
+                {
+                    <p>
+                        ¿Desea aprobar el evento
+                        <strong>@eventoSeleccionado.titulo</strong>?
+                    </p>
+                }
+            </div>
+
+            <div class="modal-footer">
+                <button class="btn btn-secondary" data-bs-dismiss="modal">
+                    Cancelar
+                </button>
+
+                <button class="btn btn-success"
+                        data-bs-dismiss="modal"
+                        @onclick="AprobarEvento">
+                    Aceptar
+                </button>
+            </div>
+
+        </div>
+    </div>
+</div>
+
+<!-- MODAL RECHAZAR EVENTO -->
+<div class="modal fade" id="rechazarEventoModal" tabindex="-1">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+
+            <div class="modal-header">
+                <h5 class="modal-title">Rechazar Evento</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+
+            <div class="modal-body">
+                @if (eventoSeleccionado != null)
+                {
+                    <p>
+                        ¿Desea rechazar el evento
+                        <strong>@eventoSeleccionado.titulo</strong>?
+                    </p>
+                }
+            </div>
+
+            <div class="modal-footer">
+                <button class="btn btn-secondary" data-bs-dismiss="modal">
+                    Cancelar
+                </button>
+
+                <button class="btn btn-danger"
+                        data-bs-dismiss="modal"
+                        @onclick="RechazarEvento">
+                    Aceptar
+                </button>
+            </div>
+
+        </div>
+    </div>
 </div>
 
 @code {
     private string textoBusqueda = "";
     private string estadoFiltro = "";
+
+    private List<EventoViewModel> eventos = new();
+    private EventoViewModel? eventoSeleccionado;
+
+    protected override async Task OnInitializedAsync()
+    {
+        eventos = await AdminService.ListarEventos();
+    }
+
+    private IEnumerable<EventoViewModel> EventosFiltrados =>
+        string.IsNullOrWhiteSpace(textoBusqueda)
+            ? eventos
+            : eventos.Where(e =>
+                e.titulo.Contains(
+                    textoBusqueda,
+                    StringComparison.OrdinalIgnoreCase
+                ));
+
+    private void SeleccionarEvento(EventoViewModel evento)
+    {
+        eventoSeleccionado = evento;
+    }
+
+    private async Task AprobarEvento()
+    {
+        if (eventoSeleccionado == null)
+            return;
+
+        await AdminService.AprobarEvento(eventoSeleccionado.idEvento);
+
+        eventos = await AdminService.ListarEventos();
+    }
+
+    private async Task RechazarEvento()
+    {
+        if (eventoSeleccionado == null)
+            return;
+
+        await AdminService.RechazarEvento(eventoSeleccionado.idEvento);
+
+        eventos = await AdminService.ListarEventos();
+    }
 
     private void LimpiarFiltros()
     {

@@ -128,12 +128,13 @@ select * from usuario;
 select * from evento;
 UPDATE administrador
 SET img_qr = 'https://lh3.googleusercontent.com/d/1QHJXW8xyDvfFp9IfAmseD0sOyq7V2ssl'
-WHERE idAdmin = 3;
+WHERE idAdmin = 1;
 
 select * from compras;
 select * from cliente;
 select * from usuario_x_tipo;
-INSERT INTO usuario_x_tipo(idUsuario, idTipo_usuario) VALUES
+INSERT IGNORE INTO usuario_x_tipo(idUsuario, idTipo_usuario)
+VALUES
 (4,1),
 (3,1);
 -- UPDATE
@@ -205,7 +206,7 @@ DELIMITER //
 
 CREATE PROCEDURE SP_LISTAR_EVENTOS()
 BEGIN
-    SELECT 
+    SELECT
         e.idEvento,
         e.titulo,
         e.descripcion,
@@ -219,12 +220,27 @@ BEGIN
         e.precio,
         e.idDistrito,
         e.idAnfitrion,
+
+        ce.idCategoria_evento,
         ce.nombre AS categoria,
-        e.idEstado_publicacion,
-        e.idEstado_evento
+
+        ep.idEstado_publicacion,
+        ep.estado AS estado_publicacion,
+
+        ee.idEstado_evento,
+        ee.estado AS estado_evento
+
     FROM evento e
-    INNER JOIN categoria_evento ce 
+
+    INNER JOIN categoria_evento ce
         ON e.idCategoria_evento = ce.idCategoria_evento
+
+    INNER JOIN estado_publicacion ep
+        ON e.idEstado_publicacion = ep.idEstado_publicacion
+
+    INNER JOIN estado_evento ee
+        ON e.idEstado_evento = ee.idEstado_evento
+
     ORDER BY e.idEvento;
 END //
 

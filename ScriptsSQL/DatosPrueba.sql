@@ -153,7 +153,7 @@ VALUES
 'Partido entre los equipos mas populares del pais',
 600,600,'2026-11-15','16:00:00','18:00:00',
 'Estadio Nacional','Estadio Nacional','clasico.jpg',
-45.00,1,2,1,2,1),
+45.00,1,2,1,1,1),
 
 (2,'Maraton Lima 10K y 21K',
 'Competencia para corredores aficionados y profesionales',
@@ -165,19 +165,19 @@ VALUES
 'Cartelera de peleas por campeonato nacional',
 400,400,'2026-12-05','20:00:00','23:00:00',
 'Coliseo Lima','Coliseo Lima','box.jpg',
-35.00,1,2,1,2,1),
+35.00,1,2,1,1,1),
 
 (4,'Torneo de Tenis Open 2026',
 'Final del campeonato nacional de tenis',
 300,300,'2026-12-12','14:00:00','18:00:00',
 'Club Lawn Tennis','Lawn Tennis','tenis.jpg',
-50.00,1,2,1,2,1),
+50.00,1,2,1,1,1),
 
 (5,'Campeonato Nacional de Surf',
 'Competencia de surfistas profesionales',
 250,250,'2026-12-18','09:00:00','15:00:00',
 'Playa Punta Rocas','Punta Rocas','surf.jpg',
-20.00,1,2,1,2,1),
+20.00,1,2,1,1,1),
 
 (6,'Master de Padel Final',
 'Final del circuito nacional de padel',
@@ -196,7 +196,7 @@ VALUES
 'Ultimas funciones de la exitosa obra',
 250,250,'2026-11-21','19:30:00','22:00:00',
 'Teatro Peruano','Teatro Peruano','toctoc.jpg',
-45.00,1,2,2,2,1),
+45.00,1,2,2,1,1),
 
 (9,'Monologos de la Mente',
 'Obra teatral de reflexion y comedia',
@@ -245,7 +245,7 @@ VALUES
 'Competencia profesional de videojuegos',
 500,500,'2026-12-19','11:00:00','20:00:00',
 'Arena Gamer','Arena Gamer','gaming.jpg',
-30.00,1,2,3,2,1),
+30.00,1,2,3,1,1),
 
 (17,'Circo Contemporaneo',
 'Espectaculo familiar de acrobacias',
@@ -257,7 +257,7 @@ VALUES
 'Exhibicion de vehiculos historicos',
 300,300,'2027-01-03','10:00:00','17:00:00',
 'Campo Ferial','Campo Ferial','autos.jpg',
-20.00,1,2,3,2,1),
+20.00,1,2,3,1,1),
 
 -- SEMINARIOS
 (19,'Tech Summit IA',
@@ -288,7 +288,7 @@ VALUES
 'Innovacion y sostenibilidad urbana',
 200,200,'2026-12-15','09:30:00','14:00:00',
 'Colegio de Arquitectos','CAP','arquitectura.jpg',
-95.00,1,2,4,2,1),
+95.00,1,2,4,1,1),
 
 (24,'Transformacion Digital',
 'Tendencias empresariales modernas',
@@ -325,7 +325,7 @@ VALUES
 'Introduccion al framework Blazor',
 100,100,'2026-12-18','16:00:00','20:00:00',
 'Campus Tecnologico','Campus Tech','blazor.jpg',
-100.00,1,2,5,2,1),
+100.00,1,2,5,1,1),
 
 (30,'Pintura y Vino',
 'Taller recreativo para adultos',
@@ -368,7 +368,7 @@ VALUES
 'Festival playero con DJs invitados',
 800,800,'2027-01-23','16:00:00','02:00:00',
 'Playa Asia','Asia Beach','beach.jpg',
-80.00,1,2,6,2,1);
+80.00,1,2,6,1,1);
 
 -- =====================================
 -- PUNTOS_BONUS

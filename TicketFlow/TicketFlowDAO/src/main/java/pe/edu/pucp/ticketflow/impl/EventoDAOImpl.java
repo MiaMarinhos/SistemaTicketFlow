@@ -1,6 +1,7 @@
 package pe.edu.pucp.ticketflow.impl;
 
 import pe.edu.pucp.ticketflow.IEventoDAO;
+import pe.edu.pucp.ticketflow.evento.model.EstadoPublicacion;
 import pe.edu.pucp.ticketflow.evento.model.Evento;
 import pe.edu.pucp.ticketflow.dao.manager.DBManager;
 import pe.edu.pucp.ticketflow.evento.model.categoria_evento;
@@ -376,6 +377,17 @@ public class EventoDAOImpl implements IEventoDAO {
         evento.setFK_idDistrito(
                 rs.getInt("idDistrito")
         );
+        EstadoPublicacion ep = new EstadoPublicacion();
+
+        ep.setIdEstado_publicacion(
+                rs.getInt("idEstado_publicacion")
+        );
+
+        ep.setEstado(
+                rs.getString("estado_publicacion")
+        );
+
+        evento.setEstadoPublicacion(ep);
     }
 
     private void mapearEvento(ResultSet rs, Evento evento) throws SQLException {
