@@ -104,7 +104,6 @@ CREATE TABLE IF NOT EXISTS `ticket_flow`.`usuario` (
   `idDistrito` INT NOT NULL,
   `idEstado` INT NOT NULL,
   PRIMARY KEY (`idUsuario`),
-  UNIQUE INDEX `dni_UNIQUE` (`dni` ASC) VISIBLE,
   UNIQUE INDEX `correo_electronico_UNIQUE` (`correo_electronico` ASC) VISIBLE,
   INDEX `fk_Usuario_Distrito1_idx` (`idDistrito` ASC) VISIBLE,
   INDEX `fk_usuario_estado_usuario1_idx` (`idEstado` ASC) VISIBLE,

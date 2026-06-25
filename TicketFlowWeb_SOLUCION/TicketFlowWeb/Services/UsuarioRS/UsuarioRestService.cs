@@ -47,7 +47,7 @@ namespace TicketFlowWeb.Services.UsuarioRS
             if (!response.IsSuccessStatusCode)
             {
                 var detalle = await response.Content.ReadAsStringAsync();
-                throw new InvalidOperationException($"No se pudo registrar el cliente. HTTP {(int)response.StatusCode}: {detalle}");
+                throw new InvalidOperationException("Ya existe una cuenta con ese correo. ");
             }
         }
 

@@ -73,7 +73,10 @@
                 </div>
                 <div class="col-md-3 mb-3">
                     <label class="form-label font-medium">Edad</label>
-                    <InputNumber @bind-Value="Cliente.edad" class="form-control custom-input" />
+                    <input type="text" class="form-control custom-input bg-light"
+                           value="@EdadCalculada"
+                           disabled readonly
+                           placeholder="---" />
                 </div>
             </div>
 
@@ -85,13 +88,14 @@
                         <InputDate @bind-Value="Cliente.fechaNacimiento"
                                    class="form-control custom-input"
                                    min="@FechaMinima"
-                                   max="@FechaMaxima" />
+                                   max="@FechaMaxima" 
+                                   ParsingErrorMessage="* Ingresa una fecha válida." />
                     </div>
 
                     <div class="col-md-5 mb-3">
                         <label class="form-label font-medium">Distrito</label>
                         <select value="@Cliente.idDistritoForm" @onchange="ActualizarRegion" class="form-select custom-input">
-                            <option value="0" disabled selected>Selecciona tu distrito</option>
+                            <option value=0 disabled selected>Selecciona tu distrito</option>
                                 @foreach (var dist in ListaDistritos)
                                 {
                                     <option value="@dist.idDistrito">@dist.nombre</option>

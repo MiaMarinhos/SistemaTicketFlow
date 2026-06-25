@@ -8,32 +8,32 @@ namespace TicketFlowWeb.Models
         // 💡 Quitamos Required porque en un Registro el ID aún no existe (es 0)
         public int idUsuario { get; set; }
 
-        [Required(ErrorMessage = "* Campo obligatorio correo")]
+        [Required(ErrorMessage = "* Campo obligatorio de correo electrónico")]
         [EmailAddress(ErrorMessage = "* El formato del correo electrónico no es válido")]
         public string correoElectronico { get; set; } = string.Empty;
 
-        [Required(ErrorMessage = "* Campo contra")]
+        [Required(ErrorMessage = "* Campo obligatorio de contraseña")]
         [StringLength(45, MinimumLength = 6, ErrorMessage = "* La contraseña debe tener entre 6 y 45 caracteres")]
         public string contrasena { get; set; } = string.Empty;
 
         [Required(ErrorMessage = "* Campo edad")]
-        [Range(18, 120, ErrorMessage = "* Debes ser mayor de 18 años")]
+        [Range(18, 100, ErrorMessage = "* Debes ser mayor de 18 años y/o ingresa una fecha de nacimiento valida" )]
         public int edad { get; set; }
 
-        [Required(ErrorMessage = "* Campo obligatorio dni")]
+        [Required(ErrorMessage = "* Campo obligatorio de dni")]
         [RegularExpression(@"^\d{8}$", ErrorMessage = "* El DNI debe tener exactamente 8 números")]
         public string dni { get; set; } = string.Empty;
 
-        [Required(ErrorMessage = "* Campo obligatorio nombre")]
+        [Required(ErrorMessage = "* Campo obligatorio de nombre")]
         public string nombre { get; set; } = string.Empty;
 
-        [Required(ErrorMessage = "* Campo obligatorio paterno")]
+        [Required(ErrorMessage = "* Campo obligatorio de apellido paterno")]
         public string apellidoPaterno { get; set; } = string.Empty;
 
-        [Required(ErrorMessage = "* Campo obligatorio materno")]
+        [Required(ErrorMessage = "* Campo obligatorio de apellido materno")]
         public string apellidoMaterno { get; set; } = string.Empty;
 
-        [Required(ErrorMessage = "* Campo obligatorio fecha")]
+        [Required(ErrorMessage = "* Campo obligatorio de fecha de nacimiento")]
         public DateOnly fechaNacimiento { get; set; }
 
         [Required(ErrorMessage = "* Campo obligatorio telefono")]
@@ -48,6 +48,7 @@ namespace TicketFlowWeb.Models
         public int puntosBonus { get; set; }
 
         // Propiedades de ayuda para los formularios
+        //[Required(ErrorMessage = "* Debe seleccionar un distrito valido")]
         [Range(1, int.MaxValue, ErrorMessage = "* Debe seleccionar un distrito válido")]
         public int idDistritoForm { get; set; }
 
