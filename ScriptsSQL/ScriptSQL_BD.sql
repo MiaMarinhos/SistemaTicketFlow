@@ -332,6 +332,8 @@ CREATE TABLE IF NOT EXISTS `ticket_flow`.`compras` (
   `idCliente` INT NOT NULL,
   `idEvento` INT NOT NULL,
   `idEstado` INT NOT NULL,
+  `recordatorio_enviado` BOOLEAN DEFAULT FALSE,
+
   PRIMARY KEY (`idCompras`),
   INDEX `fk_Compras_Puntos_bonus1_idx` (`idPuntos_bonus` ASC) VISIBLE,
   INDEX `fk_Compras_Cliente1_idx` (`idCliente` ASC) VISIBLE,
