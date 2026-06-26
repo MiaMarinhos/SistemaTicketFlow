@@ -74,4 +74,31 @@ public class ComprasBLImpl implements IComprasBL {
             }
         }
     }
+    @Override
+    public List<Compra>ListarComprasDeEvento(int idEvento)throws BusinessLogicException{
+        try {
+            return compraDAO.ListarComprasDeEvento(idEvento);
+        }
+        catch (Exception ex){
+            if (ex instanceof BusinessLogicException) {
+                throw (BusinessLogicException)ex;
+            } else {
+                throw new BusinessLogicException(ex);
+            }
+        }
+    }
+    @Override
+    public void marcarCompraComoEnviado(int idCompra)throws BusinessLogicException{
+        try{
+            compraDAO.marcarCompraComoEnviado(idCompra);
+        }
+        catch (Exception ex){
+            if (ex instanceof BusinessLogicException) {
+                throw (BusinessLogicException)ex;
+            } else {
+                throw new BusinessLogicException(ex);
+            }
+
+        }
+    }
 }

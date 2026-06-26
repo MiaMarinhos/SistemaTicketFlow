@@ -30,6 +30,8 @@ public class Compra {
     private String fechaCompraS;
     private String horaCompraS;
 
+    private boolean recordatorio_enviado=false;
+
     public String getFechaCompraS() {
         return fechaCompraS;
     }
@@ -208,4 +210,11 @@ public class Compra {
         this.idEvento = idEvento;
     }
 
+    public boolean isRecordatorio_enviado() {
+        return recordatorio_enviado;
+    }
+
+    public void setRecordatorio_enviado(boolean recordatorio_enviado) {
+        this.recordatorio_enviado = recordatorio_enviado;
+    }
 }

@@ -9,5 +9,7 @@ public interface IComprasBL{
 
     Compra registrarCompra(Compra compra) throws BusinessLogicException;
     List<Compra> listarComprasPorCliente(Integer idCliente) throws BusinessLogicException;
+    List<Compra>ListarComprasDeEvento(int idEvento)throws BusinessLogicException;
+    void marcarCompraComoEnviado(int idCompra)throws BusinessLogicException;
 
 }

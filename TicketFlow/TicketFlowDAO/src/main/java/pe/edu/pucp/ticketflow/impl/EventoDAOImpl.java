@@ -431,4 +431,66 @@ public class EventoDAOImpl implements IEventoDAO {
         cat.setNombre(rs.getString("nombre_categoria"));
         evento.setCategoria(cat);
     }
+    @Override
+    public List<Evento> ListarEventosProximos(){
+        String sql = "{CALL SP_LISTAR_EVENTOS_PROXIMOS()}";
+
+        try (Connection connection = DBManager.getInstance().getConnection();
+             CallableStatement cs = connection.prepareCall(sql)) {
+
+            try (ResultSet rs = cs.executeQuery()) {
+
+                List<Evento> eventos = new ArrayList<>();
+
+                while (rs.next()) {
+
+                    Evento evento = new Evento();
+                    evento.setIdEvento(rs.getInt("idEvento"));
+                    evento.setTitulo(rs.getString("titulo"));
+                    evento.setDescripcion(rs.getString("descripcion"));
+                    evento.setCapacidad_entradas(rs.getInt("capacidad_entradas"));
+
+                    // CONVERSIÓN DE SQL DATE/TIME A STRING PARA LA LECTURA
+                    evento.setFecha(rs.getDate("fecha") != null ? rs.getDate("fecha").toString() : null);
+                    evento.setHora_inicio(rs.getTime("hora_inicio") != null ? rs.getTime("hora_inicio").toString() : null);
+                    evento.setHora_fin(rs.getTime("hora_fin") != null ? rs.getTime("hora_fin").toString() : null);
+
+                    evento.setUbicacion(rs.getString("ubicacion"));
+                    evento.setNombre_establecimiento(
+                            rs.getString("nombre_establecimiento")
+                    );
+                    evento.setImg(rs.getString("img"));
+                    evento.setPrecio(rs.getDouble("precio"));
+                    evento.setIdAnfitrion(rs.getInt("idAnfitrion"));
+
+                    evento.setFK_idCategoria_evento(rs.getInt("idCategoria_evento"));
+
+                    evento.setFK_idEstadoPublicacion(
+                            rs.getInt("idEstado_publicacion")
+                    );
+
+                    evento.setFK_idEstadoEvento(
+                            rs.getInt("idEstado_evento")
+                    );
+
+                    evento.setFK_idDistrito(
+                            rs.getInt("idDistrito")
+                    );
+                    EstadoPublicacion ep = new EstadoPublicacion();
+
+                    ep.setIdEstado_publicacion(
+                            rs.getInt("idEstado_publicacion")
+                    );
+                    
+                    evento.setEstadoPublicacion(ep);                    eventos.add(evento);
+                }
+
+                return eventos;
+            }
+
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+
+    }
 }

@@ -500,3 +500,18 @@ VALUES
     1,
     1
 );
+
+INSERT INTO evento(
+idEvento,titulo,descripcion,capacidad_entradas,entradas_disponibles,
+fecha,hora_inicio,hora_fin,ubicacion,
+nombre_establecimiento,img,precio,
+idDistrito,idAnfitrion,idCategoria_evento,
+idEstado_publicacion,idEstado_evento)
+VALUES
+
+-- DEPORTES
+(200,'La final mas facil de la historia',
+'Cristal hace lo sullo y se retira',
+600,600,'2026-06-26','13:00:00','15:00:00',
+'Estadio Matute','Estadio Matute','7a1.jpg',
+45.00,1,2,1,1,1);

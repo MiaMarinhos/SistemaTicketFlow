@@ -136,4 +136,17 @@ public class EventoBLImpl implements IEventoBL {
             }
         }
     }
+    @Override
+    public List<Evento> ListarEventosProximos()throws BusinessLogicException{
+        try {
+            return eventoDAO.ListarEventosProximos();
+        }
+        catch (Exception ex){
+            if (ex instanceof BusinessLogicException) {
+                throw (BusinessLogicException)ex;
+            } else {
+                throw new BusinessLogicException(ex);
+            }
+        }
+    }
 }

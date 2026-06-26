@@ -10,5 +10,7 @@ public interface ICompraDAO extends IBaseDAO<Compra, Integer> {
     List<Compra> buscarPorUsuario(String nombre);
     List<Compra> filtrarPorEstado(Integer idEstado);
     List<Compra> listarComprasPorCliente(Integer idCliente);
+    List<Compra>ListarComprasDeEvento(int idEvento);
+    void marcarCompraComoEnviado(int idCompra);
 
 }

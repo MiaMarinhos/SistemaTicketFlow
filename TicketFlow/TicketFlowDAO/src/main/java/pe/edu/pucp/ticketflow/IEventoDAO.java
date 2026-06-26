@@ -12,4 +12,5 @@ public interface IEventoDAO extends IBaseDAO<Evento, Integer> {
     Evento aprobarEvento(Integer idEvento);
     Evento rechazarEvento(Integer idEvento);
     Evento eliminarEvento(Integer idEvento);
+    List<Evento> ListarEventosProximos();
 }

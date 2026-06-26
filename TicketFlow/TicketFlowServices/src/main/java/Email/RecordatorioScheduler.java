@@ -52,7 +52,7 @@ public class RecordatorioScheduler {
 
                     System.out.println("Procesando compra ID: " + compra.getIdCompra());
 
-                    if (compra.isRecordatorioEnviado()) {
+                    if (compra.isRecordatorio_enviado()) {
                         System.out.println("Ya fue enviado, se omite");
                         continue;
                     }

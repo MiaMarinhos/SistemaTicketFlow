@@ -14,4 +14,5 @@ public interface IEventoBL {
     List<Evento> verTodosLosEventos() throws BusinessLogicException;
     List<Evento> verTodosLosEventosPorCategoria(String categoria) throws BusinessLogicException;
     Evento verDetalleEvento(Integer id) throws BusinessLogicException;
+    List<Evento>ListarEventosProximos()throws  BusinessLogicException;
 }

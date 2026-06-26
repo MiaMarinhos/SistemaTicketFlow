@@ -240,4 +240,42 @@ public class CompraDAOImpl implements ICompraDAO{
             throw new RuntimeException("Error en listar Compras por Anfitrión", e);
         }
     }
+    @Override
+    public List<Compra>ListarComprasDeEvento(int idEvento){
+        List<Compra> lista = new ArrayList<>();
+        String sql = "{CALL SP_LISTAR_COMPRAS_A_RECORDAR(?)}";
+
+        try (Connection con = DBManager.getInstance().getConnection();
+             CallableStatement cs = con.prepareCall(sql)) {
+
+            cs.setInt(1, idEvento);
+
+            try (ResultSet rs = cs.executeQuery()) {
+                while(rs.next()){
+                    Compra t = new Compra();
+                    mapear(rs, t);
+                    t.setRecordatorio_enviado(rs.getBoolean("recordatorio_enviado"));
+                    lista.add(t);
+                }
+            }
+            return lista;
+
+        } catch (SQLException e) {
+            throw new RuntimeException("Error en listar Compras por Anfitrión", e);
+        }
+
+    }
+    @Override
+    public void marcarCompraComoEnviado(int idCompra) {
+        String sql = "{CALL SP_MARCAR_COMO_ENVIADO(?)}";
+
+        try (Connection con = DBManager.getInstance().getConnection();
+             CallableStatement cs = con.prepareCall(sql)) {
+
+            cs.setInt(1, idCompra);
+
+        } catch (SQLException e) {
+            throw new RuntimeException("Error en marcar notificacion de compra como Enviada", e);
+        }
+    }
 }
