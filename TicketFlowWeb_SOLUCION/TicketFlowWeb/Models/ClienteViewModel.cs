@@ -48,8 +48,7 @@ namespace TicketFlowWeb.Models
         public int puntosBonus { get; set; }
 
         // Propiedades de ayuda para los formularios
-        //[Required(ErrorMessage = "* Debe seleccionar un distrito valido")]
-        [Range(1, int.MaxValue, ErrorMessage = "* Debe seleccionar un distrito válido")]
+        //[Range(1, int.MaxValue, ErrorMessage = "* Debe seleccionar un distrito válido")]
         public int idDistritoForm { get; set; }
 
         [Range(1, int.MaxValue, ErrorMessage = "* Debe seleccionar un género válido")]

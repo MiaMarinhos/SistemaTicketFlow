@@ -101,4 +101,19 @@ public class ComprasBLImpl implements IComprasBL {
 
         }
     }
+
+    @Override
+    public void validarIngresoCliente(int idCompra) throws BusinessLogicException{
+
+        try {
+            compraDAO.validarIngreso(idCompra); // Llama al DAO
+        }catch (Exception ex){
+                if (ex instanceof BusinessLogicException) {
+                    throw (BusinessLogicException)ex;
+                } else {
+                    throw new BusinessLogicException(ex);
+                }
+
+            }
+    }
 }

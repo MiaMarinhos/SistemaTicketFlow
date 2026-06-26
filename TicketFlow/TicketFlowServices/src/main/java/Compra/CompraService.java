@@ -85,4 +85,21 @@ public class CompraService {
                     .entity("{\"error\":\"Error interno en el servidor: " + e.getMessage() + "\"}").build();
         }
     }
+
+    @GET
+    @Path("/validarIngreso/{idCompra}")
+    public Response validadIngresoDelCliente(@PathParam("idCompra") Integer idCompra) {
+        try {
+            comprasBL.validarIngresoCliente(idCompra);
+
+            return Response.status(Response.Status.OK)
+                    .entity("{\"success\": true, \"mensaje\": \"¡Ingreso autorizado con éxito! Entrada válida.\"}")
+                    .build();
+
+        } catch (Exception e) {
+            return Response.status(Response.Status.BAD_REQUEST)
+                    .entity("{\"success\": false, \"error\": \"¡Ingreso NO autorizado! Entrada ya fue usada.\"}")
+                    .build();
+        }
+    }
 }

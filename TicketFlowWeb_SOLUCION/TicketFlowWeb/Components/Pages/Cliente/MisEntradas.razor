@@ -4,10 +4,6 @@
 @using TicketFlowWeb.Models
 @using TicketFlowWeb.Services.CompraRS
 
-@inject AuthenticationStateProvider AuthenticationStateProvider
-@inject NavigationManager Navigation
-@inject CompraRestService CompraService
-@inject IJSRuntime JS
 
 <div class="mis-entradas-page">
 
@@ -67,51 +63,14 @@
                             <span class="precio-total">S/. @compra.montoTotal.ToString("0.00")</span>
                         </div>
                     </div>
-
-                    <button type="button" class="btn-descargar btn-reporte-pendiente" disabled>
-                        Descargar entrada
-                    </button>
+                    <button type="button" class="btn-descargar btn-reporte-pendiente" @onclick="() => ExportarEntradaPdf(compra.idCompra)" > Descargar entrada </button>
+                    
                 </div>
             }
         </section>
     }
 </div>
 
-@code {
-    private List<Models.COMPRA.detalleCompraCliente>? compras;
-    private string? mensajeError;
-
-    protected override async Task OnInitializedAsync()
-    {
-        try
-        {
-            var authState = await AuthenticationStateProvider.GetAuthenticationStateAsync();
-            var usuario = authState.User;
-
-            if (usuario.Identity?.IsAuthenticated != true)
-            {
-                Navigation.NavigateTo("/login", forceLoad: true);
-                return;
-            }
-
-            // Buscamos el ID del usuario en los Claims
-            var idTexto = usuario.FindFirst(ClaimTypes.NameIdentifier)?.Value
-                           ?? usuario.FindFirst("IdUsuario")?.Value;
-
-            if (!int.TryParse(idTexto, out var idUsuario))
-            {
-                mensajeError = "No se encontró el ID del usuario en la sesión. Vuelve a iniciar sesión.";
-                return;
-            }
-            // Consumo efectivo del servicio
-            compras = await CompraService.ListarComprasPorClienteAsync(idUsuario);
-        }
-        catch (Exception ex)
-        {
-            mensajeError = $"Error cargando las compras: {ex.Message}";
-        }
-    }
-}
 
 <style>
     .mis-entradas-page {
@@ -210,7 +169,7 @@
         .info-compra-central h3 {
             margin: 0 0 5px 0;
             font-size: 18px;
-            color: #ffffff;
+            color: #4D4544;
             font-weight: bold;
         }
 
@@ -238,7 +197,7 @@
 
         .info-compra-central .precio-total {
             font-weight: bold;
-            color: #ffffff;
+            color: #242221;
             font-size: 16px;
         }
 

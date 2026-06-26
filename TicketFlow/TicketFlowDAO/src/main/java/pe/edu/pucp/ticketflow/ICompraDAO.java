@@ -12,5 +12,5 @@ public interface ICompraDAO extends IBaseDAO<Compra, Integer> {
     List<Compra> listarComprasPorCliente(Integer idCliente);
     List<Compra>ListarComprasDeEvento(int idEvento);
     void marcarCompraComoEnviado(int idCompra);
-
+    void validarIngreso(int idCompra);
 }

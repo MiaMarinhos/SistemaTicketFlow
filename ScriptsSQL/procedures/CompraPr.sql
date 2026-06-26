@@ -294,3 +294,44 @@ SELECT
 FROM estado_compras;
 END$$
 DELIMITER ;
+
+-- verificar si el cliente ingreso al evento o no.
+DROP PROCEDURE IF EXISTS sp_validar_ingreso_cliente;
+DELIMITER //
+
+CREATE PROCEDURE sp_validar_ingreso_cliente(
+    IN p_idCompras INT
+)
+bloque_proceso: BEGIN
+    DECLARE v_id_estado_actual INT DEFAULT NULL;
+
+    SELECT idEstado INTO v_id_estado_actual
+    FROM compras
+    WHERE idCompras = p_idCompras;
+
+    IF v_id_estado_actual IS NULL THEN
+        SIGNAL SQLSTATE '45000'
+        SET MESSAGE_TEXT = 'Error: El código de ticket de compra no existe en el sistema.';
+    END IF;
+
+    IF v_id_estado_actual = 2 THEN
+        UPDATE compras
+        SET idEstado = 4
+        WHERE idCompras = p_idCompras;
+        
+        SELECT '¡Ingreso autorizado con éxito! Entrada válida.' AS mensaje;
+
+    ELSEIF v_id_estado_actual = 4 THEN
+        SIGNAL SQLSTATE '45000'
+        SET MESSAGE_TEXT = 'Acceso Denegado: Esta entrada ya fue utilizada para ingresar.';
+
+    ELSE
+        SIGNAL SQLSTATE '45000'
+        SET MESSAGE_TEXT = 'Acceso Denegado: La compra no se encuentra en estado CONFIRMADA.';
+    END IF;
+
+END //
+
+DELIMITER ;
+
+SELECT idEstado FROM compras WHERE idCompras = 1;

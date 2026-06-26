@@ -66,8 +66,20 @@ namespace TicketFlowWeb.Components.Pages.Auth
         {
             ListaDistritos = await usuarioService.ObtenerDistritosAsync();
 
-            Cliente.fechaNacimiento = new DateOnly(1926, 1, 1);
+            if (ListaDistritos != null && ListaDistritos.Any())
+            {
+                var primerDistrito = ListaDistritos.First();
 
+                Cliente.idDistritoForm = primerDistrito.idDistrito;
+
+                if (primerDistrito.region != null)
+                {
+                    RegionSeleccionada = primerDistrito.region.nombre;
+                }
+            }
+
+            // Configuración de fechas que ya tenías
+            Cliente.fechaNacimiento = new DateOnly(1926, 1, 1);
             FechaMinima = "1926-01-01";
             FechaMaxima = DateTime.Now.ToString("yyyy-MM-dd");
         }

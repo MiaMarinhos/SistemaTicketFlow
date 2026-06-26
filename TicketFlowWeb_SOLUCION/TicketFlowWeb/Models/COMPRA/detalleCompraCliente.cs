@@ -82,15 +82,13 @@ namespace TicketFlowWeb.Models.COMPRA
         public int FK_idEstadoEvento { get; set; }
         public int FK_idEstadoPublicacion { get; set; }
 
-        // 🌟 Manejo Seguro de Fechas/Horas del Evento
-        [JsonPropertyName("fechaModerna")]
-        public string? fechaModernaRaw { get; set; }
+        public string? fecha { get; set; } = string.Empty;
 
         [JsonIgnore]
-        public DateOnly? fechaModerna => DateOnly.TryParse(fechaModernaRaw, out var d) ? d : null;
+        public DateOnly? fechaModerna => DateOnly.TryParse(fecha, out var d) ? d : null;
 
-        public string horaInicioModerna { get; set; } = string.Empty;
-        public string horaFinModerna { get; set; } = string.Empty;
+        public string hora_inicio { get; set; } = string.Empty;
+        public string hora_fin { get; set; } = string.Empty;
 
         // Objetos complejos internos del Evento
         public DetalleAnfitrionCompra? anfitrion { get; set; }

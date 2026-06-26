@@ -387,6 +387,9 @@ INSERT INTO estado_compras(estado) VALUES
 ('EN PROCESO'),
 ('CONFIRMADA'),
 ('ANULADA');
+INSERT INTO estado_compras(estado) VALUES
+('INGRESADO');
+
 select * from estado_compras;
 select * from evento;
 select * from cliente;
