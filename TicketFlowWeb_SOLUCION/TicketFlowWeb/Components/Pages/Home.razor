@@ -1,9 +1,12 @@
 ﻿@page "/"
 @using Microsoft.AspNetCore.Components.Authorization
 @using TicketFlowWeb.Models
+@using TicketFlowWeb.Models.DTO
 @using TicketFlowWeb.Services.AnfitrionRS
+@using TicketFlowWeb.Services.EventoRS
 
 @inject AnfitrionRestService AnfitrionService
+@inject EventoRestService EventoService
 @inject AuthenticationStateProvider AuthStateProvider
 
 <PageTitle>Home</PageTitle>
@@ -134,39 +137,69 @@
 
             <section class="shows-section">
                 <h2>ÚLTIMOS SHOWS</h2>
-                <div class="shows-grid">
-                    <div class="show-card">
-                        <div class="show-img show-img-uno">
-                            <span>FRÍOS</span>
-                        </div>
-                        <div class="show-info">
-                            <h3>TÍTULO 1</h3>
-                            <p class="autor">---------- AUTOR 1</p>
-                            <p><strong>Fecha:</strong> 11/11/2026</p>
-                            <p><strong>Hora:</strong> 2:00 pm</p>
-                            <p><strong>Lugar:</strong> Av. No sé 123</p>
-                            <p class="precio">S/. 50.00</p>
-                            <a href="/public/detalle-evento/" class="btn-detalle">Ver detalle</a>
-                        </div>
+
+                @if (cargandoUltimosEventos)
+                {
+                    <p class="text-center fw-bold">Cargando eventos...</p>
+                }
+                else if (!ultimosEventos.Any())
+                {
+                    <p class="text-center fw-bold">No hay eventos disponibles por el momento.</p>
+                }
+                else
+                {
+                    <div class="shows-grid">
+                        @foreach (var evento in ultimosEventos)
+                        {
+                            <div class="show-card">
+                                <div class="show-img show-img-uno">
+                                    <span>@evento.titulo</span>
+                                </div>
+
+                                <div class="show-info">
+                                    <h3>@evento.titulo</h3>
+
+                                    <p class="autor">
+                                        ---------- @(string.IsNullOrWhiteSpace(evento.categoria) ? "EVENTO" : evento.categoria.ToUpper())
+                                    </p>
+
+                                    <p>
+                                        <strong>Fecha:</strong>
+                                        @(string.IsNullOrWhiteSpace(evento.fecha) ? "Por definir" : evento.fecha)
+                                    </p>
+
+                                    <p>
+                                        <strong>Hora:</strong>
+                                        @(string.IsNullOrWhiteSpace(evento.hora_inicio) ? "Por definir" : evento.hora_inicio)
+                                    </p>
+
+                                    <p>
+                                        <strong>Lugar:</strong>
+                                        @(string.IsNullOrWhiteSpace(evento.ubicacion) ? "Por definir" : evento.ubicacion)
+                                    </p>
+
+                                    <p class="precio">S/. @evento.precio.ToString("F2")</p>
+
+                                    <a href="@($"/public/detalle-evento/{evento.idEvento}")" class="btn-detalle">
+                                        Ver detalle
+                                    </a>
+                                </div>
+                            </div>
+                        }
                     </div>
 
-                    <div class="show-card">
-                        <div class="show-img show-img-dos">
-                            <span>POEMAX</span>
-                        </div>
-                        <div class="show-info">
-                            <h3>TÍTULO 2</h3>
-                            <p class="autor">---------- AUTOR 2</p>
-                            <p><strong>Fecha:</strong> 07/05/2026</p>
-                            <p><strong>Hora:</strong> 10:30 pm</p>
-                            <p><strong>Lugar:</strong> Pasaje Porta 132, Miraflores</p>
-                            <p class="precio">S/. 50.00</p>
-                            <a href="/public/detalle-evento/" class="btn-detalle">Ver detalle</a>
-                        </div>
+                    <div class="puntos">
+                        @foreach (var evento in ultimosEventos)
+                        {
+                            <span></span>
+                        }
                     </div>
-                </div>
-                <div class="puntos">
-                    <span></span><span></span><span></span><span></span>
+                }
+
+                <div class="ver-mas-home">
+                    <a href="/public/descubrir" class="btn-ver-mas-home">
+                        Ver más eventos
+                    </a>
                 </div>
             </section>
 
@@ -342,6 +375,28 @@
         margin-top: 10px;
         font-weight: bold;
     }
+
+    .ver-mas-home {
+        display: flex;
+        justify-content: flex-end;
+        margin-top: 25px;
+    }
+
+    .btn-ver-mas-home {
+        display: inline-block;
+        background-color: #12075a;
+        color: white;
+        text-decoration: none;
+        padding: 12px 35px;
+        border-radius: 25px;
+        font-weight: bold;
+        border: 3px solid #12075a;
+    }
+
+        .btn-ver-mas-home:hover {
+            background-color: white;
+            color: #12075a;
+        }
 
     .puntos {
         display: flex;
@@ -549,6 +604,8 @@
     private PerfilAnfitrionViewModel? perfilActual;
     private string nombreAnfitrion = "Cargando...";
     private List<EventoViewModel> misEventos = new();
+    private List<EventoDTO> ultimosEventos = new();
+    private bool cargandoUltimosEventos = true;
 
     // Variables para los KPIs (Tarjetas superiores)
     private int totalEventos = 0;
@@ -560,6 +617,7 @@
     {
         try
         {
+            await CargarUltimosEventosAsync();
             var authState = await AuthStateProvider.GetAuthenticationStateAsync();
             var user = authState.User;
 
@@ -614,6 +672,29 @@
         finally
         {
             cargando = false;
+        }
+    }
+    private async Task CargarUltimosEventosAsync()
+    {
+        try
+        {
+            cargandoUltimosEventos = true;
+
+            var eventos = await EventoService.ListarEventosAsync();
+
+            ultimosEventos = eventos
+                .OrderByDescending(e => e.idEvento)
+                .Take(2)
+                .ToList();
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Error cargando últimos eventos: {ex.Message}");
+            ultimosEventos = new List<EventoDTO>();
+        }
+        finally
+        {
+            cargandoUltimosEventos = false;
         }
     }
 }
