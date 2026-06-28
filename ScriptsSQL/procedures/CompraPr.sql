@@ -20,34 +20,61 @@ CREATE PROCEDURE SP_REGISTRAR_COMPRA(
     IN p_idCliente INT,
     IN p_idEvento INT
 )
-BEGIN
+bloque_compra: BEGIN
+    -- Variables locales para el cálculo de puntos
+    DECLARE v_puntos_canjeables INT DEFAULT 0;
+    DECLARE v_puntos_a_descontar INT DEFAULT 0;
+
+    -- Manejo de errores básico: si algo falla, deshace los cambios (Rollback)
+    DECLARE EXIT HANDLER FOR SQLEXCEPTION
+    BEGIN
+        ROLLBACK;
+    END;
+
     START TRANSACTION;
 
-    -- 1. Insertar la compra
+    -- 1. Insertar la compra (ignorando la columna ENUM 'estado' ya que usas idEstado)
     INSERT INTO compras (
         idCompras, entradas_compradas, fecha_compra, metodo_pago, 
-        hora_compra, estado, monto_parcial, monto_total, 
+        hora_compra, monto_parcial, monto_total, 
         idPuntos_bonus, idCliente, idEvento, idEstado
     ) 
     VALUES (
         p_idCompra, p_entradasCompradas, CURDATE(), p_metodoPago, 
-        CURTIME(), 'CONFIRMADO', p_montoParcial, p_montoTotal, 
+        CURTIME(), p_montoParcial, p_montoTotal, 
         p_idpuntoBonus, p_idCliente, p_idEvento, p_idEstado
     );
 
-    -- 2. Disminuir las entradas disponibles del evento
+    -- 2. Disminuir las entradas disponibles del evento (usando 'capacidad_entradas' de tu script)
     UPDATE evento 
-    SET entradas_disponibles = entradas_disponibles - p_entradasCompradas
+    SET capacidad_entradas = capacidad_entradas - p_entradasCompradas
     WHERE idEvento = p_idEvento;
 
     -- 3. Verificar si el evento se quedó sin stock para cambiar su estado a AGOTADO (ID: 5)
     UPDATE evento
     SET idEstado_evento = 5
-    WHERE idEvento = p_idEvento AND entradas_disponibles <= 0;
+    WHERE idEvento = p_idEvento AND capacidad_entradas <= 0;
 
-    -- 4. Sumar los puntos bonus al cliente por su fidelidad
+    -- 4. PROCESAMIENTO DE PUNTOS BONUS
+    -- Si el id de puntos bonus es diferente de 4, calculamos el descuento de puntos
+    IF p_idpuntoBonus <> 4 THEN
+        -- Obtener los puntos canjeables de la tabla de configuración
+        SELECT puntos_canjeables INTO v_puntos_canjeables
+        FROM puntos_bonus
+        WHERE idPuntos_bonus = p_idpuntoBonus;
+        
+        -- Aplicar tu ecuación para hallar los puntos a descontar
+        SET v_puntos_a_descontar = (v_puntos_canjeables * p_entradasCompradas) - ((p_entradasCompradas - 1) * (v_puntos_canjeables / 10));
+        
+        -- Restar los puntos utilizados al cliente
+        UPDATE cliente 
+        SET puntos_bonus = puntos_bonus - v_puntos_a_descontar
+        WHERE idCliente = p_idCliente;
+    END IF;
+
+    -- 5. Sumar los puntos bonus al cliente por su fidelidad (+10) al final de todo
     UPDATE cliente 
-    SET puntos_bonus = puntos_bonus + 25
+    SET puntos_bonus = puntos_bonus + (10*p_entradasCompradas)
     WHERE idCliente = p_idCliente;
 
     COMMIT;

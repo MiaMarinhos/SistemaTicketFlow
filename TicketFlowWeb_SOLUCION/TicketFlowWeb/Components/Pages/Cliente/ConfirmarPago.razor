@@ -67,8 +67,9 @@
 
                     @* LADO IZQUIERDO: Las opciones de los métodos *@
                     <div class="metodos-box" style="flex: 1; margin-bottom: 0;">
-                        <h2>Método de pago:</h2>
-
+                        <h2>Método de pago:
+                        <span class="info-icon" data-tooltip="Por cada entrada, recibirás 10 puntos bonus.">ⓘ</span>
+                        </h2>
                         <div class="opciones-pago">
                             <div class="opcion-pago">
                                 <input type="radio"
@@ -83,16 +84,9 @@
                                        name="metodoPago"
                                        checked="@(metodoPago == "PLIN")"
                                        @onchange="@(() => SeleccionarMetodo("PLIN"))" />
-                                <span>Plin (Próximamente)</span>
+                                <span>Plin</span>
                             </div>
 
-                            <div class="opcion-pago">
-                                <input type="radio"
-                                       name="metodoPago"
-                                       checked="@(metodoPago == "BCP")"
-                                       @onchange="@(() => SeleccionarMetodo("BCP"))" />
-                                <span>BCP (Próximamente)</span>
-                            </div>
                         </div>
                     </div>
 
@@ -104,6 +98,17 @@
                             <p style="font-size: 13px; margin-bottom: 12px;">Monto: <strong>S/. @Total.ToString("0.00")</strong></p>
 
                             <img src="@urlQrYape" alt="Código QR Yape" style="width: 160px; height: 160px; border-radius: 8px; background: white; padding: 8px;" />
+
+                            <p style="font-size: 11px; margin-top: 10px; color: #ccc;">Una vez realizado el depósito, presione "Confirmar Pago".</p>
+                        </div>
+                    }
+                    @if (metodoPago == "PLIN")
+                    {
+                        <div class="contenedor-qr" style="background: rgba(255, 255, 255, 0.1); border: 2px dashed #00ffd0; padding: 20px; border-radius: 12px; text-align: center; width: 280px; flex-shrink: 0;">
+                            <h4 style="color: #00ffd0; font-weight: bold; margin-bottom: 10px; font-size: 16px;">¡Escanea y Plinea!</h4>
+                            <p style="font-size: 13px; margin-bottom: 12px;">Monto: <strong>S/. @Total.ToString("0.00")</strong></p>
+
+                            <img src="@urlQrPlin" alt="Código QR Plin" style="width: 160px; height: 160px; border-radius: 8px; background: white; padding: 8px;" />
 
                             <p style="font-size: 11px; margin-top: 10px; color: #ccc;">Una vez realizado el depósito, presione "Confirmar Pago".</p>
                         </div>
@@ -144,6 +149,7 @@
     private EventoViewModel? eventoReal;
 
     private string urlQrYape = "https://lh3.googleusercontent.com/d/1QHJXW8xyDvfFp9IfAmseD0sOyq7V2ssl";
+    private string urlQrPlin = "https://lh3.googleusercontent.com/d/1KeFA_99JHRm3CjC5R4Y816FFOlWpVbBd";
 
     private decimal DescuentoCalculado => Subtotal - Total;
 
@@ -369,4 +375,75 @@
             text-align: center;
         }
     }
+
+    /* Alineación de la opción para que el icono quede perfecto al costado */
+    .opcion {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        margin-bottom: 8px;
+    }
+
+    /* Estilo del símbolo (i) */
+    .info-icon {
+        display: inline-block;
+        color: #0284c7; /* Azul sutil */
+        font-weight: bold;
+        cursor: help; /* Cambia el puntero a un signo de pregunta/ayuda */
+        font-size: 14px;
+        position: relative;
+        margin-left: 4px;
+        transition: color 0.2s ease;
+    }
+
+        .info-icon:hover {
+            color: #0369a1; /* Azul más oscuro al pasar el mouse */
+        }
+
+        /* 🛠️ EL TOOLTIP (Contenedor oculto por defecto) */
+        .info-icon::after {
+            content: attr(data-tooltip); /* Toma el texto del atributo html */
+            position: absolute;
+            bottom: 130%; /* Lo posiciona arriba del icono */
+            left: 50%;
+            transform: translateX(-50%) scale(0.9);
+            background-color: #1e293b; /* Fondo gris oscuro/slate elegante */
+            color: #ffffff;
+            padding: 8px 12px;
+            border-radius: 6px;
+            font-size: 12px;
+            font-family: sans-serif;
+            font-weight: normal;
+            white-space: pre-line; /* Permite saltos si es texto largo */
+            width: 220px; /* Ancho máximo para que no se desarme */
+            text-align: center;
+            box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+            opacity: 0;
+            pointer-events: none; /* Evita que estorbe si se pasa el mouse cerca */
+            transition: opacity 0.2s ease, transform 0.2s ease;
+            z-index: 50;
+        }
+
+        /* 🛠️ La flechita del Tooltip */
+        .info-icon::before {
+            content: "";
+            position: absolute;
+            bottom: 110%;
+            left: 50%;
+            transform: translateX(-50%);
+            border-width: 6px;
+            border-style: solid;
+            border-color: #1e293b transparent transparent transparent; /* Flecha apuntando abajo */
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.2s ease;
+            z-index: 50;
+        }
+
+        /* 🚀 ACCIÓN: Mostrar cuando el puntero pasa por encima */
+        .info-icon:hover::after,
+        .info-icon:hover::before {
+            opacity: 1;
+            transform: translateX(-50%) scale(1);
+        }
 </style>

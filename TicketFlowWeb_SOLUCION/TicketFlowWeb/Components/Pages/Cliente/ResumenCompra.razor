@@ -72,7 +72,8 @@
                                        disabled="@(puntosBonusDisponiblesCliente < 100)"
                                        checked="@(idPuntoBonusSeleccionado == 1)"
                                        @onchange="@(() => SeleccionarDescuento(1, 0.10m))" />
-                                <span>100 puntos = 10% de desc. (-S/. @((Subtotal * 0.10m).ToString("0.00")))</span>
+                                <span>@((cantidadEntradas * 100) - (cantidadEntradas - 1) * 10) puntos = 10% de desc. (-S/. @((Subtotal * 0.10m).ToString("0.00")))</span>
+                                <span class="info-icon" data-tooltip="Por cada entrada extra, la cantidad de puntos bonus necesarios serán 90.">ⓘ</span>
                             </div>
 
                             <div class="opcion">
@@ -81,7 +82,8 @@
                                        disabled="@(puntosBonusDisponiblesCliente < 200)"
                                        checked="@(idPuntoBonusSeleccionado == 2)"
                                        @onchange="@(() => SeleccionarDescuento(2, 0.20m))" />
-                                <span>200 puntos = 20% de desc. (-S/. @((Subtotal * 0.20m).ToString("0.00")))</span>
+                                <span>@((cantidadEntradas * 200) - (cantidadEntradas - 1) * 20) puntos = 20% de desc. (-S/. @((Subtotal * 0.20m).ToString("0.00")))</span>
+                                <span class="info-icon" data-tooltip="Por cada entrada extra, la cantidad de puntos bonus necesarios serán 180.">ⓘ</span>
                             </div>
 
                             <div class="opcion">
@@ -90,7 +92,8 @@
                                        disabled="@(puntosBonusDisponiblesCliente < 300)"
                                        checked="@(idPuntoBonusSeleccionado == 3)"
                                        @onchange="@(() => SeleccionarDescuento(3, 0.30m))" />
-                                <span>300 puntos = 30% de desc. (-S/. @((Subtotal * 0.30m).ToString("0.00")))</span>
+                                <span>@((cantidadEntradas * 300) - (cantidadEntradas-1)*30) puntos = 30% de desc. (-S/. @((Subtotal * 0.30m).ToString("0.00")))</span>
+                                <span class="info-icon" data-tooltip="Por cada entrada extra, la cantidad de puntos bonus necesarios serán 270.">ⓘ</span>
                             </div>
                         </div>
                     </div>
@@ -436,4 +439,75 @@
             text-align: center;
         }
     }
+
+    /* Alineación de la opción para que el icono quede perfecto al costado */
+    .opcion {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        margin-bottom: 8px;
+    }
+
+    /* Estilo del símbolo (i) */
+    .info-icon {
+        display: inline-block;
+        color: #0284c7; /* Azul sutil */
+        font-weight: bold;
+        cursor: help; /* Cambia el puntero a un signo de pregunta/ayuda */
+        font-size: 14px;
+        position: relative;
+        margin-left: 4px;
+        transition: color 0.2s ease;
+    }
+
+        .info-icon:hover {
+            color: #0369a1; /* Azul más oscuro al pasar el mouse */
+        }
+
+        /* 🛠️ EL TOOLTIP (Contenedor oculto por defecto) */
+        .info-icon::after {
+            content: attr(data-tooltip); /* Toma el texto del atributo html */
+            position: absolute;
+            bottom: 130%; /* Lo posiciona arriba del icono */
+            left: 50%;
+            transform: translateX(-50%) scale(0.9);
+            background-color: #1e293b; /* Fondo gris oscuro/slate elegante */
+            color: #ffffff;
+            padding: 8px 12px;
+            border-radius: 6px;
+            font-size: 12px;
+            font-family: sans-serif;
+            font-weight: normal;
+            white-space: pre-line; /* Permite saltos si es texto largo */
+            width: 220px; /* Ancho máximo para que no se desarme */
+            text-align: center;
+            box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+            opacity: 0;
+            pointer-events: none; /* Evita que estorbe si se pasa el mouse cerca */
+            transition: opacity 0.2s ease, transform 0.2s ease;
+            z-index: 50;
+        }
+
+        /* 🛠️ La flechita del Tooltip */
+        .info-icon::before {
+            content: "";
+            position: absolute;
+            bottom: 110%;
+            left: 50%;
+            transform: translateX(-50%);
+            border-width: 6px;
+            border-style: solid;
+            border-color: #1e293b transparent transparent transparent; /* Flecha apuntando abajo */
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.2s ease;
+            z-index: 50;
+        }
+
+        /* 🚀 ACCIÓN: Mostrar cuando el puntero pasa por encima */
+        .info-icon:hover::after,
+        .info-icon:hover::before {
+            opacity: 1;
+            transform: translateX(-50%) scale(1);
+        }
 </style>
