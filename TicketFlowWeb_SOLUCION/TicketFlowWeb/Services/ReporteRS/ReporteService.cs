@@ -53,5 +53,29 @@ namespace TicketFlow.Services.ReporteRS
                 "application/pdf",           // tipoContenido
                 base64);                     // base64
         }
+
+        public async Task DescargarReporteDeVentasFiltrado(DateTime fechaInicio, DateTime fechaFin)
+        {
+            var url = $"{BaseUrl}ventas/pdf" +
+                      $"?fechaInicio={fechaInicio:yyyy-MM-dd}" +
+                      $"&fechaFin={fechaFin:yyyy-MM-dd}";
+
+            var response = await _httpClient.GetAsync(url);
+
+            if (!response.IsSuccessStatusCode)
+            {
+                var mensaje = await response.Content.ReadAsStringAsync();
+                throw new Exception($"Error al generar reporte: {mensaje}");
+            }
+
+            var bytes = await response.Content.ReadAsByteArrayAsync();
+            var base64 = Convert.ToBase64String(bytes);
+
+            await _jsRuntime.InvokeVoidAsync(
+                "descargarArchivo",
+                "reporte_ventas.pdf",
+                "application/pdf",
+                base64);
+        }
     }
 }

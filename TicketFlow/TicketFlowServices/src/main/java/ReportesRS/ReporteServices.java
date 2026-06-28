@@ -3,6 +3,7 @@ package ReportesRS;
 import jakarta.ws.rs.GET;
 import jakarta.ws.rs.Path;
 import jakarta.ws.rs.Produces;
+import jakarta.ws.rs.QueryParam;
 import jakarta.ws.rs.core.Response;
 import net.sf.jasperreports.engine.*;
 import net.sf.jasperreports.engine.data.JRMapCollectionDataSource;
@@ -147,6 +148,79 @@ public class ReporteServices {
             return Response.ok(pdf)
                     .type("application/pdf")
                     .header("Content-Disposition", "attachment; filename=reporte_de_ocupacion.pdf")
+                    .build();
+
+        } catch (BusinessLogicException e) {
+            return Response.status(Response.Status.INTERNAL_SERVER_ERROR)
+                    .entity("Error de negocio: " + e.getMessage())
+                    .build();
+        } catch (Exception e) {
+            return Response.serverError()
+                    .entity("Error al generar reporte: " + e.getMessage())
+                    .build();
+        }
+    }
+
+    @GET
+    @Path("/ventas/pdf")
+    @Produces("application/pdf")
+    public Response generarReporteVentas(
+            @QueryParam("fechaInicio") String fechaInicioStr,
+            @QueryParam("fechaFin")    String fechaFinStr) {
+        try {
+            java.util.Date fechaInicio = java.sql.Date.valueOf(fechaInicioStr); // espera yyyy-MM-dd
+            java.util.Date fechaFin    = java.sql.Date.valueOf(fechaFinStr);
+
+            List<Object[]> datos = reportesBL.generarReporteVentas(fechaInicio, fechaFin, 0);
+
+            if (datos == null || datos.isEmpty()) {
+                return Response.status(Response.Status.NOT_FOUND)
+                        .entity("No se encontraron datos de ventas.")
+                        .build();
+            }
+
+            // Convertir List<Object[]> a List<Map<String, Object>>
+            // Las claves deben coincidir con los nombres de campo en el .jrxml
+            List<Map<String, ?>> listaMapas = new ArrayList<>();
+            for (Object[] fila : datos) {
+                Map<String, Object> mapa = new HashMap<>();
+                mapa.put("Categoria",fila[0]);
+                mapa.put("Cantidad Vendida",fila[1]);
+                mapa.put("Total",fila[2]);
+                listaMapas.add(mapa);
+            }
+
+            java.io.InputStream inputStream = getClass()
+                    .getClassLoader()
+                    .getResourceAsStream("reportes/ReporteVentasFiltradas.jasper");
+
+            if (inputStream == null) {
+                return Response.serverError()
+                        .entity("No se encontró reportes/ReporteVentasFiltradas.jasper en el classpath")
+                        .build();
+            }
+
+            JasperReport jasperReport = (JasperReport) JRLoader.loadObject(inputStream);
+
+            JRMapCollectionDataSource dataSource =
+                    new JRMapCollectionDataSource(listaMapas);
+
+            Map<String, Object> parametros = new HashMap<>();
+            parametros.put("Fecha", LocalDate.now().toString());
+            parametros.put("FechaInicio", fechaInicioStr);
+            parametros.put("FechaFin", fechaFinStr);
+
+            JasperPrint jasperPrint = JasperFillManager.fillReport(
+                    jasperReport,
+                    parametros,
+                    dataSource
+            );
+
+            byte[] pdf = JasperExportManager.exportReportToPdf(jasperPrint);
+
+            return Response.ok(pdf)
+                    .type("application/pdf")
+                    .header("Content-Disposition", "attachment; filename=ReporteVentasFiltradas.pdf")
                     .build();
 
         } catch (BusinessLogicException e) {

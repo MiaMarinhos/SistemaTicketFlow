@@ -57,9 +57,25 @@
                     <h5>@reporteSeleccionado.Nombre</h5>
                     <p class="text-muted">@reporteSeleccionado.Descripcion</p>
 
-                    <div class="border rounded p-4 text-center text-muted">
-                        Contenido del reporte pendiente.
-                    </div>
+                    @if (reporteSeleccionado.Nombre == "Ventas Totales")
+                    {
+                        <div class="row g-3">
+                            <div class="col-md-6">
+                                <label class="form-label">Fecha de inicio</label>
+                                <input type="date" class="form-control" @bind="fechaInicio" />
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label">Fecha de fin</label>
+                                <input type="date" class="form-control" @bind="fechaFin" />
+                            </div>
+                        </div>
+                    }
+                    else
+                    {
+                        <div class="border rounded p-4 text-center text-muted">
+                            Contenido del reporte pendiente.
+                        </div>
+                    }
                 }
             </div>
 
@@ -98,6 +114,23 @@
                         }
                     </button>
                 }
+                @if (reporteSeleccionado?.Nombre == "Ventas Totales")
+                {
+                    <button class="btn btn-primary btn-sm"
+                            @onclick="GenerarPdfVentas"
+                            disabled="@cargando">
+                        @if (cargando)
+                        {
+                            <span class="spinner-border spinner-border-sm me-1"></span>
+                            <span>Generando...</span>
+                        }
+                        else
+                        {
+                            <i class="bi bi-file-earmark-pdf me-1"></i>
+                            <span>Descargar PDF</span>
+                        }
+                    </button>
+                }
                 @if (errorMensaje != null)
                 {
                     <span class="text-danger small me-auto">@errorMensaje</span>
@@ -116,6 +149,10 @@
     private Reporte? reporteSeleccionado;
     private bool cargando = false;
     private string? errorMensaje;
+
+    // Filtros del reporte de ventas
+    private DateTime fechaInicio = DateTime.Today.AddMonths(-1);
+    private DateTime fechaFin = DateTime.Today;
 
     private List<Reporte> reportes = new()
     {
@@ -149,23 +186,23 @@
     }
 
     private async Task GenerarPdfOcupacion()
-{
-    cargando = true;
-    errorMensaje = null;
+    {
+        cargando = true;
+        errorMensaje = null;
 
-    try
-    {
-        await ReporteService.DescargarReporteOcupacionAsync();
+        try
+        {
+            await ReporteService.DescargarReporteOcupacionAsync();
+        }
+        catch (Exception ex)
+        {
+            errorMensaje = ex.Message;
+        }
+        finally
+        {
+            cargando = false;
+        }
     }
-    catch (Exception ex)
-    {
-        errorMensaje = ex.Message;
-    }
-    finally
-    {
-        cargando = false;
-    }
-}
 
     private async Task GenerarPdfFidelizacion()
     {
@@ -175,6 +212,31 @@
         try
         {
             await ReporteService.DescargarReporteFidelizacionAsync();
+        }
+        catch (Exception ex)
+        {
+            errorMensaje = ex.Message;
+        }
+        finally
+        {
+            cargando = false;
+        }
+    }
+
+    private async Task GenerarPdfVentas()
+    {
+        cargando = true;
+        errorMensaje = null;
+
+        try
+        {
+            if (fechaInicio > fechaFin)
+            {
+                errorMensaje = "La fecha de inicio no puede ser posterior a la fecha de fin.";
+                return;
+            }
+
+            await ReporteService.DescargarReporteDeVentasFiltrado(fechaInicio, fechaFin);
         }
         catch (Exception ex)
         {
