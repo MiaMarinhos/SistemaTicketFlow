@@ -6,6 +6,8 @@ import pe.edu.pucp.ticketflow.evento.model.Evento;
 import pe.edu.pucp.ticketflow.exception.BusinessLogicException;
 import pe.edu.pucp.ticketflow.pago.model.Pago;
 import pe.edu.pucp.ticketflow.solicitud.model.Solicitud;
+import pe.edu.pucp.ticketflow.ubicacion.model.Distrito;
+import pe.edu.pucp.ticketflow.usuario.model.Genero;
 import pe.edu.pucp.ticketflow.usuario.model.Usuario;
 
 import java.util.Date;
@@ -30,6 +32,8 @@ public interface IAdministradorBL {
     Usuario editarUsuario(Usuario usuario)  throws BusinessLogicException;
     Usuario bloquearUsuario(Integer idUsuario)  throws BusinessLogicException;
     Usuario desbloquearUsuario(Integer idUsuario)  throws BusinessLogicException;
+    List<Genero> listarGeneros() throws BusinessLogicException;
+    List<Distrito> listarDistritos() throws BusinessLogicException;
 
     //GESTION DE EVENTOS
     List<Evento> listarEventos()  throws BusinessLogicException;

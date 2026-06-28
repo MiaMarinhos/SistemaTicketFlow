@@ -177,5 +177,32 @@ namespace TicketFlowWeb.Services.AdministradorRS
                 $"AdminUsuarios/filtrar/estado/{idEstado}"
             ) ?? new List<Usuario>();
         }
+        public async Task<Usuario?> RegistrarUsuario(object usuarioRegistro)
+        {
+            var response = await _http.PostAsJsonAsync(
+                "AdminUsuarios/registrar",
+                usuarioRegistro
+            );
+
+            var contenido = await response.Content.ReadAsStringAsync();
+
+            if (!response.IsSuccessStatusCode)
+                throw new Exception(contenido);
+
+            return await response.Content.ReadFromJsonAsync<Usuario>();
+        }
+        public async Task<List<GeneroViewModel>> ListarGeneros()
+        {
+            return await _http.GetFromJsonAsync<List<GeneroViewModel>>(
+                "AdminUsuarios/generos"
+            ) ?? new List<GeneroViewModel>();
+        }
+
+        public async Task<List<DistritoViewModel>> ListarDistritos()
+        {
+            return await _http.GetFromJsonAsync<List<DistritoViewModel>>(
+                "AdminUsuarios/distritos"
+            ) ?? new List<DistritoViewModel>();
+        }
     }
 }

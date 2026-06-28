@@ -7,6 +7,9 @@ import pe.edu.pucp.ticketflow.evento.model.Evento;
 import pe.edu.pucp.ticketflow.exception.BusinessLogicException;
 import pe.edu.pucp.ticketflow.pago.model.Pago;
 import pe.edu.pucp.ticketflow.solicitud.model.Solicitud;
+import pe.edu.pucp.ticketflow.ubicacion.model.Distrito;
+import pe.edu.pucp.ticketflow.usuario.model.EstadoUsuario;
+import pe.edu.pucp.ticketflow.usuario.model.Genero;
 import pe.edu.pucp.ticketflow.usuario.model.Usuario;
 
 import java.util.Date;
@@ -21,8 +24,12 @@ public class AdministradorBLImpl implements IAdministradorBL {
     private final IPagosDAO pagosDAO;
     private final ICompraDAO compraDAO;
     private final IReporteDAO reportesDAO;
+    private final IGeneroDAO generoDAO;
+    private final IDistritoDAO distritoDAO;
 
     public AdministradorBLImpl() {
+        this.generoDAO = new GeneroDAOImpl();
+        this.distritoDAO = new DistritoDAOImpl();
         this.administradorDAO = new AdministradorDAOImpl();
         this.usuarioDAO = new UsuarioDAOImpl();
         this.eventoDAO = new EventoDAOImpl();
@@ -170,8 +177,38 @@ public class AdministradorBLImpl implements IAdministradorBL {
 
     @Override
     public Usuario registrarUsuario(Usuario usuario) throws BusinessLogicException {
-        validarDatosUsuario(usuario);
-        return usuarioDAO.create(usuario);
+        try {
+            validarDatosUsuario(usuario);
+
+            if (usuario.getGenero() == null || usuario.getGenero().getIdGenero() <= 0) {
+                throw new BusinessLogicException("Debe seleccionar un género.");
+            }
+
+            if (usuario.getDistrito() == null || usuario.getDistrito().getIdDistrito() <= 0) {
+                throw new BusinessLogicException("Debe seleccionar un distrito.");
+            }
+
+            if (usuario.getTipo() == null || usuario.getTipo().getIdTipoUsuario() <= 0) {
+                throw new BusinessLogicException("Debe seleccionar un tipo de usuario.");
+            }
+
+            EstadoUsuario estado = new EstadoUsuario();
+            estado.setIdEstadoUsuario(1); // ACTIVO
+            usuario.setEstado(estado);
+
+            usuario.setFechaRegistro(
+                    java.sql.Date.valueOf(java.time.LocalDate.now())
+            );
+
+            return usuarioDAO.create(usuario);
+
+        } catch (Exception ex) {
+            if (ex instanceof BusinessLogicException) {
+                throw (BusinessLogicException) ex;
+            } else {
+                throw new BusinessLogicException(ex);
+            }
+        }
     }
 
     @Override
@@ -204,6 +241,25 @@ public class AdministradorBLImpl implements IAdministradorBL {
         }
 
         return usuarioDAO.desbloquearUsuario(idUsuario);
+    }
+
+    //LISTAR DISTRITOS Y GENEROS
+    @Override
+    public List<Genero> listarGeneros() throws BusinessLogicException {
+        try {
+            return generoDAO.listAll();
+        } catch (Exception e) {
+            throw new BusinessLogicException(e);
+        }
+    }
+
+    @Override
+    public List<Distrito> listarDistritos() throws BusinessLogicException {
+        try {
+            return distritoDAO.listAll();
+        } catch (Exception e) {
+            throw new BusinessLogicException(e);
+        }
     }
 
     //GESTION DE EVENTOS

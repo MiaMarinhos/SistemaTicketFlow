@@ -62,6 +62,7 @@ public class UsuarioBLImpl implements IUsuarioBL {
         }
     }
 
+
     @Override
     public String registrarCliente(Cliente cliente) throws BusinessLogicException {
         try {

@@ -11,7 +11,6 @@ import java.util.List;
 
 public interface IUsuarioBL {
     public Usuario registrarUsuario(Usuario usuario) throws BusinessLogicException;
-
     public String registrarCliente(Cliente cliente) throws BusinessLogicException;
 
     public Anfitrion registrarAnfitrion(Anfitrion anfitrion) throws BusinessLogicException;

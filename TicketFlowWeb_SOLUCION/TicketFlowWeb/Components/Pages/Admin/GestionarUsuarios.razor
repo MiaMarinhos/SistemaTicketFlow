@@ -1,5 +1,6 @@
 ﻿@page "/admin/usuarios"
 @using Microsoft.AspNetCore.Authorization
+@using Microsoft.JSInterop
 @using TicketFlowWeb.Models
 @using TicketFlowWeb.Services.AdministradorRS
 
@@ -7,10 +8,21 @@
 @layout AdminLayout
 
 @inject AdministradorRestService AdminService
+@inject IJSRuntime JS
 
 <PageTitle>Panel de Usuarios</PageTitle>
 
-<h3>Gestionar Usuarios</h3>
+<div class="d-flex align-items-center gap-3 mb-3">
+    <h3 class="mb-0">Gestionar Usuarios</h3>
+
+    <button class="btn btn-success"
+            data-bs-toggle="modal"
+            data-bs-target="#registrarUsuarioModal"
+            @onclick="PrepararNuevoUsuario">
+        <i class="bi bi-plus-circle"></i>
+        Registrar
+    </button>
+</div>
 
 <nav class="navbar bg-body-tertiary">
     <div class="filtros-pagos">
@@ -114,6 +126,127 @@
             </tbody>
         </table>
     }
+</div>
+
+<!-- MODAL REGISTRAR USUARIO -->
+<div class="modal fade" id="registrarUsuarioModal" tabindex="-1">
+    <div class="modal-dialog modal-dialog-centered modal-lg">
+        <div class="modal-content">
+
+            <div class="modal-header">
+                <h5 class="modal-title">Registrar Usuario</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+
+            <div class="modal-body">
+
+                @if (!string.IsNullOrWhiteSpace(errorRegistro))
+                {
+                    <div class="alert alert-danger">
+                        @errorRegistro
+                    </div>
+                }
+
+                <div class="row">
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label">DNI</label>
+                        <input class="form-control" @bind="nuevoDni" />
+                    </div>
+
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label">Nombre</label>
+                        <input class="form-control" @bind="nuevoNombre" />
+                    </div>
+
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label">Apellido Paterno</label>
+                        <input class="form-control" @bind="nuevoApellidoPaterno" />
+                    </div>
+
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label">Apellido Materno</label>
+                        <input class="form-control" @bind="nuevoApellidoMaterno" />
+                    </div>
+
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label">Teléfono</label>
+                        <input class="form-control" @bind="nuevoTelefono" />
+                    </div>
+
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label">Edad</label>
+                        <input type="number" class="form-control" @bind="nuevaEdad" />
+                    </div>
+
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label">Correo electrónico</label>
+                        <input type="email" class="form-control" @bind="nuevoCorreo" />
+                    </div>
+
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label">Contraseña</label>
+                        <input type="password" class="form-control" @bind="nuevaContrasena" />
+                    </div>
+
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label">Fecha de nacimiento</label>
+                        <input type="date"
+                               class="form-control"
+                               @bind="nuevaFechaNacimiento"
+                               @bind:format="yyyy-MM-dd" />
+                    </div>
+
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label">Tipo de usuario</label>
+                        <select class="form-select" @bind="nuevoIdTipoUsuario">
+                            <option value="1">Cliente</option>
+                            <option value="2">Anfitrión</option>
+                            <option value="3">Admin</option>
+                        </select>
+                    </div>
+
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label">Género</label>
+                        <select class="form-select" @bind="nuevoIdGenero">
+                            <option value="0">Seleccione un género</option>
+
+                            @foreach (var genero in generos)
+                            {
+                                <option value="@genero.IdGenero">
+                                    @genero.Nombre
+                                </option>
+                            }
+                        </select>
+                    </div>
+
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label">Distrito</label>
+                        <select class="form-select" @bind="nuevoIdDistrito">
+                            <option value="0">Seleccione un distrito</option>
+
+                            @foreach (var distrito in distritos)
+                            {
+                                <option value="@distrito.IdDistrito">
+                                    @distrito.Nombre
+                                </option>
+                            }
+                        </select>
+                    </div>
+                </div>
+            </div>
+
+            <div class="modal-footer">
+                <button class="btn btn-secondary" data-bs-dismiss="modal">
+                    Cancelar
+                </button>
+
+                <button class="btn btn-primary" @onclick="RegistrarNuevoUsuario">
+                    Guardar
+                </button>
+            </div>
+
+        </div>
+    </div>
 </div>
 
 <!-- MODAL VER USUARIO -->
@@ -298,10 +431,31 @@
 
     private List<Usuario>? usuarios;
     private Usuario? usuarioSeleccionado;
+    private List<GeneroViewModel> generos = new();
+    private List<DistritoViewModel> distritos = new();
+
+    private string nuevoDni = "";
+    private string nuevoNombre = "";
+    private string nuevoApellidoPaterno = "";
+    private string nuevoApellidoMaterno = "";
+    private string nuevoTelefono = "";
+    private int nuevaEdad = 18;
+    private string nuevoCorreo = "";
+    private string nuevaContrasena = "";
+    private DateTime nuevaFechaNacimiento = DateTime.Today.AddYears(-18);
+    private int nuevoIdGenero = 1;
+    private int nuevoIdDistrito = 1;
+    private int nuevoIdTipoUsuario = 1;
+    private string errorRegistro = "";
 
     protected override async Task OnInitializedAsync()
     {
         usuarios = await AdminService.ListarUsuarios();
+        generos = await AdminService.ListarGeneros();
+        distritos = await AdminService.ListarDistritos();
+
+        nuevoIdGenero = generos.FirstOrDefault()?.IdGenero ?? 0;
+        nuevoIdDistrito = distritos.FirstOrDefault()?.IdDistrito ?? 0;
     }
 
     private IEnumerable<Usuario> UsuariosFiltrados =>
@@ -383,6 +537,85 @@
         else
         {
             usuarios = await AdminService.ListarUsuarios();
+        }
+    }
+
+    private void PrepararNuevoUsuario()
+    {
+        nuevoDni = "";
+        nuevoNombre = "";
+        nuevoApellidoPaterno = "";
+        nuevoApellidoMaterno = "";
+        nuevoTelefono = "";
+        nuevaEdad = 18;
+        nuevoCorreo = "";
+        nuevaContrasena = "";
+        nuevaFechaNacimiento = DateTime.Today.AddYears(-18);
+        nuevoIdGenero = generos.FirstOrDefault()?.IdGenero ?? 0;
+        nuevoIdDistrito = distritos.FirstOrDefault()?.IdDistrito ?? 0;
+        nuevoIdTipoUsuario = 1;
+        errorRegistro = "";
+    }
+
+    private async Task RegistrarNuevoUsuario()
+    {
+        try
+        {
+            errorRegistro = "";
+
+            if (string.IsNullOrWhiteSpace(nuevoDni) ||
+                string.IsNullOrWhiteSpace(nuevoNombre) ||
+                string.IsNullOrWhiteSpace(nuevoApellidoPaterno) ||
+                string.IsNullOrWhiteSpace(nuevoApellidoMaterno) ||
+                string.IsNullOrWhiteSpace(nuevoTelefono) ||
+                string.IsNullOrWhiteSpace(nuevoCorreo) ||
+                string.IsNullOrWhiteSpace(nuevaContrasena))
+            {
+                errorRegistro = "Debe completar todos los campos obligatorios.";
+                return;
+            }
+
+            var usuarioRegistro = new
+            {
+                dni = nuevoDni.Trim(),
+                nombre = nuevoNombre.Trim(),
+                apellidoPaterno = nuevoApellidoPaterno.Trim(),
+                apellidoMaterno = nuevoApellidoMaterno.Trim(),
+                telefono = nuevoTelefono.Trim(),
+                edad = nuevaEdad,
+                correoElectronico = nuevoCorreo.Trim(),
+                contrasena = nuevaContrasena,
+                fechaNacimiento = nuevaFechaNacimiento.ToString("yyyy-MM-dd"),
+                idGenero = nuevoIdGenero,
+                idDistrito = nuevoIdDistrito,
+                idTipoUsuario = nuevoIdTipoUsuario
+            };
+
+            await AdminService.RegistrarUsuario(usuarioRegistro);
+
+            await AplicarFiltros();
+
+            await JS.InvokeVoidAsync(
+                "eval",
+                "bootstrap.Modal.getInstance(document.getElementById('registrarUsuarioModal'))?.hide();"
+            );
+            if (nuevoIdGenero <= 0)
+            {
+                errorRegistro = "Debe seleccionar un género.";
+                return;
+            }
+
+            if (nuevoIdDistrito <= 0)
+            {
+                errorRegistro = "Debe seleccionar un distrito.";
+                return;
+            }
+
+            PrepararNuevoUsuario();
+        }
+        catch (Exception ex)
+        {
+            errorRegistro = "No se pudo registrar el usuario: " + ex.Message;
         }
     }
 
