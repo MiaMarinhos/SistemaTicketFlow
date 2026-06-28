@@ -98,7 +98,7 @@ public class CompraService {
 
         } catch (Exception e) {
             return Response.status(Response.Status.BAD_REQUEST)
-                    .entity("{\"success\": false, \"error\": \"¡Ingreso NO autorizado! Entrada ya fue usada.\"}")
+                    .entity("{\"success\": false, \"error\": \"¡Ingreso NO autorizado! Entrada ya fue usada o no existe.\"}")
                     .build();
         }
     }
