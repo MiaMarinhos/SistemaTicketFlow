@@ -241,8 +241,12 @@ BEGIN
     INNER JOIN estado_evento ee
         ON e.idEstado_evento = ee.idEstado_evento
 
-    ORDER BY e.idEvento;
+    WHERE e.fecha >= CURDATE()
+
+    ORDER BY e.fecha ASC, e.hora_inicio ASC;
 END //
+
+DELIMITER ;
 
 DELIMITER ;
 
@@ -256,7 +260,8 @@ CREATE PROCEDURE SP_BUSCAR_EVENTO_TITULO(
 BEGIN
     SELECT e.*
     FROM evento e
-    WHERE e.titulo LIKE CONCAT('%', p_titulo, '%');
+    WHERE e.titulo LIKE CONCAT('%', p_titulo, '%') and  e.fecha >= CURDATE()
+;
 END //
 DELIMITER ;
 
@@ -299,7 +304,8 @@ BEGIN
         e.idEstado_publicacion,
         e.idEstado_evento
     FROM evento e, categoria_evento ce
-	WHERE ce.nombre = p_categoria and ce.idCategoria_evento = e.idCategoria_evento
+	WHERE ce.nombre = p_categoria and ce.idCategoria_evento = e.idCategoria_evento and e.fecha >= CURDATE()
+
     ORDER BY e.idEvento;
 END //
 DELIMITER ;

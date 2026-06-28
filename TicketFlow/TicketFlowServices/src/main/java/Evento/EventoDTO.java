@@ -13,6 +13,7 @@ public class EventoDTO {
     public String categoria;
     public int idCategoria;
     public double precio;
+    public String img;
 
     // 👇 NUEVO CAMPO AGREGADO
     public int idAnfitrion;
@@ -53,4 +54,20 @@ public class EventoDTO {
     // 👇 NUEVOS GETTERS Y SETTERS
     public int getIdAnfitrion() { return idAnfitrion; }
     public void setIdAnfitrion(int idAnfitrion) { this.idAnfitrion = idAnfitrion; }
+
+    public int getIdCategoria() {
+        return idCategoria;
+    }
+
+    public void setIdCategoria(int idCategoria) {
+        this.idCategoria = idCategoria;
+    }
+
+    public String getImg() {
+        return img;
+    }
+
+    public void setImg(String img) {
+        this.img = img;
+    }
 }

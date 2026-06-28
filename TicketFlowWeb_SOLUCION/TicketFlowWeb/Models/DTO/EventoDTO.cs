@@ -11,4 +11,5 @@ public class EventoDTO
     public string categoria { get; set; } = "";
     public string descripcion { get; set; } = "";
     public string ubicacion { get; set; } = "";
+    public string img { get; set; } = "";
 }

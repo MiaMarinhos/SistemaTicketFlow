@@ -219,6 +219,7 @@ public class EventoService {
         dto.precio = e.getPrecio();
         dto.idCategoria = e.getCategoria().getIdCategoria_evento();
         dto.categoria = e.getCategoria().getNombre();
+        dto.setImg(e.getImg());
         return dto;
     }
 }

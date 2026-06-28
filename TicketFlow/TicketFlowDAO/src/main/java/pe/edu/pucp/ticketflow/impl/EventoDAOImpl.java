@@ -481,7 +481,7 @@ public class EventoDAOImpl implements IEventoDAO {
                     ep.setIdEstado_publicacion(
                             rs.getInt("idEstado_publicacion")
                     );
-                    
+
                     evento.setEstadoPublicacion(ep);                    eventos.add(evento);
                 }
 
