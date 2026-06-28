@@ -39,6 +39,7 @@ builder.Services.AddHttpClient<AdministradorRestService>(client =>
     client.BaseAddress = new Uri("http://localhost:8080/TicketFlow/api/");
 });
 
+builder.Services.AddScoped<TicketFlow.Services.ReporteRS.ReporteService>();
 
 builder.Services.AddScoped<CompraRS>();
 

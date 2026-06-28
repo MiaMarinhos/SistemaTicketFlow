@@ -1,5 +1,6 @@
 ﻿@page "/admin/reportes"
 @using Microsoft.AspNetCore.Authorization
+@inject TicketFlow.Services.ReporteRS.ReporteService ReporteService
 
 @attribute [Authorize(Roles = "ADMIN")]
 @layout AdminLayout
@@ -63,7 +64,29 @@
             </div>
 
             <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                @if (reporteSeleccionado?.Nombre == "Fidelización")
+                {
+                    <button class="btn btn-primary btn-sm"
+                            @onclick="GenerarPdfFidelizacion"
+                            disabled="@cargando">
+                        @if (cargando)
+                        {
+                            <span class="spinner-border spinner-border-sm me-1"></span>
+                            <span>Generando...</span>
+                        }
+                        else
+                        {
+                            <i class="bi bi-file-earmark-pdf me-1"></i>
+                            <span>Descargar PDF</span>
+                        }
+                    </button>
+                }
+                @if (errorMensaje != null)
+                {
+                    <span class="text-danger small me-auto">@errorMensaje</span>
+                }
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal"
+                        @onclick="LimpiarEstado">
                     Cerrar
                 </button>
             </div>
@@ -74,6 +97,8 @@
 
 @code {
     private Reporte? reporteSeleccionado;
+    private bool cargando = false;
+    private string? errorMensaje;
 
     private List<Reporte> reportes = new()
     {
@@ -97,6 +122,32 @@
     private void SeleccionarReporte(Reporte reporte)
     {
         reporteSeleccionado = reporte;
+        errorMensaje = null;
+    }
+
+    private void LimpiarEstado()
+    {
+        errorMensaje = null;
+        cargando = false;
+    }
+
+    private async Task GenerarPdfFidelizacion()
+    {
+        cargando = true;
+        errorMensaje = null;
+
+        try
+        {
+            await ReporteService.DescargarReporteFidelizacionAsync();
+        }
+        catch (Exception ex)
+        {
+            errorMensaje = ex.Message;
+        }
+        finally
+        {
+            cargando = false;
+        }
     }
 
     public class Reporte

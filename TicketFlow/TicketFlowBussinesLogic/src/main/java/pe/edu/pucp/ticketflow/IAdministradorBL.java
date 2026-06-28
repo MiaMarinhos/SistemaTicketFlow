@@ -68,7 +68,7 @@ public interface IAdministradorBL {
     List<Compra> filtrarComprasPorEstado(Integer idEstado) throws BusinessLogicException;
     Compra detalleCompra(Integer idCompra) throws BusinessLogicException;
 
-    //Gestion de Reportes
+    //Gestion de ReportesRS
     List<Object[]> generarReporteVentas(Date fechaInicio, Date fechaFin, Integer idCategoria) throws BusinessLogicException;
     List<Object[]> generarReporteFidelizacion() throws BusinessLogicException;
     List<Object[]> generarReporteOcupacionEventos() throws BusinessLogicException;

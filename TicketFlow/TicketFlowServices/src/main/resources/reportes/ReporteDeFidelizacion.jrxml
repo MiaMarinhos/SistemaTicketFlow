@@ -52,17 +52,15 @@
 	<dataset name="tableDataset" uuid="f13e6d36-5148-4ecc-bbe3-3035def80980">
 		<query language="sql"><![CDATA[]]></query>
 	</dataset>
-	<parameter name="Administrador" class="java.lang.String"/>
 	<parameter name="Fecha" class="java.lang.String"/>
 	<parameter name="Cantidad" class="java.lang.Integer"/>
 	<query language="sql"><![CDATA[]]></query>
-	<field name="IdUsuario" class="java.lang.Integer"/>
-	<field name="Nombre" class="java.lang.String"/>
-	<field name="Correo" class="java.lang.String"/>
-	<field name="Puntos" class="java.lang.Integer"/>
-	<title height="128" splitType="Stretch">
-		<element kind="staticText" uuid="57aed2b1-4f4e-40a3-a6ad-54dae8dd4c5a" x="0" y="90" width="556" height="25" fontSize="16.0" bold="true">
-			<text><![CDATA[$P{Cantidad}  Usuarios con mayor cantidad de Puntos Bonus]]></text>
+	<field name="usuario" class="java.lang.String"/>
+	<field name="puntos_acumulados" class="java.lang.Integer"/>
+	<field name="puntos_canjeados" class="java.lang.Integer"/>
+	<title height="129" splitType="Stretch">
+		<element kind="staticText" uuid="57aed2b1-4f4e-40a3-a6ad-54dae8dd4c5a" x="38" y="90" width="506" height="25" fontSize="16.0" printInFirstWholeBand="true" bold="true">
+			<text><![CDATA[ Usuarios con mayor cantidad de Puntos Bonus]]></text>
 			<property name="local_mesure_unitheight" value="pixel"/>
 			<property name="com.jaspersoft.studio.unit.height" value="px"/>
 		</element>
@@ -82,51 +80,40 @@
 		<element kind="staticText" uuid="c226e44d-3bb5-4145-b0b3-903bf1d79fde" x="0" y="35" width="249" height="15">
 			<text><![CDATA[Ticket Flow]]></text>
 		</element>
-		<element kind="staticText" uuid="c2788db5-345d-4738-bfe3-c5b8ce255235" x="1" y="50" width="29" height="15">
-			<text><![CDATA[Por:]]></text>
-		</element>
-		<element kind="textField" uuid="54ae1adc-c52d-41d3-885b-4ba92b8649cc" x="30" y="50" width="220" height="15">
-			<expression><![CDATA[$P{Administrador}]]></expression>
-		</element>
 		<element kind="textField" uuid="face02e8-04b4-47da-b277-796cc9566424" x="470" y="10" width="86" height="20">
 			<expression><![CDATA[$P{Fecha}]]></expression>
 		</element>
+		<element kind="textField" uuid="d1dce4e4-e6a4-48fb-90b7-279928068c47" x="0" y="90" width="38" height="24" fontSize="16.0" printInFirstWholeBand="true">
+			<expression><![CDATA[$P{Cantidad}]]></expression>
+		</element>
 	</title>
 	<columnHeader height="30">
-		<element kind="staticText" uuid="9ff5f6dc-5648-4085-8305-7167f9670588" x="10" y="0" width="70" height="30">
-			<text><![CDATA[IdUsuario]]></text>
-			<property name="com.jaspersoft.studio.spreadsheet.connectionID" value="702e3fe7-72ca-470f-a4d0-a56a7f466f15"/>
+		<element kind="staticText" uuid="6e73b4db-595b-4763-9b48-36845e1196a6" x="10" y="0" width="160" height="30">
+			<text><![CDATA[usuario]]></text>
+			<property name="com.jaspersoft.studio.spreadsheet.connectionID" value="186130ff-474f-417a-a0bf-7121bc1fffe8"/>
 		</element>
-		<element kind="staticText" uuid="c1582385-fed4-4ceb-b917-d18146ab1815" x="90" y="0" width="180" height="30">
-			<text><![CDATA[Nombre]]></text>
-			<property name="com.jaspersoft.studio.spreadsheet.connectionID" value="a0b549f7-4fbf-4239-baee-ccfa3df25a21"/>
+		<element kind="staticText" uuid="5a19cc5d-1e87-4104-b4a3-9840b110da64" x="186" y="0" width="100" height="30">
+			<text><![CDATA[puntos_acumulados]]></text>
+			<property name="com.jaspersoft.studio.spreadsheet.connectionID" value="f400799c-66b6-43bd-8cc2-0c169095c2b1"/>
 		</element>
-		<element kind="staticText" uuid="03b67ed8-cc15-4b6c-97d7-0ea3d887c067" x="280" y="0" width="191" height="30">
-			<text><![CDATA[Correo]]></text>
-			<property name="com.jaspersoft.studio.spreadsheet.connectionID" value="1a600c00-2961-4875-b682-f3754b8dbc34"/>
-		</element>
-		<element kind="staticText" uuid="632dd666-9e38-4e30-9762-0939c151f189" x="480" y="0" width="65" height="30">
-			<text><![CDATA[Puntos]]></text>
-			<property name="com.jaspersoft.studio.spreadsheet.connectionID" value="3874f939-43ee-4a53-8c76-f3053b655e0c"/>
+		<element kind="staticText" uuid="bf27b07e-df44-430e-82b8-c5dc5e6fc0a6" x="341" y="0" width="100" height="30">
+			<text><![CDATA[puntos_canjeados]]></text>
+			<property name="com.jaspersoft.studio.spreadsheet.connectionID" value="77c5b198-7f06-48b1-a95b-692a8f48b032"/>
 		</element>
 	</columnHeader>
 	<detail>
-		<band height="49">
-			<element kind="textField" uuid="fb9e27ce-42f7-45cc-a062-fd744f73eae4" x="10" y="0" width="70" height="19">
-				<expression><![CDATA[$F{IdUsuario}]]></expression>
-				<property name="com.jaspersoft.studio.spreadsheet.connectionID" value="702e3fe7-72ca-470f-a4d0-a56a7f466f15"/>
+		<band height="25">
+			<element kind="textField" uuid="a57c391f-957d-4c43-a51b-029ae802f313" x="10" y="0" width="160" height="20">
+				<expression><![CDATA[$F{usuario}]]></expression>
+				<property name="com.jaspersoft.studio.spreadsheet.connectionID" value="186130ff-474f-417a-a0bf-7121bc1fffe8"/>
 			</element>
-			<element kind="textField" uuid="c62ff1d8-7ade-4c23-ac0e-a6cd86c361b2" x="90" y="1" width="180" height="18">
-				<expression><![CDATA[$F{Nombre}]]></expression>
-				<property name="com.jaspersoft.studio.spreadsheet.connectionID" value="a0b549f7-4fbf-4239-baee-ccfa3df25a21"/>
+			<element kind="textField" uuid="5fe0394b-7995-4327-8649-9b1434e7ce45" x="186" y="0" width="100" height="20">
+				<expression><![CDATA[$F{puntos_acumulados}]]></expression>
+				<property name="com.jaspersoft.studio.spreadsheet.connectionID" value="f400799c-66b6-43bd-8cc2-0c169095c2b1"/>
 			</element>
-			<element kind="textField" uuid="96c635ff-5f50-4fe3-aa09-1dd9153eb0c0" x="280" y="1" width="190" height="18">
-				<expression><![CDATA[$F{Correo}]]></expression>
-				<property name="com.jaspersoft.studio.spreadsheet.connectionID" value="1a600c00-2961-4875-b682-f3754b8dbc34"/>
-			</element>
-			<element kind="textField" uuid="97b08ecb-24d5-4584-8ea8-d63709c9011e" x="480" y="0" width="65" height="18">
-				<expression><![CDATA[$F{Puntos}]]></expression>
-				<property name="com.jaspersoft.studio.spreadsheet.connectionID" value="3874f939-43ee-4a53-8c76-f3053b655e0c"/>
+			<element kind="textField" uuid="1a84debd-12cc-4aec-820c-964bbd4f1a3d" x="340" y="0" width="100" height="20">
+				<expression><![CDATA[$F{puntos_canjeados}]]></expression>
+				<property name="com.jaspersoft.studio.spreadsheet.connectionID" value="77c5b198-7f06-48b1-a95b-692a8f48b032"/>
 			</element>
 		</band>
 	</detail>
