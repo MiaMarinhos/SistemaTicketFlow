@@ -37,4 +37,6 @@ public interface IAnfitrionBL extends IUsuarioBL{
 
     List<Pago> verPagosDeSusEventos(Integer idAnfitrion) throws BusinessLogicException ;
 
+    void actualizarDatosEmpresa(Integer idAnfitrion, String razonSocial, String ruc, String cuentaBancaria, Integer idBanco) throws BusinessLogicException;
+
 }

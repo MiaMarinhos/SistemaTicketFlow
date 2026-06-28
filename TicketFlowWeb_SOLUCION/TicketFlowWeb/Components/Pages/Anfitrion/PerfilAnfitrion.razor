@@ -74,7 +74,62 @@
 
                 </div>
 
+                @if (!string.IsNullOrWhiteSpace(mensajeExito))
+                {
+                    <div class="alert alert-success mt-4">@mensajeExito</div>
+                }
+
+                @if (!string.IsNullOrWhiteSpace(mensajeError))
+                {
+                    <div class="alert alert-danger mt-4">@mensajeError</div>
+                }
+
+                @if (editandoDatos)
+                {
+                    <div class="form-editar-perfil">
+                        <h4>Editar datos de empresa</h4>
+
+                        <div class="grupo-form">
+                            <label>Razón social</label>
+                            <input class="form-control" @bind="razonSocialEdit" />
+                        </div>
+
+                        <div class="grupo-form">
+                            <label>RUC</label>
+                            <input class="form-control" @bind="rucEdit" />
+                        </div>
+
+                        <div class="grupo-form">
+                            <label>Cuenta bancaria</label>
+                            <input class="form-control" @bind="cuentaBancariaEdit" />
+                        </div>
+
+                        <div class="grupo-form">
+                            <label>Banco</label>
+                            <select class="form-control" @bind="idBancoEdit">
+                                <option value="1">BCP</option>
+                                <option value="2">Interbank</option>
+                                <option value="3">BBVA</option>
+                            </select>
+                        </div>
+
+                        <div class="acciones-edicion">
+                            <button type="button" class="btn-perfil secundario" @onclick="CancelarEdicion">
+                                Cancelar
+                            </button>
+
+                            <button type="button" class="btn-perfil principal" @onclick="GuardarDatosEmpresa" disabled="@guardandoDatos">
+                                @(guardandoDatos ? "Guardando..." : "Guardar cambios")
+                            </button>
+                        </div>
+                    </div>
+                }
+
                 <div class="acciones-perfil">
+                    <button type="button" class="btn-perfil secundario" @onclick="ActivarEdicion">
+                        Editar datos
+                    </button>
+
                     <a href="/anfitrion/gestionar-evento" class="btn-perfil secundario">
                         Ver mis eventos
                     </a>
@@ -199,6 +254,53 @@
             background-color: #241080;
         }
 
+    .form-editar-perfil {
+        max-width: 760px;
+        margin-top: 30px;
+        border: 1px solid #f0edf5;
+        border-radius: 8px;
+        padding: 25px;
+        background-color: #ffffff;
+    }
+
+        .form-editar-perfil h4 {
+            color: #15095f;
+            font-size: 22px;
+            font-weight: bold;
+            margin-bottom: 20px;
+        }
+
+    .grupo-form {
+        margin-bottom: 18px;
+    }
+
+        .grupo-form label {
+            display: block;
+            font-weight: bold;
+            color: #15095f;
+            margin-bottom: 8px;
+        }
+
+        .grupo-form input,
+        .grupo-form select {
+            width: 100%;
+            border: 1px solid #d8d2ef;
+            border-radius: 8px;
+            padding: 11px 14px;
+            font-size: 16px;
+        }
+
+    .acciones-edicion {
+        display: flex;
+        justify-content: flex-end;
+        gap: 20px;
+        margin-top: 25px;
+    }
+
+    button.btn-perfil {
+        cursor: pointer;
+    }
+
     @@media (max-width: 900px) {
         .contenido-perfil {
             padding: 25px 15px;
@@ -234,6 +336,15 @@
 @code {
     private PerfilAnfitrionViewModel perfilModel = new PerfilAnfitrionViewModel();
     private bool cargando = true;
+    private bool editandoDatos = false;
+    private bool guardandoDatos = false;
+    private string mensajeExito = "";
+    private string mensajeError = "";
+
+    private string razonSocialEdit = "";
+    private string rucEdit = "";
+    private string cuentaBancariaEdit = "";
+    private int idBancoEdit = 1;
 
     protected override async Task OnInitializedAsync()
     {
@@ -246,15 +357,18 @@
 
             if (int.TryParse(idClaim, out int idAnfitrion))
             {
-                // Traemos los datos de Java
                 var data = await AnfitrionService.BuscarAnfitrionAsync(idAnfitrion);
 
                 if (data != null)
                 {
                     perfilModel = data;
+                    perfilModel.IdUsuario = idAnfitrion;
 
-                    // Como la base de datos no tiene un "Código de Empresa" guardado,
-                    // lo generamos dinámicamente usando su ID (ej. ANF-0001)
+                    razonSocialEdit = perfilModel.RazonSocial ?? "";
+                    rucEdit = perfilModel.Ruc ?? "";
+                    cuentaBancariaEdit = perfilModel.CuentaBancaria ?? "";
+                    idBancoEdit = 1;
+
                     if (string.IsNullOrEmpty(perfilModel.Codigo))
                     {
                         perfilModel.Codigo = $"ANF-{idAnfitrion.ToString("D4")}";
@@ -265,4 +379,80 @@
 
         cargando = false;
     }
+
+    private void ActivarEdicion()
+    {
+        mensajeExito = "";
+        mensajeError = "";
+
+        razonSocialEdit = perfilModel.RazonSocial ?? "";
+        rucEdit = perfilModel.Ruc ?? "";
+        cuentaBancariaEdit = perfilModel.CuentaBancaria ?? "";
+        idBancoEdit = 1;
+
+        editandoDatos = true;
+    }
+
+    private void CancelarEdicion()
+    {
+        editandoDatos = false;
+        mensajeError = "";
+        mensajeExito = "";
+    }
+
+    private async Task GuardarDatosEmpresa()
+    {
+        mensajeExito = "";
+        mensajeError = "";
+
+        if (string.IsNullOrWhiteSpace(razonSocialEdit))
+        {
+            mensajeError = "Ingresa la razón social.";
+            return;
+        }
+
+        if (string.IsNullOrWhiteSpace(rucEdit))
+        {
+            mensajeError = "Ingresa el RUC.";
+            return;
+        }
+
+        if (string.IsNullOrWhiteSpace(cuentaBancariaEdit))
+        {
+            mensajeError = "Ingresa la cuenta bancaria.";
+            return;
+        }
+
+        guardandoDatos = true;
+
+        try
+        {
+            var ok = await AnfitrionService.EditarDatosEmpresaAsync(
+                perfilModel.IdUsuario,
+                razonSocialEdit,
+                rucEdit,
+                cuentaBancariaEdit,
+                idBancoEdit
+            );
+
+            if (ok)
+            {
+                perfilModel.RazonSocial = razonSocialEdit;
+                perfilModel.Ruc = rucEdit;
+                perfilModel.CuentaBancaria = cuentaBancariaEdit;
+
+                mensajeExito = "Datos de empresa actualizados correctamente.";
+                editandoDatos = false;
+            }
+            else
+            {
+                mensajeError = "No se pudo actualizar. Revisa que el RUC o la cuenta bancaria no estén repetidos.";
+            }
+        }
+        finally
+        {
+            guardandoDatos = false;
+        }
+    }
+
 }

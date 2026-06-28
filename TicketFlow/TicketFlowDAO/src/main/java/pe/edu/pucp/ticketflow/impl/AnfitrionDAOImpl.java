@@ -204,4 +204,24 @@ public class AnfitrionDAOImpl implements IAnfitrionDAO {
 
         return anfitrion;
     }
+
+    @Override
+    public void actualizarDatosEmpresa(Integer idAnfitrion, String razonSocial, String ruc, String cuentaBancaria, Integer idBanco) {
+        String sql = "{CALL SP_ACTUALIZAR_DATOS_EMPRESA_ANFITRION(?, ?, ?, ?, ?)}";
+
+        try (Connection con = DBManager.getInstance().getConnection();
+             CallableStatement cs = con.prepareCall(sql)) {
+
+            cs.setInt(1, idAnfitrion);
+            cs.setString(2, razonSocial);
+            cs.setString(3, ruc);
+            cs.setString(4, cuentaBancaria);
+            cs.setInt(5, idBanco);
+
+            cs.execute();
+
+        } catch (SQLException e) {
+            throw new RuntimeException("Error al actualizar datos de empresa del anfitrión", e);
+        }
+    }
 }

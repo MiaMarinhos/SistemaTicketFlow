@@ -260,4 +260,36 @@ public class AnfitrionBLImpl extends UsuarioBLImpl implements IAnfitrionBL {
         }
     }
 
+    @Override
+    public void actualizarDatosEmpresa(Integer idAnfitrion, String razonSocial, String ruc, String cuentaBancaria, Integer idBanco) throws BusinessLogicException {
+        try {
+            if (idAnfitrion == null || idAnfitrion <= 0) {
+                throw new BusinessLogicException("El ID del anfitrión debe ser válido.");
+            }
+
+            if (razonSocial == null || razonSocial.isBlank()) {
+                throw new BusinessLogicException("La razón social es obligatoria.");
+            }
+
+            if (ruc == null || ruc.isBlank()) {
+                throw new BusinessLogicException("El RUC es obligatorio.");
+            }
+
+            if (cuentaBancaria == null || cuentaBancaria.isBlank()) {
+                throw new BusinessLogicException("La cuenta bancaria es obligatoria.");
+            }
+
+            if (idBanco == null || idBanco <= 0) {
+                throw new BusinessLogicException("El banco es obligatorio.");
+            }
+
+            anfitrionDAO.actualizarDatosEmpresa(idAnfitrion, razonSocial, ruc, cuentaBancaria, idBanco);
+
+        } catch (BusinessLogicException e) {
+            throw e;
+        } catch (Exception e) {
+            throw new BusinessLogicException("Error al actualizar datos de empresa: " + e.getMessage());
+        }
+    }
+
 }

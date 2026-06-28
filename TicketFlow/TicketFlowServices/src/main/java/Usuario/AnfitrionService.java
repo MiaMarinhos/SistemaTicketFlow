@@ -71,6 +71,33 @@ public class AnfitrionService {
         }
     }
 
+    @PUT
+    @Path("/{id}/datos-empresa")
+    public Response editarDatosEmpresa(@PathParam("id") Integer idAnfitrion, Anfitrion anfitrion) {
+        try {
+            Integer idBanco = null;
+
+            if (anfitrion.getBanco() != null) {
+                idBanco = anfitrion.getBanco().getId();
+            }
+
+            anfitrionBL.actualizarDatosEmpresa(
+                    idAnfitrion,
+                    anfitrion.getRazonSocial(),
+                    anfitrion.getRuc(),
+                    anfitrion.getCuentaBancaria(),
+                    idBanco
+            );
+
+            return Response.ok(Map.of("mensaje", "Datos de empresa actualizados correctamente.")).build();
+
+        } catch (BusinessLogicException e) {
+            return Response.status(Response.Status.BAD_REQUEST).entity(Map.of("error", e.getMessage())).build();
+        } catch (Exception e) {
+            return Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity(Map.of("error", e.getMessage())).build();
+        }
+    }
+
     // ==========================================
     // 2. GESTIÓN DE EVENTOS
     // ==========================================

@@ -61,6 +61,31 @@ namespace TicketFlowWeb.Services.AnfitrionRS
             return response.IsSuccessStatusCode;
         }
 
+        public async Task<bool> EditarDatosEmpresaAsync(int idAnfitrion, string razonSocial, string ruc, string cuentaBancaria, int idBanco)
+        {
+            var payload = new
+            {
+                idUsuario = idAnfitrion,
+                razonSocial = razonSocial,
+                ruc = ruc,
+                cuentaBancaria = cuentaBancaria,
+                banco = new
+                {
+                    id = idBanco
+                }
+            };
+
+            var response = await _httpClient.PutAsJsonAsync($"AnfitrionRS/{idAnfitrion}/datos-empresa", payload, JsonOptions);
+
+            if (!response.IsSuccessStatusCode)
+            {
+                var error = await response.Content.ReadAsStringAsync();
+                Console.WriteLine($"Error al editar datos de empresa: {error}");
+            }
+
+            return response.IsSuccessStatusCode;
+        }
+
         // ==========================================
         // 2. GESTIÓN DE EVENTOS
         // ==========================================
