@@ -260,13 +260,41 @@ CREATE PROCEDURE SP_FILTRAR_USUARIO_TIPO(
     IN p_idTipo_usuario INT
 )
 BEGIN
-SELECT
-    u.*,
-    uxt.idTipo_usuario
-FROM usuario u
-         INNER JOIN usuario_x_tipo uxt
-                    ON u.idUsuario = uxt.idUsuario
-WHERE uxt.idTipo_usuario = p_idTipo_usuario;
+    SELECT
+        u.*,
+
+        e.idEstado_usuario,
+        e.estado AS nombre_estado,
+
+        tu.idTipo_usuario,
+        tu.nombre AS nombre_tipo_usuario,
+
+        g.idGenero,
+        g.genero AS nombre_genero,
+
+        d.idDistrito,
+        d.nombre AS nombre_distrito
+
+    FROM usuario u
+
+    INNER JOIN estado_usuario e
+        ON u.idEstado = e.idEstado_usuario
+
+    INNER JOIN usuario_x_tipo uxt
+        ON u.idUsuario = uxt.idUsuario
+
+    INNER JOIN tipo_usuario tu
+        ON uxt.idTipo_usuario = tu.idTipo_usuario
+
+    INNER JOIN genero g
+        ON u.idGenero = g.idGenero
+
+    INNER JOIN distrito d
+        ON u.idDistrito = d.idDistrito
+
+    WHERE uxt.idTipo_usuario = p_idTipo_usuario
+
+    ORDER BY u.idUsuario, tu.idTipo_usuario;
 END$$
 
 DELIMITER ;
@@ -280,15 +308,41 @@ CREATE PROCEDURE SP_FILTRAR_USUARIO_ESTADO(
     IN p_idEstado INT
 )
 BEGIN
+    SELECT
+        u.*,
 
-SELECT
-    u.*,
-    uxt.idTipo_usuario
-FROM usuario u
-         INNER JOIN usuario_x_tipo uxt
-                    ON u.idUsuario = uxt.idUsuario
-WHERE u.idEstado = p_idEstado;
+        e.idEstado_usuario,
+        e.estado AS nombre_estado,
 
+        tu.idTipo_usuario,
+        tu.nombre AS nombre_tipo_usuario,
+
+        g.idGenero,
+        g.genero AS nombre_genero,
+
+        d.idDistrito,
+        d.nombre AS nombre_distrito
+
+    FROM usuario u
+
+    INNER JOIN estado_usuario e
+        ON u.idEstado = e.idEstado_usuario
+
+    INNER JOIN usuario_x_tipo uxt
+        ON u.idUsuario = uxt.idUsuario
+
+    INNER JOIN tipo_usuario tu
+        ON uxt.idTipo_usuario = tu.idTipo_usuario
+
+    INNER JOIN genero g
+        ON u.idGenero = g.idGenero
+
+    INNER JOIN distrito d
+        ON u.idDistrito = d.idDistrito
+
+    WHERE u.idEstado = p_idEstado
+
+    ORDER BY u.idUsuario, tu.idTipo_usuario;
 END$$
 
 DELIMITER ;

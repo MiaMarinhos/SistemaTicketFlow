@@ -21,6 +21,25 @@
                @bind="textoBusqueda"
                @bind:event="oninput" />
 
+        <label>Tipo:</label>
+        <select class="form-select filtro-input"
+                value="@tipoFiltro"
+                @onchange="CambiarFiltroTipo">
+            <option value="0">Todos</option>
+            <option value="1">Cliente</option>
+            <option value="2">Anfitrión</option>
+            <option value="3">Admin</option>
+        </select>
+
+        <label>Estado:</label>
+        <select class="form-select filtro-input"
+                value="@estadoFiltro"
+                @onchange="CambiarFiltroEstado">
+            <option value="0">Todos</option>
+            <option value="1">Activo</option>
+            <option value="2">Eliminado</option>
+        </select>
+
         <button class="btn btn-dark" @onclick="LimpiarFiltros">
             <i class="bi bi-x-circle"></i>
         </button>
@@ -274,7 +293,8 @@
 
 @code {
     private string textoBusqueda = "";
-    private string estadoFiltro = "";
+    private int tipoFiltro = 0;
+    private int estadoFiltro = 0;
 
     private List<Usuario>? usuarios;
     private Usuario? usuarioSeleccionado;
@@ -288,9 +308,83 @@
         usuarios == null
             ? Enumerable.Empty<Usuario>()
             : usuarios.Where(u =>
-                string.IsNullOrWhiteSpace(textoBusqueda) ||
-                $"{u.nombre} {u.apellidoPaterno} {u.apellidoMaterno} {u.correoElectronico}"
-                    .Contains(textoBusqueda, StringComparison.OrdinalIgnoreCase));
+                CoincideBusqueda(u) &&
+                CoincideTipo(u) &&
+                CoincideEstado(u)
+            );
+
+    private bool CoincideBusqueda(Usuario u)
+    {
+        if (string.IsNullOrWhiteSpace(textoBusqueda))
+            return true;
+
+        string textoUsuario =
+            $"{u.nombre} {u.apellidoPaterno} {u.apellidoMaterno} {u.correoElectronico}";
+
+        return textoUsuario.Contains(
+            textoBusqueda,
+            StringComparison.OrdinalIgnoreCase
+        );
+    }
+
+    private bool CoincideTipo(Usuario u)
+    {
+        if (tipoFiltro == 0)
+            return true;
+
+        string tipo = u.tipo?.tipoUsuario?.Trim().ToUpperInvariant() ?? "";
+
+        return tipoFiltro switch
+        {
+            1 => tipo == "CLIENTE",
+            2 => tipo == "ANFITRION",
+            3 => tipo == "ADMIN",
+            _ => true
+        };
+    }
+
+    private bool CoincideEstado(Usuario u)
+    {
+        if (estadoFiltro == 0)
+            return true;
+
+        string estado = u.estado?.Nombre?.Trim().ToUpperInvariant() ?? "";
+
+        return estadoFiltro switch
+        {
+            1 => estado == "ACTIVO",
+            2 => estado == "ELIMINADO",
+            _ => true
+        };
+    }
+
+    private async Task CambiarFiltroTipo(ChangeEventArgs e)
+    {
+        int.TryParse(e.Value?.ToString(), out tipoFiltro);
+        await AplicarFiltros();
+    }
+
+    private async Task CambiarFiltroEstado(ChangeEventArgs e)
+    {
+        int.TryParse(e.Value?.ToString(), out estadoFiltro);
+        await AplicarFiltros();
+    }
+
+    private async Task AplicarFiltros()
+    {
+        if (tipoFiltro > 0)
+        {
+            usuarios = await AdminService.FiltrarUsuariosPorTipo(tipoFiltro);
+        }
+        else if (estadoFiltro > 0)
+        {
+            usuarios = await AdminService.FiltrarUsuariosPorEstado(estadoFiltro);
+        }
+        else
+        {
+            usuarios = await AdminService.ListarUsuarios();
+        }
+    }
 
     private async Task VerUsuario(int id)
     {
@@ -341,7 +435,7 @@
             usuarioSeleccionado
         );
 
-        usuarios = await AdminService.ListarUsuarios();
+        await AplicarFiltros();
     }
 
     private async Task BloquearUsuario()
@@ -358,12 +452,15 @@
             await AdminService.BloquearUsuario(usuarioSeleccionado.idUsuario);
         }
 
-        usuarios = await AdminService.ListarUsuarios();
+        await AplicarFiltros();
     }
 
-    private void LimpiarFiltros()
+    private async Task LimpiarFiltros()
     {
         textoBusqueda = "";
-        estadoFiltro = "";
+        tipoFiltro = 0;
+        estadoFiltro = 0;
+
+        usuarios = await AdminService.ListarUsuarios();
     }
 }

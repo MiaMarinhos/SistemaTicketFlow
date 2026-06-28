@@ -124,4 +124,47 @@ public class AdminUsuariosService {
                     .build();
         }
     }
+    //FILTROS:
+    @GET
+    @Path("filtrar/tipo/{idTipoUsuario}")
+    public Response filtrarUsuariosPorTipo(@PathParam("idTipoUsuario") Integer idTipoUsuario) {
+        try {
+            List<Usuario> usuarios = administradorBL.filtrarUsuariosPorTipo(idTipoUsuario);
+
+            return Response.ok(usuarios).build();
+        }
+        catch (BusinessLogicException e) {
+            return Response.status(Response.Status.BAD_REQUEST)
+                    .entity(Map.of("error", e.getMessage()))
+                    .build();
+        }
+        catch (Exception e) {
+            e.printStackTrace();
+
+            return Response.status(Response.Status.INTERNAL_SERVER_ERROR)
+                    .entity(Map.of("error", "Ocurrió un error inesperado: " + e.getMessage()))
+                    .build();
+        }
+    }
+    @GET
+    @Path("filtrar/estado/{idEstado}")
+    public Response filtrarUsuariosPorEstado(@PathParam("idEstado") Integer idEstado) {
+        try {
+            List<Usuario> usuarios = administradorBL.filtrarUsuariosPorEstado(idEstado);
+
+            return Response.ok(usuarios).build();
+        }
+        catch (BusinessLogicException e) {
+            return Response.status(Response.Status.BAD_REQUEST)
+                    .entity(Map.of("error", e.getMessage()))
+                    .build();
+        }
+        catch (Exception e) {
+            e.printStackTrace();
+
+            return Response.status(Response.Status.INTERNAL_SERVER_ERROR)
+                    .entity(Map.of("error", "Ocurrió un error inesperado: " + e.getMessage()))
+                    .build();
+        }
+    }
 }

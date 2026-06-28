@@ -235,6 +235,7 @@ public class UsuarioDAOImpl implements IUsuarioDAO {
             }
 
         } catch (SQLException e) {
+            e.printStackTrace();
             throw new RuntimeException("Error al filtrar usuarios por tipo", e);
         }
         return usuarios;
@@ -277,6 +278,7 @@ public class UsuarioDAOImpl implements IUsuarioDAO {
             }
 
         } catch (SQLException e) {
+            e.printStackTrace();
             throw new RuntimeException("Error al filtrar usuarios por estado", e);
         }
         return usuarios;

@@ -163,5 +163,19 @@ namespace TicketFlowWeb.Services.AdministradorRS
 
             return await response.Content.ReadFromJsonAsync<Usuario>();
         }
+
+        public async Task<List<Usuario>> FiltrarUsuariosPorTipo(int idTipoUsuario)
+        {
+            return await _http.GetFromJsonAsync<List<Usuario>>(
+                $"AdminUsuarios/filtrar/tipo/{idTipoUsuario}"
+            ) ?? new List<Usuario>();
+        }
+
+        public async Task<List<Usuario>> FiltrarUsuariosPorEstado(int idEstado)
+        {
+            return await _http.GetFromJsonAsync<List<Usuario>>(
+                $"AdminUsuarios/filtrar/estado/{idEstado}"
+            ) ?? new List<Usuario>();
+        }
     }
 }
