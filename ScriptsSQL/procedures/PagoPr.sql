@@ -108,6 +108,7 @@ DELIMITER ;
 DROP PROCEDURE IF EXISTS sp_read_pagos; 
 
 DELIMITER $$
+
 CREATE PROCEDURE sp_read_pagos(
     IN p_idPagos INT
 )
@@ -125,6 +126,9 @@ BEGIN
         e.fecha AS fecha_evento,
         e.ubicacion AS ubicacion_evento,
         e.nombre_establecimiento AS establecimiento_evento,
+        e.idEstado_evento AS idEstadoEvento,
+
+        ee.estado AS estado_evento,
 
         a.idAnfitrion,
         a.razon_social AS usuario,
@@ -142,6 +146,9 @@ BEGIN
     INNER JOIN evento e
         ON p.idEvento = e.idEvento
 
+    INNER JOIN estado_evento ee
+        ON e.idEstado_evento = ee.idEstado_evento
+
     INNER JOIN anfitrion a
         ON e.idAnfitrion = a.idAnfitrion
 
@@ -153,6 +160,7 @@ BEGIN
 
     WHERE p.idPagos = p_idPagos;
 END$$
+
 DELIMITER ;
 
 -- Update
@@ -227,6 +235,8 @@ BEGIN
         p.idEstado,
 
         e.titulo AS evento,
+        e.idEstado_evento AS idEstadoEvento,
+        ee.estado AS estado_evento,
 
         a.razon_social AS usuario,
 
@@ -239,6 +249,9 @@ BEGIN
     INNER JOIN evento e
         ON p.idEvento = e.idEvento
 
+    INNER JOIN estado_evento ee
+        ON e.idEstado_evento = ee.idEstado_evento
+
     INNER JOIN anfitrion a
         ON e.idAnfitrion = a.idAnfitrion
 
@@ -250,6 +263,8 @@ BEGIN
 
     ORDER BY p.idPagos ASC;
 END$$
+
+DELIMITER ;
 
 DELIMITER ;
 
@@ -299,7 +314,7 @@ END$$
 DELIMITER ;
 
 -- Filtrar Por Estado
-DROP PROCEDURE IF EXISTS sp_filtrar_pagos_estado ;
+DROP PROCEDURE IF EXISTS sp_filtrar_pagos_estado;
 
 DELIMITER $$
 
@@ -317,6 +332,8 @@ BEGIN
         p.idEstado,
 
         e.titulo AS evento,
+        e.idEstado_evento AS idEstadoEvento,
+        ee.estado AS estado_evento,
 
         a.razon_social AS usuario,
 
@@ -328,6 +345,9 @@ BEGIN
 
     INNER JOIN evento e
         ON p.idEvento = e.idEvento
+
+    INNER JOIN estado_evento ee
+        ON e.idEstado_evento = ee.idEstado_evento
 
     INNER JOIN anfitrion a
         ON e.idAnfitrion = a.idAnfitrion
@@ -344,7 +364,6 @@ BEGIN
 END$$
 
 DELIMITER ;
-
 DROP PROCEDURE IF EXISTS sp_filtrar_pagos_fecha;
 
 DELIMITER $$
@@ -363,6 +382,8 @@ BEGIN
         p.idEstado,
 
         e.titulo AS evento,
+        e.idEstado_evento AS idEstadoEvento,
+        ee.estado AS estado_evento,
 
         a.razon_social AS usuario,
 
@@ -374,6 +395,9 @@ BEGIN
 
     INNER JOIN evento e
         ON p.idEvento = e.idEvento
+
+    INNER JOIN estado_evento ee
+        ON e.idEstado_evento = ee.idEstado_evento
 
     INNER JOIN anfitrion a
         ON e.idAnfitrion = a.idAnfitrion
@@ -388,6 +412,7 @@ BEGIN
 
     ORDER BY p.idPagos ASC;
 END$$
+
 
 DELIMITER ;
 
