@@ -8,7 +8,6 @@ namespace TicketFlowWeb.Services
     {
         private readonly HttpClient _httpClient;
 
-        // Configuramos el JSON para ignorar mayúsculas/minúsculas al mapear
         private static readonly JsonSerializerOptions JsonOptions = new()
         {
             PropertyNameCaseInsensitive = true,
@@ -22,16 +21,20 @@ namespace TicketFlowWeb.Services
 
         public async Task<List<Distrito>> ListarDistritosAsync()
         {
-            try
+            // Hacemos la petición a Java
+            var response = await _httpClient.GetAsync("DistritoRS/listar");
+
+            if (response.IsSuccessStatusCode)
             {
-                // Consumimos el endpoint de Java que me mostraste
-                var lista = await _httpClient.GetFromJsonAsync<List<Distrito>>("DistritoRS/listar", JsonOptions);
+                // Si Java responde bien (200 OK), mapeamos los datos
+                var lista = await response.Content.ReadFromJsonAsync<List<Distrito>>(JsonOptions);
                 return lista ?? new List<Distrito>();
             }
-            catch (Exception ex)
+            else
             {
-                Console.WriteLine($"Error obteniendo distritos: {ex.Message}");
-                return new List<Distrito>();
+                // Si falla, CAPTURAMOS el error exacto y lo lanzamos a la vista
+                var errorMsg = await response.Content.ReadAsStringAsync();
+                throw new Exception($"HTTP {response.StatusCode} - {errorMsg}");
             }
         }
     }
