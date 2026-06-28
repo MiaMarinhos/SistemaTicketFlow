@@ -19,11 +19,11 @@ import java.util.List;
 import java.util.Map;
 
 @Path("ReporteRS")
-public class ReporteFidelizacion {
+public class ReporteServices {
 
     private final IAdministradorBL reportesBL;
 
-    public ReporteFidelizacion(){
+    public ReporteServices(){
         this.reportesBL = new AdministradorBLImpl();
     }
     @GET
@@ -80,6 +80,73 @@ public class ReporteFidelizacion {
             return Response.ok(pdf)
                     .type("application/pdf")
                     .header("Content-Disposition", "attachment; filename=reporte_fidelizacion.pdf")
+                    .build();
+
+        } catch (BusinessLogicException e) {
+            return Response.status(Response.Status.INTERNAL_SERVER_ERROR)
+                    .entity("Error de negocio: " + e.getMessage())
+                    .build();
+        } catch (Exception e) {
+            return Response.serverError()
+                    .entity("Error al generar reporte: " + e.getMessage())
+                    .build();
+        }
+    }
+
+    @GET
+    @Path("/ocupacion/pdf")
+    @Produces("application/pdf")
+    public Response generarReporteOcupacion() {
+        try {
+            List<Object[]> datos = reportesBL.generarReporteOcupacionEventos();
+
+            if (datos == null || datos.isEmpty()) {
+                return Response.status(Response.Status.NOT_FOUND)
+                        .entity("No se encontraron datos de ocupacion.")
+                        .build();
+            }
+
+            // Convertir List<Object[]> a List<Map<String, Object>>
+            // Las claves deben coincidir con los nombres de campo en el .jrxml
+            List<Map<String, ?>> listaMapas = new ArrayList<>();
+            for (Object[] fila : datos) {
+                Map<String, Object> mapa = new HashMap<>();
+                mapa.put("Evento",fila[0]);
+                mapa.put("Capacidad",fila[1]);
+                mapa.put("Entradas Vendidas",fila[2]);
+                mapa.put("Porcentaje de Ocupacion",fila[3]);
+                listaMapas.add(mapa);
+            }
+
+            java.io.InputStream inputStream = getClass()
+                    .getClassLoader()
+                    .getResourceAsStream("reportes/ReporteOcupacion.jasper");
+
+            if (inputStream == null) {
+                return Response.serverError()
+                        .entity("No se encontró reportes/ReporteOcupacion.jasper en el classpath")
+                        .build();
+            }
+
+            JasperReport jasperReport = (JasperReport) JRLoader.loadObject(inputStream);
+
+            JRMapCollectionDataSource dataSource =
+                    new JRMapCollectionDataSource(listaMapas);
+
+            Map<String, Object> parametros = new HashMap<>();
+            parametros.put("Fecha", LocalDate.now().toString());
+
+            JasperPrint jasperPrint = JasperFillManager.fillReport(
+                    jasperReport,
+                    parametros,
+                    dataSource
+            );
+
+            byte[] pdf = JasperExportManager.exportReportToPdf(jasperPrint);
+
+            return Response.ok(pdf)
+                    .type("application/pdf")
+                    .header("Content-Disposition", "attachment; filename=reporte_de_ocupacion.pdf")
                     .build();
 
         } catch (BusinessLogicException e) {

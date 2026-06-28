@@ -69,9 +69,11 @@ namespace TicketFlowWeb.Services.AnfitrionRS
         {
             try
             {
-                // Llamamos al nuevo endpoint que creamos en Java
-                var lista = await _httpClient.GetFromJsonAsync<List<EventoViewModel>>($"AnfitrionRS/{idAnfitrion}/mis-eventos", JsonOptions);
-                return lista ?? new List<EventoViewModel>();
+                var todosLosEventos = await VerTodosLosEventosAsync();
+
+                return todosLosEventos
+                    .Where(e => e.idAnfitrion == idAnfitrion)
+                    .ToList();
             }
             catch (Exception ex)
             {

@@ -623,30 +623,26 @@
 
             if (user.Identity is not null && user.Identity.IsAuthenticated)
             {
-                // 1. Asignar el nombre directamente desde la sesión
-                nombreAnfitrion = user.Identity.Name ?? "Anfitrión";
-
-                // 2. Continuar con la carga de métricas y eventos
                 var idClaim = user.FindFirst("IdUsuario")?.Value;
 
                 if (int.TryParse(idClaim, out int idAnfitrion))
                 {
-                    // Traer el perfil para el saludo
-                    //perfilActual = await AnfitrionService.BuscarAnfitrionAsync(idAnfitrion);
-                    //if (perfilActual != null)
-                    //{
-                    //    nombreAnfitrion = string.IsNullOrWhiteSpace(perfilActual.Nombre) ? "Anfitrión" : perfilActual.Nombre;
-                    //}
+                    perfilActual = await AnfitrionService.BuscarAnfitrionAsync(idAnfitrion);
 
-                    // 1. Descargar y filtrar SOLO tus eventos
-                    var todosLosEventos = await AnfitrionService.VerTodosLosEventosAsync();
+                    if (perfilActual != null && !string.IsNullOrWhiteSpace(perfilActual.Nombre))
+                    {
+                        nombreAnfitrion = perfilActual.Nombre;
+                    }
+                    else
+                    {
+                        nombreAnfitrion = "Anfitrión";
+                    }
+
                     misEventos = await AnfitrionService.VerMisEventosAsync(idAnfitrion) ?? new();
 
-                    // Calculamos métricas básicas
                     totalEventos = misEventos.Count;
                     totalEmitidas = misEventos.Sum(e => e.capacidad_entradas);
 
-                    // 2. Descargar compras para calcular dinero y tickets
                     var compras = await AnfitrionService.VerComprasDeSusEventosAsync(idAnfitrion);
 
                     entradasVendidas = 0;
@@ -658,11 +654,11 @@
                         {
                             entradasVendidas += compra.entradasCompradas;
 
-                            // Buscamos cuánto costaba la entrada de este evento específico
                             var eventoRelacionado = misEventos.FirstOrDefault(e => e.idEvento == compra.idEvento);
+
                             if (eventoRelacionado != null)
                             {
-                                ingresosGenerados += (compra.entradasCompradas * eventoRelacionado.precio);
+                                ingresosGenerados += compra.entradasCompradas * eventoRelacionado.precio;
                             }
                         }
                     }

@@ -81,6 +81,23 @@
                         }
                     </button>
                 }
+                @if (reporteSeleccionado?.Nombre == "Ocupación de Eventos")
+                {
+                    <button class="btn btn-primary btn-sm"
+                            @onclick="GenerarPdfOcupacion"
+                            disabled="@cargando">
+                        @if (cargando)
+                        {
+                            <span class="spinner-border spinner-border-sm me-1"></span>
+                            <span>Generando...</span>
+                        }
+                        else
+                        {
+                            <i class="bi bi-file-earmark-pdf me-1"></i>
+                            <span>Descargar PDF</span>
+                        }
+                    </button>
+                }
                 @if (errorMensaje != null)
                 {
                     <span class="text-danger small me-auto">@errorMensaje</span>
@@ -130,6 +147,25 @@
         errorMensaje = null;
         cargando = false;
     }
+
+    private async Task GenerarPdfOcupacion()
+{
+    cargando = true;
+    errorMensaje = null;
+
+    try
+    {
+        await ReporteService.DescargarReporteOcupacionAsync();
+    }
+    catch (Exception ex)
+    {
+        errorMensaje = ex.Message;
+    }
+    finally
+    {
+        cargando = false;
+    }
+}
 
     private async Task GenerarPdfFidelizacion()
     {
