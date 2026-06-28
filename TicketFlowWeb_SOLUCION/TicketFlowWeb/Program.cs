@@ -42,6 +42,8 @@ builder.Services.AddHttpClient<AdministradorRestService>(client =>
 builder.Services.AddScoped<TicketFlow.Services.ReporteRS.ReporteService>();
 
 builder.Services.AddScoped<CompraRS>();
+    
+builder.Services.AddScoped<UbicacionRestService>();
 
 //Builder General
 builder.Services.AddScoped(sp => new HttpClient
