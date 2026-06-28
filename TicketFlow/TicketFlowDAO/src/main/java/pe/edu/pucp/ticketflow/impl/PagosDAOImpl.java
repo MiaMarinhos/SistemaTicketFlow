@@ -4,6 +4,7 @@ import pe.edu.pucp.ticketflow.IEstadoPagosDAO;
 import pe.edu.pucp.ticketflow.IEventoDAO;
 import pe.edu.pucp.ticketflow.IPagosDAO;
 import pe.edu.pucp.ticketflow.dao.manager.DBManager;
+import pe.edu.pucp.ticketflow.evento.model.EstadoEvento;
 import pe.edu.pucp.ticketflow.evento.model.Evento;
 import pe.edu.pucp.ticketflow.pago.model.EstadoPago;
 import pe.edu.pucp.ticketflow.pago.model.Pago;
@@ -261,15 +262,39 @@ public class PagosDAOImpl implements IPagosDAO {
         Evento evento = new Evento();
         evento.setIdEvento(rs.getInt("idEvento"));
         evento.setTitulo(rs.getString("evento"));
+
+        if (existeColumna(rs, "idEstadoEvento")) {
+            evento.setFK_idEstadoEvento(rs.getInt("idEstadoEvento"));
+
+            EstadoEvento estadoEvento = new EstadoEvento();
+            estadoEvento.setIdEstado_evento(rs.getInt("idEstadoEvento"));
+            estadoEvento.setEstado(rs.getString("estado_evento"));
+
+            evento.setEstadoEvento(estadoEvento);
+        }
+
         t.setEvento(evento);
 
-        EstadoPago estado = new EstadoPago();
-        estado.setIdEstadoPago(rs.getInt("idEstado"));
-        estado.setEstado(rs.getString("estado_pago"));
-        t.setEstado(estado);
+        EstadoPago estadoPago = new EstadoPago();
+        estadoPago.setIdEstadoPago(rs.getInt("idEstado"));
+        estadoPago.setEstado(rs.getString("estado_pago"));
+
+        t.setEstado(estadoPago);
 
         t.setUsuario(rs.getString("usuario"));
         t.setBanco(rs.getString("banco"));
+    }
+
+    private boolean existeColumna(ResultSet rs, String nombreColumna) throws SQLException {
+        ResultSetMetaData metaData = rs.getMetaData();
+
+        for (int i = 1; i <= metaData.getColumnCount(); i++) {
+            if (metaData.getColumnLabel(i).equalsIgnoreCase(nombreColumna)) {
+                return true;
+            }
+        }
+
+        return false;
     }
 
     @Override
