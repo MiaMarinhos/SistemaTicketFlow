@@ -286,9 +286,32 @@ CREATE PROCEDURE USP_FILTRAR_SOLICITUD_ESTADO(
     IN p_idEstado INT
 )
 BEGIN
-SELECT *
-FROM solicitudes
-WHERE idEstado = p_idEstado;
+    SELECT
+        s.idSolicitudes,
+        s.telefono_contacto,
+        s.correo_contacto,
+        s.motivo,
+        s.idAdministrador,
+        s.idUsuario,
+        s.idEstado,
+
+        u.nombre,
+        u.apellido_paterno,
+        u.apellido_materno,
+
+        es.estado AS estado_solicitud
+
+    FROM solicitudes s
+
+    INNER JOIN usuario u
+        ON s.idUsuario = u.idUsuario
+
+    INNER JOIN estado_solicitudes es
+        ON s.idEstado = es.idEstado_solicitudes
+
+    WHERE s.idEstado = p_idEstado
+
+    ORDER BY s.idSolicitudes ASC;
 END$$
 
 DELIMITER ;

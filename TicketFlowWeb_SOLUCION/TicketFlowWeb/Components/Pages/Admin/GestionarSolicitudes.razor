@@ -17,12 +17,22 @@
         <label>Buscar:</label>
         <input type="text"
                class="form-control filtro-input"
-               placeholder="Buscar..."
+               placeholder="Buscar por nombre..."
                @bind="textoBusqueda"
                @bind:event="oninput" />
 
+        <label>Estado:</label>
+        <select class="form-select filtro-input"
+                value="@estadoFiltro"
+                @onchange="CambiarFiltroEstado">
+            <option value="0">Todos</option>
+            <option value="1">Pendiente</option>
+            <option value="2">Aprobada</option>
+            <option value="3">Rechazada</option>
+        </select>
+
         <button class="btn btn-dark" @onclick="LimpiarFiltros">
-            <i class="bi bi-funnel-fill"></i>
+            <i class="bi bi-x-circle"></i>
         </button>
     </div>
 </nav>
@@ -61,13 +71,6 @@
                                         data-bs-target="#verSolicitudModal"
                                         @onclick="() => SeleccionarSolicitud(solicitud)">
                                     <i class="bi bi-eye"></i>
-                                </button>
-
-                                <button class="btn btn-outline-warning btn-sm"
-                                        data-bs-toggle="modal"
-                                        data-bs-target="#editarSolicitudModal"
-                                        @onclick="() => SeleccionarSolicitud(solicitud)">
-                                    <i class="bi bi-pencil"></i>
                                 </button>
 
                                 @if (solicitud.IdEstadoSolicitud == 1)
@@ -112,7 +115,6 @@
 </div>
 
 <!-- MODAL VER -->
-
 <div class="modal fade" id="verSolicitudModal" tabindex="-1">
     <div class="modal-dialog modal-dialog-centered">
         <div class="modal-content">
@@ -127,10 +129,13 @@
                 {
                     <p><strong>ID:</strong> @solicitudSeleccionada.IdSolicitudes</p>
                     <p><strong>ID Cliente:</strong> @solicitudSeleccionada.IdCliente</p>
+                    <p><strong>Nombre:</strong> @solicitudSeleccionada.Cliente?.nombre</p>
+                    <p><strong>Apellido Paterno:</strong> @solicitudSeleccionada.Cliente?.apellidoPaterno</p>
+                    <p><strong>Apellido Materno:</strong> @solicitudSeleccionada.Cliente?.apellidoMaterno</p>
                     <p><strong>Correo:</strong> @solicitudSeleccionada.CorreoContacto</p>
                     <p><strong>Teléfono:</strong> @solicitudSeleccionada.TelefonoContacto</p>
                     <p><strong>Motivo:</strong> @solicitudSeleccionada.Motivo</p>
-                    <p><strong>Estado:</strong> @solicitudSeleccionada.IdEstadoSolicitud</p>
+                    <p><strong>Estado:</strong> @solicitudSeleccionada.EstadoSolicitud?.Estado</p>
                 }
             </div>
 
@@ -138,34 +143,24 @@
     </div>
 </div>
 
-<!-- MODAL EDITAR -->
-<div class="modal fade" id="editarSolicitudModal" tabindex="-1">
-    <div class="modal-dialog modal-dialog-centered">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title">Editar Solicitud</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-            </div>
-
-            <div class="modal-body">
-                <p>Formulario de edición pendiente.</p>
-            </div>
-        </div>
-    </div>
-</div>
-
-<!-- MODAL APROBAR -->
 <!-- MODAL APROBAR -->
 <div class="modal fade" id="aprobarSolicitudModal" tabindex="-1">
     <div class="modal-dialog modal-dialog-centered">
         <div class="modal-content">
+
             <div class="modal-header">
                 <h5 class="modal-title">Aprobar Solicitud</h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
             </div>
 
             <div class="modal-body">
-                ¿Desea aprobar esta solicitud?
+                @if (solicitudSeleccionada != null)
+                {
+                    <p>
+                        ¿Desea aprobar la solicitud de
+                        <strong>@solicitudSeleccionada.Cliente?.nombre @solicitudSeleccionada.Cliente?.apellidoPaterno</strong>?
+                    </p>
+                }
             </div>
 
             <div class="modal-footer">
@@ -179,6 +174,7 @@
                     Aceptar
                 </button>
             </div>
+
         </div>
     </div>
 </div>
@@ -187,13 +183,20 @@
 <div class="modal fade" id="rechazarSolicitudModal" tabindex="-1">
     <div class="modal-dialog modal-dialog-centered">
         <div class="modal-content">
+
             <div class="modal-header">
                 <h5 class="modal-title">Rechazar Solicitud</h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
             </div>
 
             <div class="modal-body">
-                ¿Desea rechazar esta solicitud?
+                @if (solicitudSeleccionada != null)
+                {
+                    <p>
+                        ¿Desea rechazar la solicitud de
+                        <strong>@solicitudSeleccionada.Cliente?.nombre @solicitudSeleccionada.Cliente?.apellidoPaterno</strong>?
+                    </p>
+                }
             </div>
 
             <div class="modal-footer">
@@ -207,6 +210,7 @@
                     Aceptar
                 </button>
             </div>
+
         </div>
     </div>
 </div>
@@ -215,14 +219,21 @@
 <div class="modal fade" id="eliminarSolicitudModal" tabindex="-1">
     <div class="modal-dialog modal-dialog-centered">
         <div class="modal-content">
+
             <div class="modal-header">
                 <h5 class="modal-title">Eliminar Solicitud</h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
             </div>
 
             <div class="modal-body">
-                ¿Desea eliminar esta solicitud?
+                @if (solicitudSeleccionada != null)
+                {
+                    <p>
+                        ¿Desea eliminar esta solicitud?
+                    </p>
+                }
             </div>
+
         </div>
     </div>
 </div>
@@ -230,6 +241,7 @@
 @code {
 
     private string textoBusqueda = "";
+    private int estadoFiltro = 0;
 
     private SolicitudViewModel? solicitudSeleccionada;
 
@@ -241,23 +253,44 @@
     }
 
     private IEnumerable<SolicitudViewModel> SolicitudesFiltradas =>
-        string.IsNullOrWhiteSpace(textoBusqueda)
-        ? solicitudes
-        : solicitudes.Where(s =>
-            s.CorreoContacto.Contains(textoBusqueda,
-                StringComparison.OrdinalIgnoreCase)
+        solicitudes.Where(s =>
+            string.IsNullOrWhiteSpace(textoBusqueda)
             ||
-            s.Motivo.Contains(textoBusqueda,
-                StringComparison.OrdinalIgnoreCase));
+            (s.Cliente?.nombre ?? "").Contains(textoBusqueda, StringComparison.OrdinalIgnoreCase)
+            ||
+            (s.Cliente?.apellidoPaterno ?? "").Contains(textoBusqueda, StringComparison.OrdinalIgnoreCase)
+            ||
+            (s.Cliente?.apellidoMaterno ?? "").Contains(textoBusqueda, StringComparison.OrdinalIgnoreCase)
+        );
+
+    private async Task CambiarFiltroEstado(ChangeEventArgs e)
+    {
+        int.TryParse(e.Value?.ToString(), out estadoFiltro);
+        await AplicarFiltroEstado();
+    }
+
+    private async Task AplicarFiltroEstado()
+    {
+        if (estadoFiltro > 0)
+        {
+            solicitudes = await AdminService.FiltrarSolicitudesPorEstado(estadoFiltro);
+        }
+        else
+        {
+            solicitudes = await AdminService.ListarSolicitudes();
+        }
+    }
 
     private void SeleccionarSolicitud(SolicitudViewModel solicitud)
     {
         solicitudSeleccionada = solicitud;
     }
 
-    private void LimpiarFiltros()
+    private async Task LimpiarFiltros()
     {
         textoBusqueda = "";
+        estadoFiltro = 0;
+        solicitudes = await AdminService.ListarSolicitudes();
     }
 
     private async Task ConfirmarAprobacion()
@@ -267,7 +300,7 @@
 
         await AdminService.AprobarSolicitud(solicitudSeleccionada.IdSolicitudes);
 
-        solicitudes = await AdminService.ListarSolicitudes();
+        await AplicarFiltroEstado();
     }
 
     private async Task ConfirmarRechazo()
@@ -277,6 +310,6 @@
 
         await AdminService.RechazarSolicitud(solicitudSeleccionada.IdSolicitudes);
 
-        solicitudes = await AdminService.ListarSolicitudes();
+        await AplicarFiltroEstado();
     }
 }

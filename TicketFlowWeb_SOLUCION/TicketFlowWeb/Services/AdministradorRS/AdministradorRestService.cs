@@ -283,5 +283,12 @@ namespace TicketFlowWeb.Services.AdministradorRS
                 "AdminEventos/categorias"
             ) ?? new List<CategoriaEventoViewModel>();
         }
+
+        public async Task<List<SolicitudViewModel>> FiltrarSolicitudesPorEstado(int idEstado)
+        {
+            return await _http.GetFromJsonAsync<List<SolicitudViewModel>>(
+                $"AdminSolicitudes/filtrar/estado/{idEstado}"
+            ) ?? new List<SolicitudViewModel>();
+        }
     }
 }

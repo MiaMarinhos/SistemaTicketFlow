@@ -93,4 +93,31 @@ public class AdminSolicitudesService {
                     .build();
         }
     }
+
+    @GET
+    @Path("filtrar/estado/{idEstado}")
+    @Produces(MediaType.APPLICATION_JSON)
+    public Response filtrarSolicitudesPorEstado(@PathParam("idEstado") Integer idEstado) {
+        try {
+            List<Solicitud> solicitudes =
+                    administradorBL.filtrarSolicitudesPorEstado(idEstado);
+
+            return Response.ok(solicitudes).build();
+
+        } catch (BusinessLogicException e) {
+
+            return Response.status(Response.Status.BAD_REQUEST)
+                    .entity(Map.of("error", e.getMessage()))
+                    .build();
+
+        } catch (Exception e) {
+            e.printStackTrace();
+
+            return Response.status(Response.Status.INTERNAL_SERVER_ERROR)
+                    .entity(Map.of("error", e.getMessage() != null
+                            ? e.getMessage()
+                            : "Error interno del servidor"))
+                    .build();
+        }
+    }
 }
