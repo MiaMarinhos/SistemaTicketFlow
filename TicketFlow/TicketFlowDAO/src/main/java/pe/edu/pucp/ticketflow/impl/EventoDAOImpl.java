@@ -52,6 +52,41 @@ public class EventoDAOImpl implements IEventoDAO {
     }
 
     @Override
+    public Evento createByAdmin(Evento eve){
+        // INSERT modificado a 15 parámetros, sin requerir el ID desde el frontend
+        String sql = "{CALL SP_INSERTAR_EVENTO_ADMIN (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)}";
+        try(Connection connection = DBManager.getInstance().getConnection();
+
+            CallableStatement cs = connection.prepareCall(sql)) {
+
+            cs.setString(1, eve.getTitulo());
+            cs.setString(2, eve.getDescripcion());
+            cs.setInt(3, eve.getCapacidad_entradas());
+
+            // CONVERSIÓN DE STRING A SQL DATE/TIME PARA EL INSERT
+            cs.setDate(4, eve.getFecha() != null ? java.sql.Date.valueOf(eve.getFecha()) : null);
+            cs.setTime(5, eve.getHora_inicio() != null ? java.sql.Time.valueOf(eve.getHora_inicio()) : null);
+            cs.setTime(6, eve.getHora_fin() != null ? java.sql.Time.valueOf(eve.getHora_fin()) : null);
+
+            cs.setString(7, eve.getUbicacion());
+            cs.setString(8, eve.getNombre_establecimiento());
+            cs.setString(9, eve.getImg());
+            cs.setDouble(10, eve.getPrecio());
+            cs.setInt(11, eve.getFK_idDistrito());
+            cs.setInt(12, eve.getIdAnfitrion());
+            cs.setInt(13, eve.getFK_idCategoria_evento());
+            cs.setInt(14, eve.getFK_idEstadoPublicacion());
+            cs.setInt(15, eve.getFK_idEstadoEvento());
+
+            cs.execute();
+
+            return eve;
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    @Override
     public Evento read(Integer id) {
 
         String sql = "{CALL SP_LEER_EVENTO(?)}";
@@ -158,6 +193,33 @@ public class EventoDAOImpl implements IEventoDAO {
     }
 
     @Override
+    public List<Evento> listAllOrdenID() {
+
+        String sql = "{CALL SP_LISTAR_EVENTOS_ORDEN_ID()}";
+
+        try (Connection connection = DBManager.getInstance().getConnection();
+             CallableStatement cs = connection.prepareCall(sql)) {
+
+            try (ResultSet rs = cs.executeQuery()) {
+
+                List<Evento> eventos = new ArrayList<>();
+
+                while (rs.next()) {
+
+                    Evento evento = new Evento();
+                    mapearEventoListar(rs, evento);
+                    eventos.add(evento);
+                }
+
+                return eventos;
+            }
+
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    @Override
     public List<Evento> buscarPorTitulo(String titulo) {
 
         List<Evento> eventos = new ArrayList<>();
@@ -224,7 +286,7 @@ public class EventoDAOImpl implements IEventoDAO {
                 while (rs.next()) {
 
                     Evento evento = new Evento();
-                    mapearEvento(rs, evento);
+                    mapearEventoListar(rs, evento);
                     eventos.add(evento);
                 }
 
@@ -232,6 +294,7 @@ public class EventoDAOImpl implements IEventoDAO {
             }
 
         } catch (SQLException e) {
+            e.printStackTrace();
             throw new RuntimeException("Error al filtrar eventos por estado", e);
         }
     }
@@ -429,6 +492,12 @@ public class EventoDAOImpl implements IEventoDAO {
         cat.setIdCategoria_evento(rs.getInt("idCategoria_evento"));
         cat.setNombre(rs.getString("nombre_categoria"));
         evento.setCategoria(cat);
+
+        // Agregar estos campos FK
+        evento.setFK_idDistrito(rs.getInt("idDistrito"));
+        evento.setFK_idCategoria_evento(rs.getInt("idCategoria_evento"));
+        evento.setFK_idEstadoPublicacion(rs.getInt("idEstado_publicacion"));
+        evento.setFK_idEstadoEvento(rs.getInt("idEstado_evento"));
     }
     @Override
     public List<Evento> ListarEventosProximos(){

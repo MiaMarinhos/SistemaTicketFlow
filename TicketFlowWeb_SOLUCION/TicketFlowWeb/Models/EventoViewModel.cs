@@ -30,6 +30,8 @@ namespace TicketFlowWeb.Models
         public Distrito distrito { get; set; }
         public Anfitrion anfitrion { get; set; }
 
+        public  EstadoEventoViewModel estadoEvento { get; set; }
+
         public EstadoPublicacion estadoPublicacion { get; set; }
     }
 

@@ -259,7 +259,7 @@ DEFAULT CHARACTER SET = utf8mb3;
 DROP TABLE IF EXISTS `ticket_flow`.`evento` ;
 
 CREATE TABLE IF NOT EXISTS `ticket_flow`.`evento` (
-  `idEvento` INT NOT NULL,
+  `idEvento` INT NOT NULL AUTO_INCREMENT,
   `titulo` VARCHAR(100) NOT NULL,
   `descripcion` VARCHAR(250) NULL DEFAULT NULL,
   `capacidad_entradas` INT NOT NULL,

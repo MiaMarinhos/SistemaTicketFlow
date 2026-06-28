@@ -198,7 +198,7 @@ public class SolicitudesDAOImpl implements ISolicitudesDAO {
                 while (rs.next()) {
 
                     Solicitud t = new Solicitud();
-                    mapear(rs, t);
+                    mapearSoliAdmin(rs, t);
                     lista.add(t);
                 }
 
