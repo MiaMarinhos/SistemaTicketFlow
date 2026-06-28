@@ -509,9 +509,9 @@ idDistrito,idAnfitrion,idCategoria_evento,
 idEstado_publicacion,idEstado_evento)
 VALUES
 -- DEPORTES
-(100,'Clasico del Futbol Peruano',
-'Partido entre los equipos mas populares del pais',
-600,600,'2026-11-15','16:00:00','18:00:00',
-'Estadio Nacional','Estadio Nacional','clasico.jpg',
+(102,'La final mas facil de la historia',
+'Cristal hace lo suyo y se retira',
+600,600,'2026-06-29','16:00:00','18:00:00',
+'Estadio Matute','Estadio Matute','https://i.ytimg.com/vi/pd7TFWGLtEw/oar2.jpg?sqp=-oaymwEYCMAEENAFSFqQAgHyq4qpAwcIARUAAIhC&rs=AOn4CLAUP7faMRzuS6kUjYQi0k2r8XyKkA',
 45.00,1,2,1,1,1);
 

@@ -41,3 +41,17 @@ BEGIN
 update compras
 set recordatorio_enviado=true;
 end//
+
+DELIMITER ;
+
+DROP PROCEDURE IF EXISTS SP_MARCAR_COMO_ENVIADO;
+
+DELIMITER //
+
+CREATE PROCEDURE SP_MARCAR_COMO_ENVIADO_2(in idCompra int)
+BEGIN
+update compras
+set recordatorio2_enviado=true;
+end//
+
+

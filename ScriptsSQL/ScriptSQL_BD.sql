@@ -333,7 +333,9 @@ CREATE TABLE IF NOT EXISTS `ticket_flow`.`compras` (
   `idCliente` INT NOT NULL,
   `idEvento` INT NOT NULL,
   `idEstado` INT NOT NULL,
-  `recordatorio_enviado` BOOLEAN DEFAULT FALSE,
+  `recordatorio_enviado` BOOLEAN DEFAULT FALSE, -- 24 horas
+  `recordatorio2_enviado` BOOLEAN DEFAULT FALSE, -- 3 horas
+
 
   PRIMARY KEY (`idCompras`),
   INDEX `fk_Compras_Puntos_bonus1_idx` (`idPuntos_bonus` ASC) VISIBLE,
