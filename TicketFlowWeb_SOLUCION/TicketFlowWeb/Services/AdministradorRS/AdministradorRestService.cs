@@ -2,6 +2,7 @@
 using System.Net.Http.Json;
 using TicketFlowWeb.Models;
 using TicketFlowWeb.Services.UsuarioRS;
+using System.Text.Json;
 
 namespace TicketFlowWeb.Services.AdministradorRS
 {
@@ -203,6 +204,84 @@ namespace TicketFlowWeb.Services.AdministradorRS
             return await _http.GetFromJsonAsync<List<DistritoViewModel>>(
                 "AdminUsuarios/distritos"
             ) ?? new List<DistritoViewModel>();
+        }
+
+        public async Task<List<EventoViewModel>> FiltrarEventosPorEstado(int idEstadoEvento)
+        {
+            return await _http.GetFromJsonAsync<List<EventoViewModel>>(
+                $"AdminEventos/filtrar/estado/{idEstadoEvento}"
+            ) ?? new List<EventoViewModel>();
+        }
+
+        public async Task<EventoViewModel?> ObtenerDetalleEvento(int id)
+        {
+            return await _http.GetFromJsonAsync<EventoViewModel>(
+                $"AdminEventos/detalle/{id}"
+            );
+        }
+
+        public async Task<EventoViewModel?> RegistrarEvento(object evento)
+        {
+            var options = new JsonSerializerOptions
+            {
+                PropertyNamingPolicy = null
+            };
+
+            var response = await _http.PostAsJsonAsync(
+                "AdminEventos/registrar",
+                evento,
+                options
+            );
+
+            var contenido = await response.Content.ReadAsStringAsync();
+
+            if (!response.IsSuccessStatusCode)
+                throw new Exception(contenido);
+
+            return await response.Content.ReadFromJsonAsync<EventoViewModel>();
+        }
+
+        public async Task<EventoViewModel?> ActualizarEvento(int id, object evento)
+        {
+            var options = new JsonSerializerOptions
+            {
+                PropertyNamingPolicy = null
+            };
+
+            var response = await _http.PutAsJsonAsync(
+                $"AdminEventos/actualizar/{id}",
+                evento,
+                options
+            );
+
+            var contenido = await response.Content.ReadAsStringAsync();
+
+            if (!response.IsSuccessStatusCode)
+                throw new Exception(contenido);
+
+            return await response.Content.ReadFromJsonAsync<EventoViewModel>();
+        }
+
+        public async Task<EventoViewModel?> EliminarEvento(int id)
+        {
+            var response = await _http.PutAsync(
+                $"AdminEventos/eliminar/{id}",
+                null
+            );
+
+            var contenido = await response.Content.ReadAsStringAsync();
+
+            if (!response.IsSuccessStatusCode)
+                throw new Exception(contenido);
+
+            return await response.Content.ReadFromJsonAsync<EventoViewModel>();
+        }
+
+        public async Task<List<CategoriaEventoViewModel>> ListarCategoriasEvento()
+        {
+            return await _http.GetFromJsonAsync<List<CategoriaEventoViewModel>>(
+                "AdminEventos/categorias"
+            ) ?? new List<CategoriaEventoViewModel>();
         }
     }
 }

@@ -4,6 +4,7 @@ import pe.edu.pucp.ticketflow.*;
 import pe.edu.pucp.ticketflow.administrador.model.Administrador;
 import pe.edu.pucp.ticketflow.compra.model.Compra;
 import pe.edu.pucp.ticketflow.evento.model.Evento;
+import pe.edu.pucp.ticketflow.evento.model.categoria_evento;
 import pe.edu.pucp.ticketflow.exception.BusinessLogicException;
 import pe.edu.pucp.ticketflow.pago.model.Pago;
 import pe.edu.pucp.ticketflow.solicitud.model.Solicitud;
@@ -26,8 +27,10 @@ public class AdministradorBLImpl implements IAdministradorBL {
     private final IReporteDAO reportesDAO;
     private final IGeneroDAO generoDAO;
     private final IDistritoDAO distritoDAO;
+    private final ICategoriaEventoDAO categoriaEventoDAO;
 
     public AdministradorBLImpl() {
+        this.categoriaEventoDAO = new CategoriaEventoDAOImpl();
         this.generoDAO = new GeneroDAOImpl();
         this.distritoDAO = new DistritoDAOImpl();
         this.administradorDAO = new AdministradorDAOImpl();
@@ -265,7 +268,7 @@ public class AdministradorBLImpl implements IAdministradorBL {
     //GESTION DE EVENTOS
     @Override
     public List<Evento> listarEventos()  throws BusinessLogicException{
-        return eventoDAO.listAll();
+        return eventoDAO.listAllOrdenID();
     }
 
     @Override
@@ -309,7 +312,7 @@ public class AdministradorBLImpl implements IAdministradorBL {
 
         validarDatosEvento(evento);
 
-        return eventoDAO.create(evento);
+        return eventoDAO.createByAdmin(evento);
     }
 
     @Override
@@ -352,6 +355,15 @@ public class AdministradorBLImpl implements IAdministradorBL {
         }
 
         return eventoDAO.eliminarEvento(idEvento);
+    }
+
+    @Override
+    public List<categoria_evento> listarCategoriasEvento() throws BusinessLogicException {
+        try {
+            return categoriaEventoDAO.listAll();
+        } catch (Exception e) {
+            throw new BusinessLogicException(e);
+        }
     }
 
     //GESTION DE SOLICITUDES

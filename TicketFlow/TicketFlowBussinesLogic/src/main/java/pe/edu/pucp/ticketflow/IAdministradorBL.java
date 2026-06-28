@@ -3,6 +3,7 @@ package pe.edu.pucp.ticketflow;
 import pe.edu.pucp.ticketflow.administrador.model.Administrador;
 import pe.edu.pucp.ticketflow.compra.model.Compra;
 import pe.edu.pucp.ticketflow.evento.model.Evento;
+import pe.edu.pucp.ticketflow.evento.model.categoria_evento;
 import pe.edu.pucp.ticketflow.exception.BusinessLogicException;
 import pe.edu.pucp.ticketflow.pago.model.Pago;
 import pe.edu.pucp.ticketflow.solicitud.model.Solicitud;
@@ -45,7 +46,7 @@ public interface IAdministradorBL {
     Evento aprobarEvento(Integer idEvento) throws BusinessLogicException;
     Evento rechazarEvento(Integer idEvento) throws BusinessLogicException;
     Evento eliminarEvento(Integer idEvento) throws BusinessLogicException;
-
+    List<categoria_evento> listarCategoriasEvento() throws BusinessLogicException;
     //GESTION DE SOLICITUDES
     List<Solicitud> listarSolicitudes() throws BusinessLogicException;
     List<Solicitud> buscarSolicitud(String nombre) throws BusinessLogicException;

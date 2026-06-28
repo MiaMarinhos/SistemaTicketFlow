@@ -1,5 +1,6 @@
 ﻿@page "/admin/eventos"
 @using Microsoft.AspNetCore.Authorization
+@using Microsoft.JSInterop
 @using TicketFlowWeb.Models
 @using TicketFlowWeb.Services.AdministradorRS
 
@@ -7,10 +8,21 @@
 @layout AdminLayout
 
 @inject AdministradorRestService AdminService
+@inject IJSRuntime JS
 
 <PageTitle>Panel de Eventos</PageTitle>
 
-<h3>Gestionar Evento</h3>
+<div class="d-flex align-items-center gap-3 mb-3">
+    <h3 class="mb-0">Gestionar Evento</h3>
+
+    <button class="btn btn-success"
+            data-bs-toggle="modal"
+            data-bs-target="#registrarEventoModal"
+            @onclick="PrepararNuevoEvento">
+        <i class="bi bi-plus-circle"></i>
+        Registrar
+    </button>
+</div>
 
 <nav class="navbar bg-body-tertiary">
     <div class="filtros-pagos">
@@ -20,6 +32,16 @@
                placeholder="Buscar evento..."
                @bind="textoBusqueda"
                @bind:event="oninput" />
+
+        <label>Estado:</label>
+        <select class="form-select filtro-input"
+                value="@estadoFiltro"
+                @onchange="CambiarFiltroEstado">
+            <option value="0">Todos</option>
+            <option value="1">Activo</option>
+            <option value="2">Finalizado</option>
+            <option value="3">Eliminado</option>
+        </select>
 
         <button class="btn btn-dark" @onclick="LimpiarFiltros">
             <i class="bi bi-x-circle"></i>
@@ -36,6 +58,7 @@
                 <th>Fecha</th>
                 <th>Ubicación</th>
                 <th>Precio</th>
+                <th>Publicación</th>
                 <th>Estado</th>
                 <th>Acciones</th>
             </tr>
@@ -50,18 +73,21 @@
                     <td>@evento.fecha</td>
                     <td>@evento.ubicacion</td>
                     <td>S/ @evento.precio</td>
-                    <td>@evento.estadoPublicacion?.estado</td>
+                    <td>@ObtenerPublicacionVisible(evento)</td>
+                    <td>@ObtenerEstadoEventoVisible(evento)</td>
 
                     <td>
                         <button class="btn btn-outline-dark btn-sm"
                                 data-bs-toggle="modal"
-                                data-bs-target="#detalleUsuario">
+                                data-bs-target="#detalleEventoModal"
+                                @onclick="() => VerDetalleEvento(evento.idEvento)">
                             <i class="bi bi-eye"></i>
                         </button>
 
                         <button class="btn btn-outline-dark btn-sm"
                                 data-bs-toggle="modal"
-                                data-bs-target="#editarUsuario">
+                                data-bs-target="#editarEventoModal"
+                                @onclick="() => PrepararEditarEvento(evento.idEvento)">
                             <i class="bi bi-brush"></i>
                         </button>
 
@@ -85,7 +111,8 @@
                         {
                             <button class="btn btn-outline-dark btn-sm"
                                     data-bs-toggle="modal"
-                                    data-bs-target="#bloquearUsuario">
+                                    data-bs-target="#eliminarEventoModal"
+                                    @onclick="() => SeleccionarEvento(evento)">
                                 <i class="bi bi-trash3"></i>
                             </button>
                         }
@@ -94,6 +121,342 @@
             }
         </tbody>
     </table>
+</div>
+
+<!-- MODAL REGISTRAR EVENTO -->
+<div class="modal fade" id="registrarEventoModal" tabindex="-1">
+    <div class="modal-dialog modal-dialog-centered modal-lg">
+        <div class="modal-content">
+
+            <div class="modal-header">
+                <h5 class="modal-title">Registrar Evento</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+
+            <div class="modal-body">
+                @if (!string.IsNullOrWhiteSpace(errorRegistro))
+                {
+                    <div class="alert alert-danger">@errorRegistro</div>
+                }
+
+                <div class="row">
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label">Título</label>
+                        <input class="form-control" @bind="nuevoTitulo" />
+                    </div>
+
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label">Capacidad de entradas</label>
+                        <input type="number" class="form-control" @bind="nuevaCapacidad" />
+                    </div>
+
+                    <div class="col-md-12 mb-3">
+                        <label class="form-label">Descripción</label>
+                        <textarea class="form-control" @bind="nuevaDescripcion"></textarea>
+                    </div>
+
+                    <div class="col-md-4 mb-3">
+                        <label class="form-label">Fecha</label>
+                        <input type="date"
+                               class="form-control"
+                               value="@nuevaFecha"
+                               @onchange="e => nuevaFecha = e.Value?.ToString() ?? string.Empty" />
+                    </div>
+
+                    <div class="col-md-4 mb-3">
+                        <label class="form-label">Hora inicio</label>
+                        <input type="time"
+                               class="form-control"
+                               value="@nuevaHoraInicio"
+                               @onchange="e => nuevaHoraInicio = e.Value?.ToString() ?? string.Empty" />
+                    </div>
+
+                    <div class="col-md-4 mb-3">
+                        <label class="form-label">Hora fin</label>
+                        <input type="time"
+                               class="form-control"
+                               value="@nuevaHoraFin"
+                               @onchange="e => nuevaHoraFin = e.Value?.ToString() ?? string.Empty" />
+                    </div>
+
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label">Ubicación</label>
+                        <input class="form-control" @bind="nuevaUbicacion" />
+                    </div>
+
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label">Nombre del establecimiento</label>
+                        <input class="form-control" @bind="nuevoEstablecimiento" />
+                    </div>
+
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label">Imagen</label>
+                        <input class="form-control" @bind="nuevaImagen" />
+                    </div>
+
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label">Precio</label>
+                        <input type="number" step="0.01" class="form-control" @bind="nuevoPrecio" />
+                    </div>
+
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label">Distrito</label>
+                        <select class="form-select" @bind="nuevoIdDistrito">
+                            <option value="0">Seleccione un distrito</option>
+
+                            @foreach (var distrito in distritos)
+                            {
+                                <option value="@distrito.IdDistrito">
+                                    @distrito.Nombre
+                                </option>
+                            }
+                        </select>
+                    </div>
+
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label">Categoría</label>
+                        <select class="form-select" @bind="nuevoIdCategoria">
+                            <option value="0">Seleccione una categoría</option>
+
+                            @foreach (var categoria in categorias)
+                            {
+                                <option value="@categoria.idCategoria_evento">
+                                    @categoria.nombre
+                                </option>
+                            }
+                        </select>
+                    </div>
+
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label">ID Anfitrión</label>
+                        <input type="number" class="form-control" @bind="nuevoIdAnfitrion" />
+                    </div>
+                </div>
+            </div>
+
+            <div class="modal-footer">
+                <button class="btn btn-secondary" data-bs-dismiss="modal">
+                    Cancelar
+                </button>
+
+                <button class="btn btn-success" @onclick="RegistrarEvento">
+                    Aceptar
+                </button>
+            </div>
+
+        </div>
+    </div>
+</div>
+
+<!-- MODAL DETALLE EVENTO -->
+<div class="modal fade" id="detalleEventoModal" tabindex="-1">
+    <div class="modal-dialog modal-dialog-centered modal-lg">
+        <div class="modal-content">
+
+            <div class="modal-header">
+                <h5 class="modal-title">Detalle del Evento</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+
+            <div class="modal-body">
+                @if (eventoDetalle != null)
+                {
+                    <p><strong>ID:</strong> @eventoDetalle.idEvento</p>
+                    <p><strong>Título:</strong> @eventoDetalle.titulo</p>
+                    <p><strong>Descripción:</strong> @eventoDetalle.descripcion</p>
+                    <p><strong>Capacidad:</strong> @eventoDetalle.capacidad_entradas</p>
+                    <p><strong>Fecha:</strong> @eventoDetalle.fecha</p>
+                    <p><strong>Hora inicio:</strong> @eventoDetalle.hora_inicio</p>
+                    <p><strong>Hora fin:</strong> @eventoDetalle.hora_fin</p>
+                    <p><strong>Ubicación:</strong> @eventoDetalle.ubicacion</p>
+                    <p><strong>Establecimiento:</strong> @eventoDetalle.nombre_establecimiento</p>
+                    <p><strong>Imagen:</strong> @eventoDetalle.img</p>
+                    <p><strong>Precio:</strong> S/ @eventoDetalle.precio</p>
+                    <p><strong>Anfitrión:</strong> @eventoDetalle.anfitrion?.nombre</p>
+                    <p><strong>Categoría:</strong> @eventoDetalle.categoria?.nombre</p>
+                    <p><strong>Distrito:</strong> @eventoDetalle.distrito?.nombre</p>
+                    <p><strong>Publicación:</strong> @ObtenerPublicacionVisible(eventoDetalle)</p>
+                    <p><strong>Estado:</strong> @ObtenerEstadoEventoVisible(eventoDetalle)</p>
+                }
+                else
+                {
+                    <p>Cargando detalle...</p>
+                }
+            </div>
+
+        </div>
+    </div>
+</div>
+
+<!-- MODAL EDITAR EVENTO -->
+<div class="modal fade" id="editarEventoModal" tabindex="-1">
+    <div class="modal-dialog modal-dialog-centered modal-lg">
+        <div class="modal-content">
+
+            <div class="modal-header">
+                <h5 class="modal-title">Editar Evento</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+
+            <div class="modal-body">
+                @if (!string.IsNullOrWhiteSpace(errorEdicion))
+                {
+                    <div class="alert alert-danger">@errorEdicion</div>
+                }
+
+                @if (eventoSeleccionado != null)
+                {
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">Título</label>
+                            <input class="form-control" @bind="editarTitulo" />
+                        </div>
+
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">Capacidad de entradas</label>
+                            <input type="number" class="form-control" @bind="editarCapacidad" />
+                        </div>
+
+                        <div class="col-md-12 mb-3">
+                            <label class="form-label">Descripción</label>
+                            <textarea class="form-control" @bind="editarDescripcion"></textarea>
+                        </div>
+
+                        <div class="col-md-4 mb-3">
+                            <label class="form-label">Fecha</label>
+                            <input type="date"
+                                   class="form-control"
+                                   value="@editarFecha"
+                                   @onchange="e => editarFecha = e.Value?.ToString() ?? string.Empty" />
+                        </div>
+
+                        <div class="col-md-4 mb-3">
+                            <label class="form-label">Hora inicio</label>
+                            <input type="time"
+                                   class="form-control"
+                                   value="@editarHoraInicio"
+                                   @onchange="e => editarHoraInicio = e.Value?.ToString() ?? string.Empty" />
+                        </div>
+
+                        <div class="col-md-4 mb-3">
+                            <label class="form-label">Hora fin</label>
+                            <input type="time"
+                                   class="form-control"
+                                   value="@editarHoraFin"
+                                   @onchange="e => editarHoraFin = e.Value?.ToString() ?? string.Empty" />
+                        </div>
+
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">Ubicación</label>
+                            <input class="form-control" @bind="editarUbicacion" />
+                        </div>
+
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">Nombre del establecimiento</label>
+                            <input class="form-control" @bind="editarEstablecimiento" />
+                        </div>
+
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">Imagen</label>
+                            <input class="form-control" @bind="editarImagen" />
+                        </div>
+
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">Precio</label>
+                            <input type="number" step="0.01" class="form-control" @bind="editarPrecio" />
+                        </div>
+
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">Distrito</label>
+                            <select class="form-select" @bind="editarIdDistrito">
+                                <option value="0">Seleccione un distrito</option>
+
+                                @foreach (var distrito in distritos)
+                                {
+                                    <option value="@distrito.IdDistrito">
+                                        @distrito.Nombre
+                                    </option>
+                                }
+                            </select>
+                        </div>
+
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">Categoría</label>
+                            <select class="form-select" @bind="editarIdCategoria">
+                                <option value="0">Seleccione una categoría</option>
+
+                                @foreach (var categoria in categorias)
+                                {
+                                    <option value="@categoria.idCategoria_evento">
+                                        @categoria.nombre
+                                    </option>
+                                }
+                            </select>
+                        </div>
+
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">ID Anfitrión</label>
+                            <input type="number" class="form-control" @bind="editarIdAnfitrion" />
+                        </div>
+                    </div>
+                }
+                else
+                {
+                    <p>Cargando evento...</p>
+                }
+            </div>
+
+            <div class="modal-footer">
+                <button class="btn btn-secondary" data-bs-dismiss="modal">
+                    Cancelar
+                </button>
+
+                <button class="btn btn-primary" @onclick="GuardarEdicionEvento">
+                    Aceptar
+                </button>
+            </div>
+
+        </div>
+    </div>
+</div>
+
+<!-- MODAL ELIMINAR EVENTO -->
+<div class="modal fade" id="eliminarEventoModal" tabindex="-1">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+
+            <div class="modal-header">
+                <h5 class="modal-title">Cancelar Evento</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+
+            <div class="modal-body">
+                @if (eventoSeleccionado != null)
+                {
+                    <p>
+                        ¿De verdad desea cancelar el evento
+                        <strong>@eventoSeleccionado.titulo</strong>?
+                    </p>
+                    <p class="text-muted mb-0">
+                        Esta acción cambiará su estado a ELIMINADO.
+                    </p>
+                }
+            </div>
+
+            <div class="modal-footer">
+                <button class="btn btn-secondary" data-bs-dismiss="modal">
+                    Cancelar
+                </button>
+
+                <button class="btn btn-danger"
+                        data-bs-dismiss="modal"
+                        @onclick="EliminarEvento">
+                    Aceptar
+                </button>
+            </div>
+
+        </div>
+    </div>
 </div>
 
 <!-- MODAL APROBAR EVENTO -->
@@ -170,28 +533,307 @@
 
 @code {
     private string textoBusqueda = "";
-    private string estadoFiltro = "";
+    private int estadoFiltro = 0;
 
     private List<EventoViewModel> eventos = new();
     private EventoViewModel? eventoSeleccionado;
+    private EventoViewModel? eventoDetalle;
+
+    private List<DistritoViewModel> distritos = new();
+    private List<CategoriaEventoViewModel> categorias = new();
+
+    private string nuevoTitulo = "";
+    private string nuevaDescripcion = "";
+    private int nuevaCapacidad = 1;
+    private string nuevaFecha = DateTime.Today.ToString("yyyy-MM-dd");
+    private string nuevaHoraInicio = "18:00";
+    private string nuevaHoraFin = "20:00";
+    private string nuevaUbicacion = "";
+    private string nuevoEstablecimiento = "";
+    private string nuevaImagen = "";
+    private double nuevoPrecio = 0;
+    private int nuevoIdDistrito = 0;
+    private int nuevoIdAnfitrion = 0;
+    private int nuevoIdCategoria = 0;
+    private string errorRegistro = "";
+
+    private string editarTitulo = "";
+    private string editarDescripcion = "";
+    private int editarCapacidad = 1;
+    private string editarFecha = "";
+    private string editarHoraInicio = "";
+    private string editarHoraFin = "";
+    private string editarUbicacion = "";
+    private string editarEstablecimiento = "";
+    private string editarImagen = "";
+    private decimal editarPrecio = 0;
+    private int editarIdDistrito = 0;
+    private int editarIdAnfitrion = 0;
+    private int editarIdCategoria = 0;
+    private string errorEdicion = "";
 
     protected override async Task OnInitializedAsync()
     {
         eventos = await AdminService.ListarEventos();
+        distritos = await AdminService.ListarDistritos();
+        categorias = await AdminService.ListarCategoriasEvento();
     }
 
     private IEnumerable<EventoViewModel> EventosFiltrados =>
-        string.IsNullOrWhiteSpace(textoBusqueda)
-            ? eventos
-            : eventos.Where(e =>
-                e.titulo.Contains(
-                    textoBusqueda,
-                    StringComparison.OrdinalIgnoreCase
-                ));
+        eventos
+            .Where(e =>
+                string.IsNullOrWhiteSpace(textoBusqueda) ||
+                e.titulo.Contains(textoBusqueda, StringComparison.OrdinalIgnoreCase)
+            )
+            .OrderBy(e => e.idEvento);
+
+    private async Task CambiarFiltroEstado(ChangeEventArgs e)
+    {
+        int.TryParse(e.Value?.ToString(), out estadoFiltro);
+        await AplicarFiltros();
+    }
+
+    private async Task AplicarFiltros()
+    {
+        if (estadoFiltro > 0)
+        {
+            eventos = await AdminService.FiltrarEventosPorEstado(estadoFiltro);
+        }
+        else
+        {
+            eventos = await AdminService.ListarEventos();
+        }
+    }
+
+    private void PrepararNuevoEvento()
+    {
+        nuevoTitulo = "";
+        nuevaDescripcion = "";
+        nuevaCapacidad = 1;
+        nuevaFecha = DateTime.Today.ToString("yyyy-MM-dd");
+        nuevaHoraInicio = "18:00";
+        nuevaHoraFin = "20:00";
+        nuevaUbicacion = "";
+        nuevoEstablecimiento = "";
+        nuevaImagen = "";
+        nuevoPrecio = 0;
+        nuevoIdDistrito = distritos.FirstOrDefault()?.IdDistrito ?? 0;
+        nuevoIdCategoria = categorias.FirstOrDefault()?.idCategoria_evento ?? 0;
+        nuevoIdAnfitrion = 0;
+        errorRegistro = "";
+    }
+
+    private async Task RegistrarEvento()
+    {
+        try
+        {
+            errorRegistro = "";
+
+            if (string.IsNullOrWhiteSpace(nuevoTitulo))
+            {
+                errorRegistro = "El título del evento es obligatorio.";
+                return;
+            }
+
+            if (nuevaCapacidad <= 0)
+            {
+                errorRegistro = "La capacidad debe ser mayor a cero.";
+                return;
+            }
+
+            if (string.IsNullOrWhiteSpace(nuevaFecha))
+            {
+                errorRegistro = "La fecha del evento es obligatoria.";
+                return;
+            }
+
+            if (string.IsNullOrWhiteSpace(nuevaHoraInicio))
+            {
+                errorRegistro = "La hora de inicio es obligatoria.";
+                return;
+            }
+
+            if (string.IsNullOrWhiteSpace(nuevaHoraFin))
+            {
+                errorRegistro = "La hora de fin es obligatoria.";
+                return;
+            }
+
+            if (nuevoPrecio < 0)
+            {
+                errorRegistro = "El precio no puede ser negativo.";
+                return;
+            }
+
+            if (nuevoIdDistrito <= 0)
+            {
+                errorRegistro = "Debe seleccionar un distrito.";
+                return;
+            }
+
+            if (nuevoIdCategoria <= 0)
+            {
+                errorRegistro = "Debe seleccionar una categoría.";
+                return;
+            }
+
+            if (nuevoIdAnfitrion <= 0)
+            {
+                errorRegistro = "Debe ingresar un anfitrión válido.";
+                return;
+            }
+
+            var evento = new
+            {
+                titulo = nuevoTitulo.Trim(),
+                descripcion = nuevaDescripcion?.Trim(),
+                capacidad_entradas = nuevaCapacidad,
+                fecha = nuevaFecha,
+                hora_inicio = NormalizarHora(nuevaHoraInicio),
+                hora_fin = NormalizarHora(nuevaHoraFin),
+                ubicacion = nuevaUbicacion.Trim(),
+                nombre_establecimiento = nuevoEstablecimiento.Trim(),
+                img = nuevaImagen.Trim(),
+                precio = nuevoPrecio,
+                FK_idDistrito = nuevoIdDistrito,
+                idAnfitrion = nuevoIdAnfitrion,
+                FK_idCategoria_evento = nuevoIdCategoria,
+                FK_idEstadoPublicacion = 1,
+                FK_idEstadoEvento = 1
+            };
+
+            await AdminService.RegistrarEvento(evento);
+            await AplicarFiltros();
+
+            await CerrarModal("registrarEventoModal");
+
+            PrepararNuevoEvento();
+        }
+        catch (Exception ex)
+        {
+            errorRegistro = "No se pudo registrar el evento: " + ex.Message;
+        }
+    }
+
+    private async Task VerDetalleEvento(int id)
+    {
+        eventoDetalle = null;
+        eventoDetalle = await AdminService.ObtenerDetalleEvento(id);
+    }
+
+    private async Task PrepararEditarEvento(int id)
+    {
+        errorEdicion = "";
+        eventoSeleccionado = await AdminService.ObtenerDetalleEvento(id);
+
+        if (eventoSeleccionado == null)
+            return;
+
+        editarTitulo = eventoSeleccionado.titulo ?? "";
+        editarDescripcion = eventoSeleccionado.descripcion ?? "";
+        editarCapacidad = eventoSeleccionado.capacidad_entradas;
+        editarFecha = eventoSeleccionado.fecha ?? "";
+        editarHoraInicio = ConvertirHoraInput(eventoSeleccionado.hora_inicio ?? "");
+        editarHoraFin = ConvertirHoraInput(eventoSeleccionado.hora_fin ?? "");
+        editarUbicacion = eventoSeleccionado.ubicacion ?? "";
+        editarEstablecimiento = eventoSeleccionado.nombre_establecimiento ?? "";
+        editarImagen = eventoSeleccionado.img ?? "";
+        editarPrecio = eventoSeleccionado.precio;
+
+        editarIdDistrito =
+            eventoSeleccionado.FK_idDistrito > 0
+                ? eventoSeleccionado.FK_idDistrito
+                : eventoSeleccionado.distrito?.idDistrito ?? 0;
+
+        editarIdCategoria =
+            eventoSeleccionado.FK_idCategoria_evento > 0
+                ? eventoSeleccionado.FK_idCategoria_evento
+                : eventoSeleccionado.categoria?.idCategoria_evento ?? 0;
+
+        editarIdAnfitrion = eventoSeleccionado.idAnfitrion;
+    }
+
+    private async Task GuardarEdicionEvento()
+    {
+        try
+        {
+            if (eventoSeleccionado == null)
+                return;
+
+            errorEdicion = "";
+
+            if (string.IsNullOrWhiteSpace(editarTitulo))
+            {
+                errorEdicion = "El título del evento es obligatorio.";
+                return;
+            }
+
+            if (editarCapacidad <= 0)
+            {
+                errorEdicion = "La capacidad debe ser mayor a cero.";
+                return;
+            }
+
+            if (editarIdDistrito <= 0)
+            {
+                errorEdicion = "Debe seleccionar un distrito.";
+                return;
+            }
+
+            if (editarIdCategoria <= 0)
+            {
+                errorEdicion = "Debe seleccionar una categoría.";
+                return;
+            }
+
+            if (editarIdAnfitrion <= 0)
+            {
+                errorEdicion = "Debe ingresar un anfitrión válido.";
+                return;
+            }
+
+            var evento = new
+            {
+                titulo = editarTitulo.Trim(),
+                descripcion = editarDescripcion?.Trim(),
+                capacidad_entradas = editarCapacidad,
+                fecha = editarFecha,
+                hora_inicio = NormalizarHora(editarHoraInicio),
+                hora_fin = NormalizarHora(editarHoraFin),
+                ubicacion = editarUbicacion.Trim(),
+                nombre_establecimiento = editarEstablecimiento.Trim(),
+                img = editarImagen.Trim(),
+                precio = editarPrecio,
+                FK_idDistrito = editarIdDistrito,
+                idAnfitrion = editarIdAnfitrion,
+                FK_idCategoria_evento = editarIdCategoria,
+                FK_idEstadoPublicacion = eventoSeleccionado.FK_idEstadoPublicacion,
+                FK_idEstadoEvento = eventoSeleccionado.FK_idEstadoEvento
+            };
+
+            await AdminService.ActualizarEvento(eventoSeleccionado.idEvento, evento);
+            await AplicarFiltros();
+
+            await CerrarModal("editarEventoModal");
+        }
+        catch (Exception ex)
+        {
+            errorEdicion = "No se pudo editar el evento: " + ex.Message;
+        }
+    }
 
     private void SeleccionarEvento(EventoViewModel evento)
     {
         eventoSeleccionado = evento;
+    }
+
+    private async Task EliminarEvento()
+    {
+        if (eventoSeleccionado == null)
+            return;
+
+        await AdminService.EliminarEvento(eventoSeleccionado.idEvento);
+        await AplicarFiltros();
     }
 
     private async Task AprobarEvento()
@@ -200,8 +842,7 @@
             return;
 
         await AdminService.AprobarEvento(eventoSeleccionado.idEvento);
-
-        eventos = await AdminService.ListarEventos();
+        await AplicarFiltros();
     }
 
     private async Task RechazarEvento()
@@ -210,13 +851,71 @@
             return;
 
         await AdminService.RechazarEvento(eventoSeleccionado.idEvento);
+        await AplicarFiltros();
+    }
 
+    private async Task LimpiarFiltros()
+    {
+        textoBusqueda = "";
+        estadoFiltro = 0;
         eventos = await AdminService.ListarEventos();
     }
 
-    private void LimpiarFiltros()
+    private string NormalizarHora(string hora)
     {
-        textoBusqueda = "";
-        estadoFiltro = "";
+        if (string.IsNullOrWhiteSpace(hora))
+            return "";
+
+        return hora.Length == 5 ? $"{hora}:00" : hora;
+    }
+
+    private string ConvertirHoraInput(string hora)
+    {
+        if (string.IsNullOrWhiteSpace(hora))
+            return "";
+
+        return hora.Length >= 5 ? hora.Substring(0, 5) : hora;
+    }
+
+    private string ObtenerPublicacionVisible(EventoViewModel evento)
+    {
+        if (!string.IsNullOrWhiteSpace(evento.estadoPublicacion?.estado))
+            return evento.estadoPublicacion.estado;
+
+        if (evento.FK_idEstadoPublicacion == 1)
+            return "PENDIENTE";
+
+        if (evento.FK_idEstadoPublicacion == 2)
+            return "APROBADO";
+
+        if (evento.FK_idEstadoPublicacion == 3)
+            return "RECHAZADO";
+
+        return "";
+    }
+
+    private string ObtenerEstadoEventoVisible(EventoViewModel evento)
+    {
+        if (!string.IsNullOrWhiteSpace(evento.estadoEvento?.estado))
+            return evento.estadoEvento.estado;
+
+        if (evento.FK_idEstadoEvento == 1)
+            return "ACTIVO";
+
+        if (evento.FK_idEstadoEvento == 2)
+            return "FINALIZADO";
+
+        if (evento.FK_idEstadoEvento == 3)
+            return "ELIMINADO";
+
+        return "";
+    }
+
+    private async Task CerrarModal(string idModal)
+    {
+        await JS.InvokeVoidAsync(
+            "eval",
+            $"bootstrap.Modal.getInstance(document.getElementById('{idModal}'))?.hide();"
+        );
     }
 }
