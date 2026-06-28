@@ -65,6 +65,21 @@ namespace TicketFlowWeb.Services.AnfitrionRS
         // 2. GESTIÓN DE EVENTOS
         // ==========================================
 
+        public async Task<List<EventoViewModel>> VerMisEventosAsync(int idAnfitrion)
+        {
+            try
+            {
+                // Llamamos al nuevo endpoint que creamos en Java
+                var lista = await _httpClient.GetFromJsonAsync<List<EventoViewModel>>($"AnfitrionRS/{idAnfitrion}/mis-eventos", JsonOptions);
+                return lista ?? new List<EventoViewModel>();
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error obteniendo los eventos del anfitrión {idAnfitrion}: {ex.Message}");
+                return new List<EventoViewModel>();
+            }
+        }
+
         public async Task<EventoViewModel?> CrearEventoAsync(EventoViewModel evento)
         {
             var response = await _httpClient.PostAsJsonAsync("AnfitrionRS/eventos/crear", evento, JsonOptions);

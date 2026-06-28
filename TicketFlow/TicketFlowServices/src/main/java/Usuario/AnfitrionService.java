@@ -7,10 +7,13 @@ import pe.edu.pucp.ticketflow.evento.model.Evento;
 import pe.edu.pucp.ticketflow.compra.model.Compra;
 import pe.edu.pucp.ticketflow.pago.model.Pago;
 import pe.edu.pucp.ticketflow.exception.BusinessLogicException;
+import Evento.EventoDTO;
 
 import jakarta.ws.rs.*;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
+
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
@@ -166,4 +169,46 @@ public class AnfitrionService {
             return Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity(Map.of("error", e.getMessage())).build();
         }
     }
+
+    @GET
+    @Path("/{id}/mis-eventos")
+    public Response verMisEventos(@PathParam("id") Integer idAnfitrion) {
+        try {
+            // Asumiendo que crearás este método en tu BL y DAO
+            List<Evento> eventos = anfitrionBL.verEventosPorAnfitrion(idAnfitrion);
+            List<EventoDTO> eventosDTO = new ArrayList<>();
+
+            for (Evento e : eventos) {
+                eventosDTO.add(convertirDTO(e)); // Asegúrate de copiar el método convertirDTO de EventoService a esta clase
+            }
+
+            return Response.ok(eventosDTO).build();
+        } catch (Exception e) {
+            return Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity(Map.of("error", e.getMessage())).build();
+        }
+    }
+
+    // Agrega el mismo método convertirDTO que tienes en EventoService.java
+    private EventoDTO convertirDTO(Evento e) {
+        EventoDTO dto = new EventoDTO();
+        dto.idEvento = e.getIdEvento();
+        dto.titulo = e.getTitulo();
+        dto.descripcion = e.getDescripcion();
+        dto.capacidad_entradas = e.getCapacidad_entradas();
+        dto.idAnfitrion = e.getIdAnfitrion();
+        dto.fecha = e.getFecha();
+        dto.hora_inicio = e.getHora_inicio();
+        dto.hora_fin = e.getHora_fin();
+        dto.ubicacion = e.getUbicacion();
+        dto.nombre_establecimiento = e.getNombre_establecimiento();
+        dto.precio = e.getPrecio();
+        // Cuidado aquí: asegúrate de que getCategoria() no sea nulo antes de llamar a sus métodos
+        if(e.getCategoria() != null) {
+            dto.idCategoria = e.getCategoria().getIdCategoria_evento();
+            dto.categoria = e.getCategoria().getNombre();
+        }
+        dto.setImg(e.getImg());
+        return dto;
+    }
+
 }

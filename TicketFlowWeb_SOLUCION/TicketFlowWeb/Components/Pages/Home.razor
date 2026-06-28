@@ -636,7 +636,7 @@
 
                     // 1. Descargar y filtrar SOLO tus eventos
                     var todosLosEventos = await AnfitrionService.VerTodosLosEventosAsync();
-                    misEventos = todosLosEventos?.Where(e => e.idAnfitrion == idAnfitrion).ToList() ?? new();
+                    misEventos = await AnfitrionService.VerMisEventosAsync(idAnfitrion) ?? new();
 
                     // Calculamos métricas básicas
                     totalEventos = misEventos.Count;

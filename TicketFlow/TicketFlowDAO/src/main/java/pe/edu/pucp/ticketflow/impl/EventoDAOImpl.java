@@ -15,34 +15,33 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class EventoDAOImpl implements IEventoDAO {
+
     @Override
     public Evento create(Evento eve){
-        // INSERT
-        String sql = "{CALL SP_INSERTAR_EVENTO (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)}";
+        // INSERT modificado a 15 parámetros, sin requerir el ID desde el frontend
+        String sql = "{CALL SP_INSERTAR_EVENTO (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)}";
         try(Connection connection = DBManager.getInstance().getConnection();
 
             CallableStatement cs = connection.prepareCall(sql)) {
 
-            cs.setInt(1,eve.getIdEvento());
-
-            cs.setString(2, eve.getTitulo());
-            cs.setString(3, eve.getDescripcion());
-            cs.setInt(4, eve.getCapacidad_entradas());
+            cs.setString(1, eve.getTitulo());
+            cs.setString(2, eve.getDescripcion());
+            cs.setInt(3, eve.getCapacidad_entradas());
 
             // CONVERSIÓN DE STRING A SQL DATE/TIME PARA EL INSERT
-            cs.setDate(5, eve.getFecha() != null ? java.sql.Date.valueOf(eve.getFecha()) : null);
-            cs.setTime(6, eve.getHora_inicio() != null ? java.sql.Time.valueOf(eve.getHora_inicio()) : null);
-            cs.setTime(7, eve.getHora_fin() != null ? java.sql.Time.valueOf(eve.getHora_fin()) : null);
+            cs.setDate(4, eve.getFecha() != null ? java.sql.Date.valueOf(eve.getFecha()) : null);
+            cs.setTime(5, eve.getHora_inicio() != null ? java.sql.Time.valueOf(eve.getHora_inicio()) : null);
+            cs.setTime(6, eve.getHora_fin() != null ? java.sql.Time.valueOf(eve.getHora_fin()) : null);
 
-            cs.setString(8, eve.getUbicacion());
-            cs.setString(9, eve.getNombre_establecimiento());
-            cs.setString(10, eve.getImg());
-            cs.setDouble(11, eve.getPrecio());
-            cs.setInt(12, eve.getFK_idDistrito());
-            cs.setInt(13, eve.getIdAnfitrion());
-            cs.setInt(14, eve.getFK_idCategoria_evento());
-            cs.setInt(15, eve.getFK_idEstadoPublicacion());
-            cs.setInt(16, eve.getFK_idEstadoEvento());
+            cs.setString(7, eve.getUbicacion());
+            cs.setString(8, eve.getNombre_establecimiento());
+            cs.setString(9, eve.getImg());
+            cs.setDouble(10, eve.getPrecio());
+            cs.setInt(11, eve.getFK_idDistrito());
+            cs.setInt(12, eve.getIdAnfitrion());
+            cs.setInt(13, eve.getFK_idCategoria_evento());
+            cs.setInt(14, eve.getFK_idEstadoPublicacion());
+            cs.setInt(15, eve.getFK_idEstadoEvento());
 
             cs.execute();
 
@@ -492,5 +491,27 @@ public class EventoDAOImpl implements IEventoDAO {
             throw new RuntimeException(e);
         }
 
+    }
+    @Override
+    public List<Evento> listarEventosPorAnfitrion(Integer idAnfitrion) {
+        String sql = "{CALL SP_LISTAR_MIS_EVENTOS(?)}";
+        List<Evento> eventos = new ArrayList<>();
+
+        try (Connection connection = DBManager.getInstance().getConnection();
+             CallableStatement cs = connection.prepareCall(sql)) {
+
+            cs.setInt(1, idAnfitrion);
+
+            try (ResultSet rs = cs.executeQuery()) {
+                while (rs.next()) {
+                    Evento evento = new Evento();
+                    mapearEventoListar(rs, evento); // Reutilizas tu mapeador
+                    eventos.add(evento);
+                }
+                return eventos;
+            }
+        } catch (SQLException e) {
+            throw new RuntimeException("Error al listar los eventos del anfitrión", e);
+        }
     }
 }

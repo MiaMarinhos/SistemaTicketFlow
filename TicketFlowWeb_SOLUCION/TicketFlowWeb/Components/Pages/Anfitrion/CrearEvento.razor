@@ -32,6 +32,13 @@
                         <h2 class="subtitulo-explicativo text-uppercase fw-bold text-white-50">Crea tu nuevo evento</h2>
                     </div>
 
+                    @if (!string.IsNullOrEmpty(mensajeError))
+                    {
+                        <div class="alert alert-danger p-2 mt-2 fw-bold" style="border-radius: 8px;">
+                            @mensajeError
+                        </div>
+                    }
+
                     <div class="input-contenedor-full">
                         <input type="text" class="custom-input custom-titulo-input" placeholder="Título" @bind="eventoModel.titulo" required />
                     </div>
@@ -238,6 +245,7 @@
 @code {
     private EventoViewModel eventoModel = new EventoViewModel();
     private bool estaGuardando = false;
+    private string mensajeError = ""; 
 
     // Variables temporales para la Interfaz Gráfica
     private string nombreDistrito = string.Empty;
@@ -282,6 +290,14 @@
 
                 if (int.TryParse(idClaim, out int idAnfitrionLogueado))
                 {
+                    var anfInfo = await AnfitrionService.BuscarAnfitrionAsync(idAnfitrionLogueado);
+
+                    if (anfInfo == null)
+                    {
+                        Console.WriteLine("Error: El usuario logueado no está registrado como anfitrión.");
+                        return;
+                    }
+
                     // 1. Asignar el Anfitrión
                     eventoModel.idAnfitrion = idAnfitrionLogueado;
                     eventoModel.anfitrion = new Anfitrion { idUsuario = idAnfitrionLogueado };
@@ -319,7 +335,8 @@
         }
         catch (Exception ex)
         {
-            Console.WriteLine("Error al guardar: " + ex.Message);
+            mensajeError = "Error de Java: " + ex.Message;
+            Console.WriteLine(mensajeError);
         }
         finally
         {

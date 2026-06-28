@@ -183,6 +183,19 @@ public class AnfitrionBLImpl extends UsuarioBLImpl implements IAnfitrionBL {
     }
 
     @Override
+    public List<Evento> verEventosPorAnfitrion(Integer idAnfitrion) throws BusinessLogicException {
+        try {
+            if (idAnfitrion == null || idAnfitrion <= 0) {
+                throw new BusinessLogicException("El ID del anfitrión debe ser válido.");
+            }
+            // Llamamos al DAO que ya creaste maravillosamente
+            return eventoDAO.listarEventosPorAnfitrion(idAnfitrion);
+        } catch (Exception e) {
+            throw new BusinessLogicException("Error al listar los eventos del anfitrión: " + e.getMessage());
+        }
+    }
+
+    @Override
     public void editarPerfilAnfitrion(Anfitrion anfitrion) throws BusinessLogicException {
         //  Este metodo es para el usuario final
         try {

@@ -313,12 +313,10 @@
 
             if (int.TryParse(idClaim, out int idAnfitrion))
             {
-                var todosLosEventos = await AnfitrionService.VerTodosLosEventosAsync();
-
-                if (todosLosEventos != null)
+                var misEventosDB = await AnfitrionService.VerMisEventosAsync(idAnfitrion);
+                if (misEventosDB != null)
                 {
-                    // 👇 EL FILTRO ARREGLADO
-                    eventosOriginales = todosLosEventos.Where(e => e.idAnfitrion == idAnfitrion).ToList();
+                    eventosOriginales = misEventosDB;
                 }
             }
         }
