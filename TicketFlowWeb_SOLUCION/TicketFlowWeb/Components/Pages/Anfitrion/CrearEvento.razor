@@ -328,6 +328,7 @@
                         eventoModel.hora_fin = "22:00:00"; // Default si escriben mal
 
                     // 4. Mandamos al Backend
+                    eventoModel.entradas_disponibles = NumeroEntradasValidado;
                     await AnfitrionService.CrearEventoAsync(eventoModel);
                     NavigationManager.NavigateTo("/anfitrion/gestionar-evento");
                 }

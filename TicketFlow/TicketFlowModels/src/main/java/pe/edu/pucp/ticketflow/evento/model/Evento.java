@@ -13,6 +13,7 @@ public class Evento {
     private String titulo;
     private String descripcion;
     private int capacidad_entradas;
+    private int entradas_disponibles;
     private categoria_evento categoria;
     private int FK_idCategoria_evento;
     private String fecha;
@@ -309,5 +310,13 @@ public class Evento {
 
     public void setHoraFinModerna(LocalTime horaFinModerna) {
         this.horaFinModerna = horaFinModerna;
+    }
+
+    public int getEntradas_disponibles() {
+        return entradas_disponibles;
+    }
+
+    public void setEntradas_disponibles(int entradas_disponibles) {
+        this.entradas_disponibles = entradas_disponibles;
     }
 }

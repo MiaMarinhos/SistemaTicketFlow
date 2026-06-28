@@ -9,6 +9,7 @@ namespace TicketFlowWeb.Models
         public string titulo { get; set; } = string.Empty;
         public string descripcion { get; set; } = string.Empty;
         public int capacidad_entradas { get; set; }
+        public int entradas_disponibles { get; set; }
         public decimal precio { get; set; }
         public string img { get; set; } = string.Empty;
 

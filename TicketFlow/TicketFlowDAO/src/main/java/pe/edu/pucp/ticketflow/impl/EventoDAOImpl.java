@@ -411,6 +411,7 @@ public class EventoDAOImpl implements IEventoDAO {
         evento.setDescripcion(rs.getString("descripcion"));
         evento.setCapacidad_entradas(rs.getInt("capacidad_entradas"));
 
+
         // CONVERSIÓN DE SQL DATE/TIME A STRING PARA LA LECTURA
         evento.setFecha(rs.getDate("fecha") != null ? rs.getDate("fecha").toString() : null);
         evento.setHora_inicio(rs.getTime("hora_inicio") != null ? rs.getTime("hora_inicio").toString() : null);
@@ -458,6 +459,7 @@ public class EventoDAOImpl implements IEventoDAO {
         evento.setTitulo(rs.getString("titulo"));
         evento.setDescripcion(rs.getString("descripcion"));
         evento.setCapacidad_entradas(rs.getInt("capacidad_entradas"));
+        evento.setEntradas_disponibles(rs.getInt("entradas_disponibles"));
 
         // CONVERSIÓN DE SQL DATE/TIME A STRING PARA LA LECTURA
         evento.setFecha(rs.getDate("fecha") != null ? rs.getDate("fecha").toString() : null);

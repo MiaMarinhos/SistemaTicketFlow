@@ -1,4 +1,4 @@
-﻿@page "/cliente/compra/{Id:int}"
+﻿@page "/cliente/compra/{Id:int}/{Disponible:int}"
 
 @using Microsoft.AspNetCore.Components
 @using TicketFlowWeb.Models
@@ -18,7 +18,7 @@
     @if (evento == null)
     {
         <div class="loading-container">
-            <p>Cargando los detalles del evento...</p>
+            <p>Cargando operacion de compra...</p>
         </div>
     }
     else
@@ -31,7 +31,8 @@
 
             <div class="panel-compra">
                 <h1>@evento.titulo</h1>
-
+                <h5 class="text-light">Entradas disponibles: @Disponible</h5>
+                <br />
                 <div class="formulario-compra">
 
                     <div class="fila-cantidad">
@@ -105,9 +106,21 @@
 
                     <div class="acciones">
                         <a href="@($"/public/detalle-evento/{Id}")" class="btn-volver">Volver</a>
-                        <a href="@($"/cliente/confirmar-pago/{idClienteLogueado}/{Id}/{cantidadEntradas}/{idPuntoBonusSeleccionado}/{Subtotal}/{Total}")" class="btn-continuar">
-                            Continuar con el pago
-                        </a>
+
+                        @if (cantidadEntradas <= Disponible && cantidadEntradas > 0)
+                        {
+                            <a href="@($"/cliente/confirmar-pago/{idClienteLogueado}/{Id}/{cantidadEntradas}/{idPuntoBonusSeleccionado}/{Subtotal}/{Total}")"
+                               class="btn-continuar">
+                                Continuar con el pago
+                            </a>
+                        }
+                        else
+                        {
+                            <a class="btn-continuar disabled"
+                               style="cursor: not-allowed; opacity: 0.5; pointer-events: none; background-color: #6b7280;">
+                                Continuar con el pago
+                            </a>
+                        }
                     </div>
 
                 </div>
@@ -120,6 +133,9 @@
 @code {
     [Parameter]
     public int Id { get; set; }
+
+    [Parameter]
+    public int Disponible { get; set; }
 
     public int cantidadEntradas = 1;
     public int idPuntoBonusSeleccionado = 4;

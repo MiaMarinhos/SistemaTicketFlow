@@ -51,7 +51,7 @@
                         }
                         else
                         {
-                            <a href="@($"/cliente/compra/{Id}")" class="btn-comprar">Comprar entrada</a>
+                            <a href="@($"/cliente/compra/{Id}/{@eventoReal.entradas_disponibles}")" class="btn-comprar">Comprar entrada</a>
                         }
                     </div>
                 </div>
@@ -92,7 +92,7 @@
                         else
                         {
                             <a href="/public/descubrir" class="btn-volver">Volver</a>
-                            <a href="@($"/cliente/compra/{Id}")" class="btn-comprar">Comprar entrada</a>
+                            <a href="@($"/cliente/compra/{Id}/{@eventoReal.entradas_disponibles}")" class="btn-comprar">Comprar entrada</a>
                         }
                     </div>
 
@@ -335,7 +335,7 @@
     [Parameter]
     public int Id { get; set; }
 
-    private Models.EventoViewModel eventoReal;
+    public Models.EventoViewModel eventoReal;
     private bool esAnfitrion = false;
 
     protected override async Task OnInitializedAsync()

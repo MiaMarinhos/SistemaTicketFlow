@@ -26,6 +26,7 @@ BEGIN
         titulo,
         descripcion,
         capacidad_entradas,
+        entradas_disponibles,
         fecha,
         hora_inicio,
         hora_fin,
@@ -42,6 +43,7 @@ BEGIN
     VALUES (
         p_titulo,
         p_descripcion,
+        p_capacidad_entradas,
         p_capacidad_entradas,
         p_fecha,
         p_hora_inicio,
