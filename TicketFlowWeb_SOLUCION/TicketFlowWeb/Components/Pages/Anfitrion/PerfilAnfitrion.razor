@@ -411,11 +411,27 @@
             return;
         }
 
+        // --- INICIO DE VALIDACIÓN DE RUC ---
         if (string.IsNullOrWhiteSpace(rucEdit))
         {
             mensajeError = "Ingresa el RUC.";
             return;
         }
+
+        // Validar que tenga 11 dígitos y que todos sean números
+        if (rucEdit.Length != 11 || !rucEdit.All(char.IsDigit))
+        {
+            mensajeError = "El RUC debe tener exactamente 11 dígitos numéricos.";
+            return;
+        }
+
+        // Validar que empiece con 10 o 20
+        if (!rucEdit.StartsWith("10") && !rucEdit.StartsWith("20"))
+        {
+            mensajeError = "El RUC debe empezar con '10' o '20'.";
+            return;
+        }
+        // --- FIN DE VALIDACIÓN DE RUC ---
 
         if (string.IsNullOrWhiteSpace(cuentaBancariaEdit))
         {
@@ -427,7 +443,7 @@
 
         try
         {
-            var ok = await AnfitrionService.EditarDatosEmpresaAsync(
+            var resultado = await AnfitrionService.EditarDatosEmpresaAsync(
                 perfilModel.IdUsuario,
                 razonSocialEdit,
                 rucEdit,
@@ -435,7 +451,7 @@
                 idBancoEdit
             );
 
-            if (ok)
+            if (resultado.Exito) // Usamos la propiedad de la tupla
             {
                 perfilModel.RazonSocial = razonSocialEdit;
                 perfilModel.Ruc = rucEdit;
@@ -446,7 +462,8 @@
             }
             else
             {
-                mensajeError = "No se pudo actualizar. Revisa que el RUC o la cuenta bancaria no estén repetidos.";
+                // Mostramos el error que nos devolvió Java/Backend
+                mensajeError = $"No se pudo actualizar: {resultado.MensajeError}";
             }
         }
         finally

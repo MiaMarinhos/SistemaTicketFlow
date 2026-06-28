@@ -1,12 +1,13 @@
-﻿@*
-
-@page "/anfitrion/editar-evento/{Id:int}"
+﻿@page "/anfitrion/editar-evento/{Id:int}"
 @using Microsoft.AspNetCore.Authorization
-
-@attribute [Authorize(Roles = "ANFITRION")]
 @using System.ComponentModel.DataAnnotations
 @using TicketFlowWeb.Models
+@using TicketFlowWeb.Services.AnfitrionRS
+
+@attribute [Authorize(Roles = "ANFITRION")]
+
 @inject NavigationManager NavigationManager
+@inject AnfitrionRestService AnfitrionService
 
 <PageTitle>TicketFlow - Editar Evento</PageTitle>
 
@@ -19,103 +20,122 @@
             </button>
         </div>
 
-        <form @onsubmit="ActualizarEvento" autocomplete="off">
+        @if (cargando)
+        {
+            <div class="text-center py-5">
+                <div class="spinner-border text-light" role="status">
+                    <span class="visually-hidden">Cargando evento...</span>
+                </div>
+                <p class="mt-3 text-white-50">Cargando datos del evento...</p>
+            </div>
+        }
+        else if (!string.IsNullOrEmpty(mensajeErrorGeneral))
+        {
+            <div class="alert alert-danger text-center">
+                @mensajeErrorGeneral
+            </div>
+        }
+        else
+        {
+            <form @onsubmit="ActualizarEvento" autocomplete="off">
 
-            <div class="row g-4">
+                @if (!string.IsNullOrEmpty(mensajeErrorActualizacion))
+                {
+                    <div class="alert alert-danger">@mensajeErrorActualizacion</div>
+                }
 
-                <div class="col-lg-6 d-flex flex-column gap-3">
+                <div class="row g-4">
 
-                    <div class="mb-2">
-                        <h2 class="subtitulo-explicativo text-uppercase fw-bold text-white-50">Edita tu evento</h2>
-                    </div>
+                    <div class="col-lg-6 d-flex flex-column gap-3">
 
-                    <!-- Título -->
-                    <div class="input-contenedor-full">
-                        <input type="text" class="custom-input custom-titulo-input" placeholder="Título" @bind="eventoModel.titulo" required />
-                    </div>
+                        <div class="mb-2">
+                            <h2 class="subtitulo-explicativo text-uppercase fw-bold text-white-50">Edita tu evento</h2>
+                        </div>
 
-                    <!-- Descripción -->
-                    <div class="input-contenedor-full flex-grow-1 d-flex flex-column">
-                        <textarea class="custom-input custom-textarea flex-grow-1" rows="8" placeholder="Descripcion..." @bind="eventoModel.descripcion" required></textarea>
-                    </div>
+                        <div class="input-contenedor-full">
+                            <input type="text" class="custom-input custom-titulo-input" placeholder="Título" @bind="eventoModel.titulo" required />
+                        </div>
 
-                    <!-- N Entradas y Precio -->
-                    <div class="d-flex gap-3 mt-2">
-                        <div class="d-flex align-items-center gap-2 flex-grow-1">
-                            <span class="etiqueta-fija text-center">N Entradas</span>
-                            <div class="w-100">
-                                <input type="number" min="0" class="custom-input text-white" @bind="NumeroEntradasValidado" placeholder="300" required />
+                        <div class="input-contenedor-full flex-grow-1 d-flex flex-column">
+                            <textarea class="custom-input custom-textarea flex-grow-1" rows="8" placeholder="Descripcion..." @bind="eventoModel.descripcion" required></textarea>
+                        </div>
+
+                        <div class="d-flex gap-3 mt-2">
+                            <div class="d-flex align-items-center gap-2 flex-grow-1">
+                                <span class="etiqueta-fija text-center">N Entradas</span>
+                                <div class="w-100">
+                                    <input type="number" min="0" class="custom-input text-white" @bind="NumeroEntradasValidado" placeholder="300" required />
+                                </div>
+                            </div>
+                            <div class="d-flex align-items-center gap-2 flex-grow-1">
+                                <span class="etiqueta-fija text-center">Precio</span>
+                                <div class="w-100">
+                                    <input type="text" class="custom-input text-white" @bind="PrecioFormateado" placeholder="S/. 50.00" required />
+                                </div>
                             </div>
                         </div>
-                        <div class="d-flex align-items-center gap-2 flex-grow-1">
-                            <span class="etiqueta-fija text-center">Precio</span>
-                            <div class="w-100">
-                                <input type="text" class="custom-input text-white" @bind="PrecioFormateado" placeholder="S/. 50.00" required />
-                            </div>
+
+                    </div>
+
+                    <div class="col-lg-6 d-flex flex-column gap-3 justify-content-between">
+
+                        <div class="fila-formulario-derecha">
+                            <span class="etiqueta-fija">Imagen</span>
+                            <input type="text" class="custom-input" placeholder="Subir Imagen URL" @bind="eventoModel.img" />
                         </div>
+
+                        <div class="fila-formulario-derecha">
+                            <span class="etiqueta-fija">Fecha</span>
+                            <input type="text" class="custom-input text-white" placeholder="31/05/2026" @bind="eventoModel.fecha" required />
+                        </div>
+
+                        <div class="fila-formulario-derecha">
+                            <span class="etiqueta-fija">Hora de Inicio</span>
+                            <input type="text" class="custom-input" placeholder="10:30 am" @bind="eventoModel.hora_inicio" required />
+                        </div>
+
+                        <div class="fila-formulario-derecha">
+                            <span class="etiqueta-fija">Hora de Fin</span>
+                            <input type="text" class="custom-input" placeholder="12:30 pm" @bind="eventoModel.hora_fin" required />
+                        </div>
+
+                        <div class="fila-formulario-derecha">
+                            <span class="etiqueta-fija">Ubicacion</span>
+                            <input type="text" class="custom-input" placeholder="Pasaje Porta 132. Miraflores" @bind="eventoModel.ubicacion" required />
+                        </div>
+
+                        <div class="fila-formulario-derecha">
+                            <span class="etiqueta-fija">Sitio del Evento</span>
+                            <input type="text" class="custom-input" placeholder="El Teatro Teatral" @bind="eventoModel.nombre_establecimiento" required />
+                        </div>
+
+                        <div class="fila-formulario-derecha">
+                            <span class="etiqueta-fija">Distrito</span>
+                            <input type="text" class="custom-input" placeholder="Miraflores" @bind="distritoEdit" required />
+                        </div>
+
+                        <div class="fila-formulario-derecha">
+                            <span class="etiqueta-fija">Region</span>
+                            <input type="text" class="custom-input" placeholder="Lima" @bind="regionEdit" required />
+                        </div>
+
                     </div>
 
                 </div>
 
-                <div class="col-lg-6 d-flex flex-column gap-3 justify-content-between">
-
-                    <div class="fila-formulario-derecha">
-                        <span class="etiqueta-fija">Imagen</span>
-                        <input type="text" class="custom-input" placeholder="Subir Imagen" @bind="eventoModel.img" />
-                    </div>
-
-                    <div class="fila-formulario-derecha">
-                        <span class="etiqueta-fija">Fecha</span>
-                        <input type="text" class="custom-input text-white" placeholder="31/05/2026" @bind="FechaFormateada" required />
-                    </div>
-
-                    <div class="fila-formulario-derecha">
-                        <span class="etiqueta-fija">Hora de Inicio</span>
-                        <input type="text" class="custom-input" placeholder="10:30 am" @bind="eventoModel.horaInicioModerna" required />
-                    </div>
-
-                    <div class="fila-formulario-derecha">
-                        <span class="etiqueta-fija">Hora de Fin</span>
-                        <input type="text" class="custom-input" placeholder="12:30 am" @bind="eventoModel.horaFinModerna" required />
-                    </div>
-
-                    <div class="fila-formulario-derecha">
-                        <span class="etiqueta-fija">Ubicacion</span>
-                        <input type="text" class="custom-input" placeholder="Pasaje Porta 132. Miraflores" @bind="eventoModel.ubicacion" required />
-                    </div>
-
-                    <div class="fila-formulario-derecha">
-                        <span class="etiqueta-fija">Sitio del Evento</span>
-                        <input type="text" class="custom-input" placeholder="El Teatro Teatral" @bind="eventoModel.nombre_establecimiento" required />
-                    </div>
-
-                    <div class="fila-formulario-derecha">
-                        <span class="etiqueta-fija">Distrito</span>
-                        <input type="text" class="custom-input" placeholder="Miraflores" @bind="eventoModel.distrito" required />
-                    </div>
-
-                    <div class="fila-formulario-derecha">
-                        <span class="etiqueta-fija">Region</span>
-                        <input type="text" class="custom-input" placeholder="Lima" @bind="eventoModel.distrito.region" required />
-                    </div>
-
+                <div class="text-center mt-5">
+                    <button type="submit" class="btn-crear-evento fw-bold text-uppercase" disabled="@guardando">
+                        @(guardando ? "Guardando..." : "Editar Evento")
+                    </button>
                 </div>
 
-            </div>
-
-
-            <div class="text-center mt-5">
-                <button type="submit" class="btn-crear-evento fw-bold text-uppercase">
-                    Editar Evento
-                </button>
-            </div>
-
-        </form>
-
+            </form>
+        }
     </div>
 </div>
 
 <style>
+    /* Los estilos se mantienen exactamente igual que antes */
     .crear-evento-page {
         background-color: #121212;
         font-family: system-ui, -apple-system, sans-serif;
@@ -224,73 +244,109 @@
         box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
     }
 
-        .btn-crear-evento:hover {
+        .btn-crear-evento:hover:not(:disabled) {
             background-color: #ffffff;
             transform: scale(1.03);
+        }
+
+        .btn-crear-evento:disabled {
+            opacity: 0.7;
+            cursor: not-allowed;
         }
 </style>
 
 @code {
-    /*
     [Parameter] public int Id { get; set; }
+
     private EventoViewModel eventoModel = new EventoViewModel();
 
-    protected override void OnInitialized()
-    {
-        eventoModel = new EventoViewModel
-        {
-            Titulo = "Obra de Teatro: Hamlet",
-            Descripcion = "Presentación teatral inspirada en Hamlet. Una puesta en escena dramática con actores locales y producción moderna.",
-            NumeroEntradas = 300,
-            Precio = 120.00m, 
-            ImagenRuta = "Subir Imagen",
-            Fecha = new DateTime(2026, 5, 31),
-            HoraInicio = "10:30 am",
-            HoraFin = "12:30 am",
-            Ubicacion = "Pasaje Porta 132. Miraflores",
-            SitioEvento = "El Teatro Teatral",
-            Distrito = "Miraflores",
-            Region = "Lima"
-        };
-    }
+    private string distritoEdit = "";
+    private string regionEdit = "Lima";
 
-    private string FechaFormateada
+    private bool cargando = true;
+    private bool guardando = false;
+    private string mensajeErrorGeneral = "";
+    private string mensajeErrorActualizacion = "";
+
+    // Cambiamos a OnInitializedAsync para hacer la petición a la BD
+    protected override async Task OnInitializedAsync()
     {
-        get => eventoModel.Fecha?.ToString("dd/MM/yyyy") ?? DateTime.Today.ToString("dd/MM/yyyy");
-        set
+        try
         {
-            if (DateTime.TryParseExact(value, "dd/MM/yyyy", null, System.Globalization.DateTimeStyles.None, out DateTime fechaParsed))
-                eventoModel.Fecha = fechaParsed;
+            cargando = true;
+
+            // Consultamos tu backend Java a través de C#
+            var eventoDesdeBd = await AnfitrionService.ObtenerEventoAsync(Id);
+
+            if (eventoDesdeBd != null)
+            {
+                eventoModel = eventoDesdeBd;
+                // Si tienes los datos del distrito en el objeto, los extraemos
+                distritoEdit = eventoModel.distrito?.nombre ?? "Miraflores";
+            }
+            else
+            {
+                mensajeErrorGeneral = "No se encontró el evento solicitado en la base de datos.";
+            }
+        }
+        catch (Exception ex)
+        {
+            mensajeErrorGeneral = $"Error de conexión: {ex.Message}";
+        }
+        finally
+        {
+            cargando = false;
         }
     }
 
     private int NumeroEntradasValidado
     {
-        get => eventoModel.NumeroEntradas;
-        set => eventoModel.NumeroEntradas = value < 0 ? 0 : value;
+        get => eventoModel.capacidad_entradas;
+        set => eventoModel.capacidad_entradas = value < 0 ? 0 : value;
     }
 
     private string PrecioFormateado
     {
-        get => $"S/. {eventoModel.Precio.ToString("0.00")}";
+        get => $"S/. {eventoModel.precio.ToString("0.00")}";
         set
         {
             string limpio = value.Replace("S/.", "").Replace("S/", "").Replace(" ", "").Trim();
             if (decimal.TryParse(limpio, out decimal resultado))
-                eventoModel.Precio = resultado < 0 ? 0 : resultado;
+                eventoModel.precio = resultado < 0 ? 0 : resultado;
         }
     }
 
-    private void ActualizarEvento()
+    private async Task ActualizarEvento()
     {
-        NavigationManager.NavigateTo("/anfitrion/gestionar-evento");
+        mensajeErrorActualizacion = "";
+        guardando = true;
+
+        try
+        {
+            // Ejecutamos el método PUT de tu servicio
+            bool exito = await AnfitrionService.ActualizarEventoAsync(Id, eventoModel);
+
+            if (exito)
+            {
+                NavigationManager.NavigateTo("/anfitrion/gestionar-evento");
+            }
+            else
+            {
+                mensajeErrorActualizacion = "Ocurrió un error al guardar. Revisa la consola o tu backend en Java.";
+            }
+        }
+        catch (Exception ex)
+        {
+            mensajeErrorActualizacion = $"Excepción al guardar: {ex.Message}";
+        }
+        finally
+        {
+            guardando = false;
+        }
     }
 
     private void VolverAtras()
     {
         NavigationManager.NavigateTo("/anfitrion/gestionar-evento");
     }
-    */
 }
-
-*@

@@ -37,7 +37,7 @@
         </section>
 
         <section class="tarjeta-perfil p-4 rounded-4 bg-white shadow-sm">
-            <div class="table-responsive">
+            <div class="contenedor-tabla-scroll">
                 <table class="table table-striped table-hover align-middle m-0 Custom-tabla-anf">
                     <thead>
                         <tr>
@@ -65,7 +65,8 @@
                         {
                             <tr>
                                 <td colspan="7" class="text-center py-4 text-muted">
-                                    No se encontraron eventos. ¡Anímate a publicar el primero!
+                                    No se encontraron eventos.
+                                    ¡Anímate a publicar el primero!
                                 </td>
                             </tr>
                         }
@@ -78,7 +79,7 @@
 
                                     <td class="fw-bold text-indigo">@ev.titulo</td>
 
-                                    <td><span class="badge-fecha">@(ev.fecha?? "Por definir")</span></td>
+                                    <td><span class="badge-fecha">@(ev.fecha ?? "Por definir")</span></td>
 
                                     <td class="text-secondary custom-truncate">@(string.IsNullOrEmpty(ev.ubicacion) ? "Ubicación pendiente" : ev.ubicacion)</td>
 
@@ -99,10 +100,6 @@
                                             <button class="btn-accion-icono btn-editar" title="Editar Evento" @onclick="() => IrAEditar(ev.idEvento)">
                                                 ✏️
                                             </button>
-
-                                            <button class="btn-accion-icono btn-eliminar" title="Eliminar Evento" @onclick="() => EliminarEvento(ev.idEvento)">
-                                                🗑️
-                                            </button>
                                         </div>
                                     </td>
                                 </tr>
@@ -117,7 +114,6 @@
 </div>
 
 <style>
-    /* Estilos CSS (Se mantienen exactamente igual a los tuyos) */
     .gestionar-eventos-contenedor {
         min-height: 100vh;
         background-color: #f2edff;
@@ -166,8 +162,45 @@
             transform: translateY(-1px);
         }
 
-    .Custom-tabla-anf {
+    /* --- NUEVOS ESTILOS PARA EL SCROLL Y ENCABEZADO FIJO --- */
+    .contenedor-tabla-scroll {
+        max-height: 450px;
+        overflow-y: auto;
+        overflow-x: hidden;
+        border-radius: 8px;
         border: 1px solid #f0edf5;
+    }
+
+        .Custom-tabla-anf thead th,
+        .contenedor-tabla-scroll thead th {
+            position: sticky;
+            top: 0;
+            z-index: 10;
+            background-color: #d1e8ff !important;
+            box-shadow: 0 2px 2px -1px rgba(0, 0, 0, 0.1);
+        }
+
+        .contenedor-tabla-scroll::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        .contenedor-tabla-scroll::-webkit-scrollbar-track {
+            background: #f1f1f1;
+            border-radius: 8px;
+        }
+
+        .contenedor-tabla-scroll::-webkit-scrollbar-thumb {
+            background: #c1c1c1;
+            border-radius: 8px;
+        }
+
+            .contenedor-tabla-scroll::-webkit-scrollbar-thumb:hover {
+                background: #a8a8a8;
+            }
+    /* -------------------------------------------------------- */
+
+    .Custom-tabla-anf {
+        /* Borde eliminado para evitar duplicidad con el contenedor */
     }
 
         .Custom-tabla-anf thead {
@@ -266,21 +299,6 @@
         border-color: #ffc107;
     }
 
-    .btn-eliminar:hover {
-        background-color: #fff5f5;
-        border-color: #dc3545;
-    }
-
-    .btn-aprobar:hover {
-        background-color: #e2fadc;
-        border-color: #287a1d;
-    }
-
-    .btn-rechazar:hover {
-        background-color: #fff5f5;
-        border-color: #dc3545;
-    }
-
     @@media (max-width: 900px) {
         .contenido-perfil {
             padding: 20px 15px;
@@ -310,7 +328,6 @@
         if (user.Identity is not null && user.Identity.IsAuthenticated)
         {
             var idClaim = user.FindFirst("IdUsuario")?.Value;
-
             if (int.TryParse(idClaim, out int idAnfitrion))
             {
                 var misEventosDB = await AnfitrionService.VerMisEventosAsync(idAnfitrion);
@@ -332,11 +349,5 @@
     private void IrAEditar(int id)
     {
         NavigationManager.NavigateTo($"/anfitrion/editar-evento/{id}");
-    }
-
-    private void EliminarEvento(int id)
-    {
-        var item = eventosOriginales.FirstOrDefault(e => e.idEvento == id);
-        if (item != null) eventosOriginales.Remove(item);
     }
 }

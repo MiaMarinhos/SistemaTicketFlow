@@ -61,7 +61,7 @@ namespace TicketFlowWeb.Services.AnfitrionRS
             return response.IsSuccessStatusCode;
         }
 
-        public async Task<bool> EditarDatosEmpresaAsync(int idAnfitrion, string razonSocial, string ruc, string cuentaBancaria, int idBanco)
+        public async Task<(bool Exito, string MensajeError)> EditarDatosEmpresaAsync(int idAnfitrion, string razonSocial, string ruc, string cuentaBancaria, int idBanco)
         {
             var payload = new
             {
@@ -69,10 +69,7 @@ namespace TicketFlowWeb.Services.AnfitrionRS
                 razonSocial = razonSocial,
                 ruc = ruc,
                 cuentaBancaria = cuentaBancaria,
-                banco = new
-                {
-                    id = idBanco
-                }
+                banco = new { id = idBanco }
             };
 
             var response = await _httpClient.PutAsJsonAsync($"AnfitrionRS/{idAnfitrion}/datos-empresa", payload, JsonOptions);
@@ -81,9 +78,10 @@ namespace TicketFlowWeb.Services.AnfitrionRS
             {
                 var error = await response.Content.ReadAsStringAsync();
                 Console.WriteLine($"Error al editar datos de empresa: {error}");
+                return (false, error); // Devolvemos el error real al frontend
             }
 
-            return response.IsSuccessStatusCode;
+            return (true, string.Empty);
         }
 
         // ==========================================

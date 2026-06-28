@@ -74,7 +74,8 @@
 
             <div class="contenedor-tabla-anf">
                 <h4 class="mb-3 fw-bold" style="color: #15095f;">Estado en Vivo de tus Shows</h4>
-                <div class="table-responsive">
+
+                <div class="contenedor-tabla-scroll-home">
                     <table class="table align-middle m-0" style="color: #333355;">
                         <thead>
                             <tr class="text-muted border-bottom">
@@ -597,6 +598,41 @@
         margin-top: 25px;
         box-shadow: 0 4px 15px rgba(21, 9, 95, 0.04);
     }
+
+    /* --- NUEVOS ESTILOS DEL SCROLL (SOLO ANFITRIÓN HOME) --- */
+    .contenedor-tabla-scroll-home {
+        max-height: 350px;
+        overflow-y: auto;
+        overflow-x: hidden;
+    }
+
+        .contenedor-tabla-scroll-home thead th {
+            position: sticky;
+            top: 0;
+            z-index: 10;
+            background-color: #ffffff !important; /* Fondo blanco para no solapar datos */
+            box-shadow: 0 2px 2px -1px rgba(0, 0, 0, 0.1);
+        }
+
+        .contenedor-tabla-scroll-home::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        .contenedor-tabla-scroll-home::-webkit-scrollbar-track {
+            background: #f1f1f1;
+            border-radius: 8px;
+        }
+
+        .contenedor-tabla-scroll-home::-webkit-scrollbar-thumb {
+            background: #c1c1c1;
+            border-radius: 8px;
+        }
+
+            .contenedor-tabla-scroll-home::-webkit-scrollbar-thumb:hover {
+                background: #a8a8a8;
+            }
+    /* -------------------------------------------------------- */
+
 </style>
 
 @code {
@@ -606,7 +642,6 @@
     private List<EventoViewModel> misEventos = new();
     private List<EventoDTO> ultimosEventos = new();
     private bool cargandoUltimosEventos = true;
-
     // Variables para los KPIs (Tarjetas superiores)
     private int totalEventos = 0;
     private int entradasVendidas = 0;
@@ -624,11 +659,9 @@
             if (user.Identity is not null && user.Identity.IsAuthenticated)
             {
                 var idClaim = user.FindFirst("IdUsuario")?.Value;
-
                 if (int.TryParse(idClaim, out int idAnfitrion))
                 {
                     perfilActual = await AnfitrionService.BuscarAnfitrionAsync(idAnfitrion);
-
                     if (perfilActual != null && !string.IsNullOrWhiteSpace(perfilActual.Nombre))
                     {
                         nombreAnfitrion = perfilActual.Nombre;
@@ -647,7 +680,6 @@
 
                     entradasVendidas = 0;
                     ingresosGenerados = 0;
-
                     if (compras != null)
                     {
                         foreach (var compra in compras)
@@ -655,7 +687,6 @@
                             entradasVendidas += compra.entradasCompradas;
 
                             var eventoRelacionado = misEventos.FirstOrDefault(e => e.idEvento == compra.idEvento);
-
                             if (eventoRelacionado != null)
                             {
                                 ingresosGenerados += compra.entradasCompradas * eventoRelacionado.precio;
@@ -674,12 +705,12 @@
             cargando = false;
         }
     }
+
     private async Task CargarUltimosEventosAsync()
     {
         try
         {
             cargandoUltimosEventos = true;
-
             var eventos = await EventoService.ListarEventosAsync();
 
             ultimosEventos = eventos
