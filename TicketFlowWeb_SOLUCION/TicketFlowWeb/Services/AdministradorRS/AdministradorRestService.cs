@@ -1,8 +1,10 @@
-﻿using TicketFlowWeb.Models;
+﻿using Models.compra;
 using System.Net.Http.Json;
+using System.Text.Json;
+using TicketFlowWeb.Models;
 using TicketFlowWeb.Models;
 using TicketFlowWeb.Services.UsuarioRS;
-using System.Text.Json;
+using TicketFlowWeb.Models.COMPRA;
 
 namespace TicketFlowWeb.Services.AdministradorRS
 {
@@ -316,6 +318,27 @@ namespace TicketFlowWeb.Services.AdministradorRS
         {
             return await _http.GetFromJsonAsync<PagoViewModel>(
                 $"AdminPagos/detalle/{idPago}"
+            );
+        }
+
+        public async Task<List<CompraViewModel>> ListarCompras()
+        {
+            return await _http.GetFromJsonAsync<List<CompraViewModel>>(
+                "AdminCompras/listar"
+            ) ?? new List<CompraViewModel>();
+        }
+
+        public async Task<List<CompraViewModel>> FiltrarComprasPorEstado(int idEstado)
+        {
+            return await _http.GetFromJsonAsync<List<CompraViewModel>>(
+                $"AdminCompras/filtrarPorEstado?idEstado={idEstado}"
+            ) ?? new List<CompraViewModel>();
+        }
+
+        public async Task<CompraViewModel?> ObtenerDetalleCompra(int idCompra)
+        {
+            return await _http.GetFromJsonAsync<CompraViewModel>(
+                $"AdminCompras/detalle/{idCompra}"
             );
         }
     }

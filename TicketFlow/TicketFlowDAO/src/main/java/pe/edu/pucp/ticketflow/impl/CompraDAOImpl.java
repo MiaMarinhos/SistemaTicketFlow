@@ -50,7 +50,7 @@ public class CompraDAOImpl implements ICompraDAO{
             try(ResultSet rs = cs.executeQuery()){
                 if(rs.next()){
                     Compra t = new Compra();
-                    mapear(rs, t);
+                    mapearCompraAdmin(rs, t);
                     return t;
                 }
             }
@@ -103,19 +103,20 @@ public class CompraDAOImpl implements ICompraDAO{
     @Override
     public List<Compra> listAll(){
         List<Compra> lista = new ArrayList<>();
-        String sql = "{CALL sp_listAll_compras()}";
+        String sql = "{CALL sp_listAll_compras_admin()}";
         try (Connection con = DBManager.getInstance().getConnection();
              CallableStatement cs = con.prepareCall(sql);
              ResultSet rs = cs.executeQuery()) {
 
             while(rs.next()){
                 Compra t = new Compra();
-                mapear(rs, t);
+                mapearCompraAdmin(rs, t);
                 lista.add(t);
             }
             return lista;
         }
         catch (SQLException e) {
+            e.printStackTrace();
             throw new RuntimeException("Error en listar Compra", e);
         }
     }
@@ -165,7 +166,7 @@ public class CompraDAOImpl implements ICompraDAO{
 
                 while (rs.next()) {
                     Compra t = new Compra();
-                    mapear(rs, t);
+                    mapearCompraAdmin(rs, t);
                     lista.add(t);
                 }
 
@@ -212,6 +213,39 @@ public class CompraDAOImpl implements ICompraDAO{
         t.setIdCliente(rs.getInt("idCliente"));
         t.setIdEvento(rs.getInt("idEvento"));
         t.setIdEstado(rs.getInt("idEstado"));
+    }
+
+    private void mapearCompraAdmin(ResultSet rs, Compra t) throws SQLException {
+        t.setIdCompra(rs.getInt("idCompra"));
+        t.setEntradasCompradas(rs.getInt("entradasCompradas"));
+        t.setFechaCompra(rs.getDate("fechaCompra").toLocalDate());
+        t.setHoraCompra(rs.getTime("horaCompra").toLocalTime());
+        t.setMetodoPago(rs.getString("metodoPago"));
+        t.setMontoParcial(rs.getDouble("montoParcial"));
+        t.setMontoTotal(rs.getDouble("montoTotal"));
+        t.setIdpuntoBonus(rs.getInt("idPuntoBonus"));
+
+        t.setIdCliente(rs.getInt("idCliente"));
+        t.setIdEvento(rs.getInt("idEvento"));
+        t.setIdEstado(rs.getInt("idEstado"));
+        t.setRecordatorio_enviado(rs.getBoolean("recordatorioEnviado"));
+
+        Cliente cliente = new Cliente();
+        cliente.setIdUsuario(rs.getInt("idCliente"));
+        cliente.setNombre(rs.getString("nombreCliente"));
+        cliente.setApellidoPaterno(rs.getString("apellidoPaternoCliente"));
+        cliente.setApellidoMaterno(rs.getString("apellidoMaternoCliente"));
+        t.setCliente(cliente);
+
+        Evento evento = new Evento();
+        evento.setIdEvento(rs.getInt("idEvento"));
+        evento.setTitulo(rs.getString("tituloEvento"));
+        t.setEvento(evento);
+
+        EstadoCompra estado = new EstadoCompra();
+        estado.setIdEstadoCompra(rs.getInt("idEstado"));
+        estado.setEstado(rs.getString("estadoCompra"));
+        t.setEstado(estado);
     }
 
     public List<Compra> listarComprasPorAnfitrion(Integer idAnfitrion) {

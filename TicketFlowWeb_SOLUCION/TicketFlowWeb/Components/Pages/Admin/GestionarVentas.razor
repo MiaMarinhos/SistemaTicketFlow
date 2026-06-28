@@ -1,8 +1,12 @@
 ﻿@page "/admin/ventas"
 @using Microsoft.AspNetCore.Authorization
+@using TicketFlowWeb.Models.COMPRA
+@using TicketFlowWeb.Services.AdministradorRS
 
 @attribute [Authorize(Roles = "ADMIN")]
 @layout AdminLayout
+
+@inject AdministradorRestService AdminService
 
 <PageTitle>Panel de Ventas</PageTitle>
 
@@ -17,18 +21,13 @@
                @bind="textoBusqueda"
                @bind:event="oninput" />
 
-        <label>Fecha:</label>
-        <input type="date"
-               class="form-control filtro-fecha"
-               @bind="fechaFiltro" />
-
         <label>Estado:</label>
         <select class="form-select filtro-estado"
-                @bind="estadoFiltro">
-            <option value="">Todos</option>
-            <option value="Confirmada">Confirmada</option>
-            <option value="Pendiente">Pendiente</option>
-            <option value="Cancelada">Cancelada</option>
+                value="@estadoFiltro"
+                @onchange="CambiarEstado">
+            <option value="0">Todos</option>
+            <option value="1">Pendiente</option>
+            <option value="2">Confirmada</option>
         </select>
 
         <button class="btn btn-dark" @onclick="LimpiarFiltros">
@@ -38,7 +37,21 @@
 </nav>
 
 <div class="mt-4">
-    @if (VentasFiltradas.Any())
+    @if (!string.IsNullOrWhiteSpace(errorMensaje))
+    {
+        <div class="alert alert-danger">
+            @errorMensaje
+        </div>
+    }
+
+    @if (cargando)
+    {
+        <div class="text-center py-5 border rounded bg-light">
+            <div class="spinner-border text-primary" role="status"></div>
+            <h5 class="mt-3 text-secondary">Cargando ventas...</h5>
+        </div>
+    }
+    else if (ComprasFiltradas.Any())
     {
         <table class="table table-bordered table-hover">
             <thead class="table-primary">
@@ -55,21 +68,21 @@
             </thead>
 
             <tbody>
-                @foreach (var venta in VentasFiltradas)
+                @foreach (var compra in ComprasFiltradas)
                 {
                     <tr>
-                        <td>@venta.IdVenta</td>
-                        <td>@venta.Usuario</td>
-                        <td>@venta.Evento</td>
-                        <td>@venta.Cantidad</td>
-                        <td>S/ @venta.Total</td>
-                        <td>@venta.Fecha.ToString("dd/MM/yyyy")</td>
-                        <td>@venta.Estado</td>
+                        <td>@compra.idCompra</td>
+                        <td>@ObtenerNombreCliente(compra)</td>
+                        <td>@ObtenerTituloEvento(compra)</td>
+                        <td>@compra.entradasCompradas</td>
+                        <td>@FormatearMonto(compra.montoTotal)</td>
+                        <td>@ObtenerFechaCompra(compra)</td>
+                        <td>@ObtenerEstadoCompra(compra).ToUpper()</td>
                         <td>
                             <button class="btn btn-outline-dark btn-sm"
                                     data-bs-toggle="modal"
                                     data-bs-target="#detalleVentaModal"
-                                    @onclick="() => SeleccionarVenta(venta)">
+                                    @onclick="() => SeleccionarCompra(compra)">
                                 <i class="bi bi-eye"></i>
                             </button>
                         </td>
@@ -82,14 +95,14 @@
     {
         <div class="text-center py-5 border rounded bg-light">
             <i class="bi bi-search fs-1 text-secondary"></i>
-            <h5 class="mt-3 text-secondary">No se encontraron coincidencias</h5>
+            <h5 class="mt-3 text-secondary">No se encontraron ventas</h5>
             <p class="text-muted">Intente modificar los filtros de búsqueda.</p>
         </div>
     }
 </div>
 
 <div class="modal fade" id="detalleVentaModal" tabindex="-1">
-    <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-dialog modal-dialog-centered modal-lg">
         <div class="modal-content">
 
             <div class="modal-header bg-primary text-white">
@@ -101,46 +114,109 @@
             </div>
 
             <div class="modal-body">
-                @if (ventaSeleccionada != null)
+                @if (cargandoDetalle)
+                {
+                    <div class="text-center py-4">
+                        <div class="spinner-border text-primary" role="status"></div>
+                        <p class="mt-3 text-muted">Cargando detalle de la venta...</p>
+                    </div>
+                }
+                else if (compraSeleccionada != null)
                 {
                     <h6 class="text-muted">Información general</h6>
                     <hr />
 
                     <div class="row mb-2">
                         <div class="col-5 fw-bold">ID Venta:</div>
-                        <div class="col-7">@ventaSeleccionada.IdVenta</div>
+                        <div class="col-7">@compraSeleccionada.idCompra</div>
                     </div>
 
                     <div class="row mb-2">
                         <div class="col-5 fw-bold">Usuario:</div>
-                        <div class="col-7">@ventaSeleccionada.Usuario</div>
+                        <div class="col-7">@ObtenerNombreCliente(compraSeleccionada)</div>
                     </div>
 
                     <div class="row mb-2">
                         <div class="col-5 fw-bold">Evento:</div>
-                        <div class="col-7">@ventaSeleccionada.Evento</div>
+                        <div class="col-7">@ObtenerTituloEvento(compraSeleccionada)</div>
                     </div>
 
                     <div class="row mb-2">
                         <div class="col-5 fw-bold">Cantidad:</div>
-                        <div class="col-7">@ventaSeleccionada.Cantidad</div>
+                        <div class="col-7">@compraSeleccionada.entradasCompradas</div>
                     </div>
 
                     <div class="row mb-2">
-                        <div class="col-5 fw-bold">Total:</div>
-                        <div class="col-7">S/ @ventaSeleccionada.Total</div>
+                        <div class="col-5 fw-bold">Método de pago:</div>
+                        <div class="col-7">@MostrarTexto(compraSeleccionada.metodoPago)</div>
+                    </div>
+
+                    <div class="row mb-2">
+                        <div class="col-5 fw-bold">Monto parcial:</div>
+                        <div class="col-7">@FormatearMonto(compraSeleccionada.montoParcial)</div>
+                    </div>
+
+                    <div class="row mb-2">
+                        <div class="col-5 fw-bold">Monto total:</div>
+                        <div class="col-7">@FormatearMonto(compraSeleccionada.montoTotal)</div>
                     </div>
 
                     <div class="row mb-2">
                         <div class="col-5 fw-bold">Fecha:</div>
-                        <div class="col-7">@ventaSeleccionada.Fecha.ToString("dd/MM/yyyy")</div>
+                        <div class="col-7">@ObtenerFechaCompra(compraSeleccionada)</div>
+                    </div>
+
+                    <div class="row mb-2">
+                        <div class="col-5 fw-bold">Hora:</div>
+                        <div class="col-7">@ObtenerHoraCompra(compraSeleccionada)</div>
                     </div>
 
                     <div class="row mb-2">
                         <div class="col-5 fw-bold">Estado:</div>
-                        <div class="col-7">
-                            <span class="badge bg-secondary">@ventaSeleccionada.Estado</span>
+                        <div class="col-7">@ObtenerEstadoCompra(compraSeleccionada).ToUpper()</div>
+                    </div>
+
+                    <h6 class="text-muted mt-4">Información técnica</h6>
+                    <hr />
+
+                    <div class="row mb-2">
+                        <div class="col-5 fw-bold">ID Cliente:</div>
+                        <div class="col-7">@compraSeleccionada.idCliente</div>
+                    </div>
+
+                    <div class="row mb-2">
+                        <div class="col-5 fw-bold">ID Evento:</div>
+                        <div class="col-7">@compraSeleccionada.idEvento</div>
+                    </div>
+
+                    <div class="row mb-2">
+                        <div class="col-5 fw-bold">ID Estado:</div>
+                        <div class="col-7">@compraSeleccionada.idEstado</div>
+                    </div>
+
+                    <div class="row mb-2">
+                        <div class="col-5 fw-bold">ID Puntos Bonus:</div>
+                        <div class="col-7">@compraSeleccionada.idpuntoBonus</div>
+                    </div>
+
+                    @if (compraSeleccionada.puntosBonus != null)
+                    {
+                        <div class="row mb-2">
+                            <div class="col-5 fw-bold">Puntos canjeables:</div>
+                            <div class="col-7">@compraSeleccionada.puntosBonus.puntosCanheables</div>
                         </div>
+
+                        <div class="row mb-2">
+                            <div class="col-5 fw-bold">Descuento:</div>
+                            <div class="col-7">@compraSeleccionada.puntosBonus.descuento</div>
+                        </div>
+                    }
+                }
+                else
+                {
+                    <div class="text-center py-4">
+                        <i class="bi bi-exclamation-circle fs-1 text-secondary"></i>
+                        <p class="mt-3 text-muted">No se pudo cargar el detalle de la venta.</p>
                     </div>
                 }
             </div>
@@ -156,67 +232,169 @@
 </div>
 
 @code {
+    private List<CompraViewModel> compras = new();
+    private CompraViewModel? compraSeleccionada;
+
     private string textoBusqueda = "";
-    private DateTime? fechaFiltro;
-    private string estadoFiltro = "";
+    private int estadoFiltro = 0;
 
-    private Venta? ventaSeleccionada;
+    private bool cargando = true;
+    private bool cargandoDetalle = false;
 
-    private IEnumerable<Venta> VentasFiltradas =>
-        ventas.Where(v =>
-            (string.IsNullOrWhiteSpace(textoBusqueda) ||
-             v.Usuario.Contains(textoBusqueda, StringComparison.OrdinalIgnoreCase))
+    private string? errorMensaje;
 
-            &&
-
-            (fechaFiltro == null ||
-             v.Fecha.Date == fechaFiltro.Value.Date)
-
-            &&
-
-            (string.IsNullOrWhiteSpace(estadoFiltro) ||
-             v.Estado == estadoFiltro)
+    private IEnumerable<CompraViewModel> ComprasFiltradas =>
+        compras.Where(c =>
+            string.IsNullOrWhiteSpace(textoBusqueda) ||
+            ObtenerNombreCliente(c).Contains(textoBusqueda, StringComparison.OrdinalIgnoreCase)
         );
 
-    private List<Venta> ventas = new()
-        {
-    new Venta { IdVenta = 1, Usuario = "Juan Carlos", Evento = "Concierto Rock", Cantidad = 2, Total = 170, Fecha = new DateTime(2026, 6, 15), Estado = "Confirmada" },
-    new Venta { IdVenta = 2, Usuario = "Andrea Lucía", Evento = "Feria Gastronómica Sabores Limeños", Cantidad = 1, Total = 20, Fecha = new DateTime(2026, 6, 11), Estado = "Pendiente" },
-    new Venta { IdVenta = 3, Usuario = "Sebastián", Evento = "Obra de Teatro Hamlet", Cantidad = 3, Total = 360, Fecha = new DateTime(2026, 7, 4), Estado = "Confirmada" },
-    new Venta { IdVenta = 4, Usuario = "Valeria", Evento = "Maratón Lima 42K", Cantidad = 1, Total = 60, Fecha = new DateTime(2026, 6, 21), Estado = "Confirmada" },
-    new Venta { IdVenta = 5, Usuario = "Diego Alonso", Evento = "Festival de Cine Independiente", Cantidad = 2, Total = 70, Fecha = new DateTime(2026, 7, 1), Estado = "Confirmada" },
-    new Venta { IdVenta = 6, Usuario = "Camila Fernanda", Evento = "Noche de Salsa y Sabor", Cantidad = 1, Total = 45, Fecha = new DateTime(2026, 6, 2), Estado = "Confirmada" },
-    new Venta { IdVenta = 7, Usuario = "Luis Torres", Evento = "Expo Tecnología 2026", Cantidad = 4, Total = 200, Fecha = new DateTime(2026, 8, 10), Estado = "Pendiente" },
-    new Venta { IdVenta = 8, Usuario = "María Pérez", Evento = "Festival de Jazz", Cantidad = 2, Total = 150, Fecha = new DateTime(2026, 8, 5), Estado = "Confirmada" },
-    new Venta { IdVenta = 9, Usuario = "Carlos Ramírez", Evento = "Conferencia de Marketing", Cantidad = 1, Total = 90, Fecha = new DateTime(2026, 7, 18), Estado = "Cancelada" },
-    new Venta { IdVenta = 10, Usuario = "Fernanda Rojas", Evento = "Taller de Fotografía", Cantidad = 2, Total = 110, Fecha = new DateTime(2026, 6, 28), Estado = "Confirmada" },
-    new Venta { IdVenta = 11, Usuario = "Jorge Castillo", Evento = "Campeonato de E-Sports", Cantidad = 3, Total = 240, Fecha = new DateTime(2026, 8, 15), Estado = "Pendiente" },
-    new Venta { IdVenta = 12, Usuario = "Lucía Mendoza", Evento = "Festival Gastronómico", Cantidad = 2, Total = 80, Fecha = new DateTime(2026, 7, 12), Estado = "Confirmada" },
-    new Venta { IdVenta = 13, Usuario = "Pedro Salazar", Evento = "Seminario de Finanzas", Cantidad = 1, Total = 120, Fecha = new DateTime(2026, 8, 20), Estado = "Confirmada" },
-    new Venta { IdVenta = 14, Usuario = "Ana Gómez", Evento = "Concierto Sinfónico", Cantidad = 2, Total = 180, Fecha = new DateTime(2026, 9, 2), Estado = "Pendiente" },
-    new Venta { IdVenta = 15, Usuario = "Ricardo Vargas", Evento = "Festival de Cine", Cantidad = 5, Total = 250, Fecha = new DateTime(2026, 7, 25), Estado = "Confirmada" }
-        };
-
-    private void SeleccionarVenta(Venta venta)
+    protected override async Task OnInitializedAsync()
     {
-        ventaSeleccionada = venta;
+        await CargarCompras();
     }
 
-    private void LimpiarFiltros()
+    private async Task CargarCompras()
+    {
+        try
+        {
+            cargando = true;
+            errorMensaje = null;
+
+            if (estadoFiltro == 0)
+            {
+                compras = await AdminService.ListarCompras();
+            }
+            else
+            {
+                compras = await AdminService.FiltrarComprasPorEstado(estadoFiltro);
+            }
+        }
+        catch (Exception ex)
+        {
+            errorMensaje = ex.Message;
+            compras = new List<CompraViewModel>();
+        }
+        finally
+        {
+            cargando = false;
+        }
+    }
+
+    private async Task CambiarEstado(ChangeEventArgs e)
+    {
+        int.TryParse(e.Value?.ToString(), out estadoFiltro);
+        await CargarCompras();
+    }
+
+    private async Task LimpiarFiltros()
     {
         textoBusqueda = "";
-        fechaFiltro = null;
-        estadoFiltro = "";
+        estadoFiltro = 0;
+        await CargarCompras();
     }
 
-    public class Venta
+    private async Task SeleccionarCompra(CompraViewModel compra)
     {
-        public int IdVenta { get; set; }
-        public string Usuario { get; set; } = "";
-        public string Evento { get; set; } = "";
-        public int Cantidad { get; set; }
-        public decimal Total { get; set; }
-        public DateTime Fecha { get; set; }
-        public string Estado { get; set; } = "";
+        try
+        {
+            cargandoDetalle = true;
+            compraSeleccionada = null;
+            errorMensaje = null;
+
+            var detalle = await AdminService.ObtenerDetalleCompra(compra.idCompra);
+
+            compraSeleccionada = detalle ?? compra;
+        }
+        catch (Exception ex)
+        {
+            errorMensaje = ex.Message;
+            compraSeleccionada = compra;
+        }
+        finally
+        {
+            cargandoDetalle = false;
+        }
+    }
+
+    private string ObtenerNombreCliente(CompraViewModel compra)
+    {
+        if (compra.cliente == null)
+            return $"Cliente #{compra.idCliente}";
+
+        var nombre = ObtenerPropiedad(compra.cliente, "nombre", "Nombre");
+        var apellidoPaterno = ObtenerPropiedad(compra.cliente, "apellidoPaterno", "ApellidoPaterno");
+        var apellidoMaterno = ObtenerPropiedad(compra.cliente, "apellidoMaterno", "ApellidoMaterno");
+
+        var nombreCompleto = $"{nombre} {apellidoPaterno} {apellidoMaterno}".Trim();
+
+        return string.IsNullOrWhiteSpace(nombreCompleto)
+            ? $"Cliente #{compra.idCliente}"
+            : nombreCompleto;
+    }
+
+    private string ObtenerTituloEvento(CompraViewModel compra)
+    {
+        if (compra.evento == null)
+            return $"Evento #{compra.idEvento}";
+
+        var titulo = ObtenerPropiedad(compra.evento, "titulo", "Titulo");
+
+        return string.IsNullOrWhiteSpace(titulo)
+            ? $"Evento #{compra.idEvento}"
+            : titulo;
+    }
+
+    private string ObtenerEstadoCompra(CompraViewModel compra)
+    {
+        var estado = compra.estado?.estado;
+
+        if (!string.IsNullOrWhiteSpace(estado))
+            return estado;
+
+        return compra.idEstado switch
+        {
+            1 => "PENDIENTE",
+            2 => "CONFIRMADA",
+            _ => $"ESTADO #{compra.idEstado}"
+        };
+    }
+
+    private string ObtenerFechaCompra(CompraViewModel compra)
+    {
+        if (!string.IsNullOrWhiteSpace(compra.fechaCompraS))
+            return compra.fechaCompraS;
+
+        return compra.fechaCompra?.ToString("dd/MM/yyyy") ?? "-";
+    }
+
+    private string ObtenerHoraCompra(CompraViewModel compra)
+    {
+        if (!string.IsNullOrWhiteSpace(compra.horaCompraS))
+            return compra.horaCompraS;
+
+        return compra.horaCompra?.ToString("HH:mm:ss") ?? "-";
+    }
+
+    private string FormatearMonto(double monto)
+    {
+        return $"S/ {monto:0.00}";
+    }
+
+    private string MostrarTexto(string? valor)
+    {
+        return string.IsNullOrWhiteSpace(valor) ? "-" : valor;
+    }
+
+    private string ObtenerPropiedad(object objeto, params string[] nombres)
+    {
+        var propiedad = objeto.GetType()
+            .GetProperties()
+            .FirstOrDefault(p => nombres.Any(n =>
+                string.Equals(p.Name, n, StringComparison.OrdinalIgnoreCase)));
+
+        var valor = propiedad?.GetValue(objeto);
+
+        return valor?.ToString() ?? string.Empty;
     }
 }

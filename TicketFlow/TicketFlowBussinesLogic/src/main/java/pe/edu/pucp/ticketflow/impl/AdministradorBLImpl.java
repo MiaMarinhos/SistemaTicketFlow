@@ -533,7 +533,6 @@ public class AdministradorBLImpl implements IAdministradorBL {
     //GESTION DE COMPRAS
     @Override
     public List<Compra> listarCompras() throws BusinessLogicException {
-
         return compraDAO.listAll();
     }
 

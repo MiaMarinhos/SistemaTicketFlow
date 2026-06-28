@@ -56,7 +56,6 @@ END //
 DELIMITER ;
 ------------------------------
 
--- Read
 DELIMITER $$
 
 DROP PROCEDURE IF EXISTS sp_read_compras $$
@@ -65,13 +64,38 @@ CREATE PROCEDURE sp_read_compras (
     IN p_idCompras INT
 )
 BEGIN
-SELECT
-    idCompras, entradas_compradas, fecha_compra, metodo_pago,
-    hora_compra, monto_parcial, monto_total, idPuntos_bonus,
-    idCliente, idEvento, idEstado
-FROM compras
-WHERE idCompras = p_idCompras;
+    SELECT
+        c.idCompras AS idCompra,
+        c.entradas_compradas AS entradasCompradas,
+        c.fecha_compra AS fechaCompra,
+        c.hora_compra AS horaCompra,
+        c.metodo_pago AS metodoPago,
+        c.monto_parcial AS montoParcial,
+        c.monto_total AS montoTotal,
+        c.idPuntos_bonus AS idPuntoBonus,
+
+        c.idCliente AS idCliente,
+        u.nombre AS nombreCliente,
+        u.apellido_paterno AS apellidoPaternoCliente,
+        u.apellido_materno AS apellidoMaternoCliente,
+
+        c.idEvento AS idEvento,
+        e.titulo AS tituloEvento,
+
+        c.idEstado AS idEstado,
+        ec.estado AS estadoCompra,
+
+        c.recordatorio_enviado AS recordatorioEnviado
+
+    FROM compras c
+    INNER JOIN cliente cl ON c.idCliente = cl.idCliente
+    INNER JOIN usuario u ON cl.idCliente = u.idUsuario
+    INNER JOIN evento e ON c.idEvento = e.idEvento
+    INNER JOIN estado_compras ec ON c.idEstado = ec.idEstado
+
+    WHERE c.idCompras = p_idCompras;
 END$$
+
 DELIMITER ;
 
 -- Update
@@ -126,16 +150,42 @@ DELIMITER ;
 -- ListAll
 DELIMITER $$
 
-DROP PROCEDURE IF EXISTS sp_listAll_compras $$
+DROP PROCEDURE IF EXISTS sp_listAll_compras_admin $$
 
-CREATE PROCEDURE sp_listAll_compras ()
+CREATE PROCEDURE sp_listAll_compras_admin()
 BEGIN
-SELECT
-    idCompras, entradas_compradas, fecha_compra, metodo_pago,
-    hora_compra, monto_parcial, monto_total, idPuntos_bonus,
-    idCliente, idEvento, idEstado
-FROM compras;
+    SELECT
+        c.idCompras AS idCompra,
+        c.entradas_compradas AS entradasCompradas,
+        c.fecha_compra AS fechaCompra,
+        c.hora_compra AS horaCompra,
+        c.metodo_pago AS metodoPago,
+        c.monto_parcial AS montoParcial,
+        c.monto_total AS montoTotal,
+        c.idPuntos_bonus AS idPuntoBonus,
+
+        c.idCliente AS idCliente,
+        u.nombre AS nombreCliente,
+        u.apellido_paterno AS apellidoPaternoCliente,
+        u.apellido_materno AS apellidoMaternoCliente,
+
+        c.idEvento AS idEvento,
+        e.titulo AS tituloEvento,
+
+        c.idEstado AS idEstado,
+        ec.estado AS estadoCompra,
+
+        c.recordatorio_enviado AS recordatorioEnviado
+
+    FROM compras c
+    INNER JOIN cliente cl ON c.idCliente = cl.idCliente
+    INNER JOIN usuario u ON cl.idCliente = u.idUsuario
+    INNER JOIN evento e ON c.idEvento = e.idEvento
+    INNER JOIN estado_compras ec ON c.idEstado = ec.idEstado
+
+    ORDER BY c.idCompras ASC;
 END$$
+
 DELIMITER ;
 
 --Listar compras por anfitrion
@@ -204,9 +254,38 @@ CREATE PROCEDURE sp_filtrar_compras_estado(
     IN p_idEstado INT
 )
 BEGIN
-SELECT *
-FROM compras
-WHERE idEstado = p_idEstado;
+    SELECT
+        c.idCompras AS idCompra,
+        c.entradas_compradas AS entradasCompradas,
+        c.fecha_compra AS fechaCompra,
+        c.hora_compra AS horaCompra,
+        c.metodo_pago AS metodoPago,
+        c.monto_parcial AS montoParcial,
+        c.monto_total AS montoTotal,
+        c.idPuntos_bonus AS idPuntoBonus,
+
+        c.idCliente AS idCliente,
+        u.nombre AS nombreCliente,
+        u.apellido_paterno AS apellidoPaternoCliente,
+        u.apellido_materno AS apellidoMaternoCliente,
+
+        c.idEvento AS idEvento,
+        e.titulo AS tituloEvento,
+
+        c.idEstado AS idEstado,
+        ec.estado AS estadoCompra,
+
+        c.recordatorio_enviado AS recordatorioEnviado
+
+    FROM compras c
+    INNER JOIN cliente cl ON c.idCliente = cl.idCliente
+    INNER JOIN usuario u ON cl.idCliente = u.idUsuario
+    INNER JOIN evento e ON c.idEvento = e.idEvento
+    INNER JOIN estado_compras ec ON c.idEstado = ec.idEstado
+
+    WHERE c.idEstado = p_idEstado
+
+    ORDER BY c.idCompras ASC;
 END$$
 
 DELIMITER ;
