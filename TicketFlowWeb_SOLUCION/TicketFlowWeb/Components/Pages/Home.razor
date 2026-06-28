@@ -623,16 +623,20 @@
 
             if (user.Identity is not null && user.Identity.IsAuthenticated)
             {
+                // 1. Asignar el nombre directamente desde la sesión
+                nombreAnfitrion = user.Identity.Name ?? "Anfitrión";
+
+                // 2. Continuar con la carga de métricas y eventos
                 var idClaim = user.FindFirst("IdUsuario")?.Value;
 
                 if (int.TryParse(idClaim, out int idAnfitrion))
                 {
                     // Traer el perfil para el saludo
-                    perfilActual = await AnfitrionService.BuscarAnfitrionAsync(idAnfitrion);
-                    if (perfilActual != null)
-                    {
-                        nombreAnfitrion = string.IsNullOrWhiteSpace(perfilActual.Nombre) ? "Anfitrión" : perfilActual.Nombre;
-                    }
+                    //perfilActual = await AnfitrionService.BuscarAnfitrionAsync(idAnfitrion);
+                    //if (perfilActual != null)
+                    //{
+                    //    nombreAnfitrion = string.IsNullOrWhiteSpace(perfilActual.Nombre) ? "Anfitrión" : perfilActual.Nombre;
+                    //}
 
                     // 1. Descargar y filtrar SOLO tus eventos
                     var todosLosEventos = await AnfitrionService.VerTodosLosEventosAsync();

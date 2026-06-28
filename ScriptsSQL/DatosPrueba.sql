@@ -387,9 +387,6 @@ INSERT INTO estado_compras(estado) VALUES
 ('EN PROCESO'),
 ('CONFIRMADA'),
 ('ANULADA');
-INSERT INTO estado_compras(estado) VALUES
-('INGRESADO');
-
 select * from estado_compras;
 select * from evento;
 select * from cliente;
@@ -511,10 +508,10 @@ nombre_establecimiento,img,precio,
 idDistrito,idAnfitrion,idCategoria_evento,
 idEstado_publicacion,idEstado_evento)
 VALUES
-
 -- DEPORTES
-(200,'La final mas facil de la historia',
-'Cristal hace lo sullo y se retira',
-600,600,'2026-06-26','13:00:00','15:00:00',
-'Estadio Matute','Estadio Matute','7a1.jpg',
+(100,'Clasico del Futbol Peruano',
+'Partido entre los equipos mas populares del pais',
+600,600,'2026-11-15','16:00:00','18:00:00',
+'Estadio Nacional','Estadio Nacional','clasico.jpg',
 45.00,1,2,1,1,1);
+
