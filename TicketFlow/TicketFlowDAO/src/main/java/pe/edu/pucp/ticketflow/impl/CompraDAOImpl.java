@@ -289,6 +289,8 @@ public class CompraDAOImpl implements ICompraDAO{
                     Compra t = new Compra();
                     mapear(rs, t);
                     t.setRecordatorio_enviado(rs.getBoolean("recordatorio_enviado"));
+                    t.setRecordatorio2_enviado(rs.getBoolean("recordatorio2_enviado"));
+
                     lista.add(t);
                 }
             }
@@ -306,12 +308,22 @@ public class CompraDAOImpl implements ICompraDAO{
         try (Connection con = DBManager.getInstance().getConnection();
              CallableStatement cs = con.prepareCall(sql)) {
 
+            System.out.println("ID recibido: " + idCompra);
+
             cs.setInt(1, idCompra);
 
+            System.out.println("Entrando a marcarCompraComoEnviado()");
+
+            int filas = cs.executeUpdate();;
+            System.out.println("Filas afectadas = " + filas);
+
+            System.out.println("Terminó execute()");
+
         } catch (SQLException e) {
-            throw new RuntimeException("Error en marcar notificacion de compra como Enviada", e);
+            e.printStackTrace();
         }
     }
+    @Override
     public void marcarCompraComoEnviado2(int idCompra) {
         String sql = "{CALL SP_MARCAR_COMO_ENVIADO_2(?)}";
 
@@ -319,6 +331,7 @@ public class CompraDAOImpl implements ICompraDAO{
              CallableStatement cs = con.prepareCall(sql)) {
 
             cs.setInt(1, idCompra);
+            cs.execute();;
 
         } catch (SQLException e) {
             throw new RuntimeException("Error en marcar notificacion de compra como Enviada", e);
