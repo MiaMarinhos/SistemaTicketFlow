@@ -27,7 +27,7 @@
                value="@fechaFiltro"
                @onchange="CambiarFiltroFecha" />
 
-        <label>Estado:</label>
+        <label>Estado Pago:</label>
         <select class="form-select filtro-estado"
                 value="@estadoFiltro"
                 @onchange="CambiarFiltroEstado">
@@ -68,10 +68,11 @@
                     <th>ID Pago</th>
                     <th>Usuario</th>
                     <th>Evento</th>
+                    <th>Estado Evento</th>
                     <th>Banco</th>
                     <th>Monto</th>
                     <th>Fecha</th>
-                    <th>Estado</th>
+                    <th>Estado Pago</th>
                     <th>Acciones</th>
                 </tr>
             </thead>
@@ -83,6 +84,7 @@
                         <td>@pago.idPago</td>
                         <td>@pago.usuario</td>
                         <td>@pago.evento?.titulo</td>
+                        <td>@ObtenerEstadoEvento(pago)</td>
                         <td>@pago.banco</td>
                         <td>S/ @pago.totalAPagar</td>
                         <td>@FormatearFecha(pago.fechaPago)</td>
@@ -184,7 +186,7 @@
                     </div>
 
                     <div class="row mb-2">
-                        <div class="col-5 fw-bold">Estado:</div>
+                        <div class="col-5 fw-bold">Estado Pago:</div>
                         <div class="col-7">
                             <span class="badge bg-secondary">
                                 @pagoDetalle.estado?.estado
@@ -205,6 +207,11 @@
                     <div class="row mb-2">
                         <div class="col-5 fw-bold">Evento:</div>
                         <div class="col-7">@pagoDetalle.evento?.titulo</div>
+                    </div>
+
+                    <div class="row mb-2">
+                        <div class="col-5 fw-bold">Estado Evento:</div>
+                        <div class="col-7">@ObtenerEstadoEvento(pagoDetalle)</div>
                     </div>
 
                     <div class="row mb-2">
@@ -265,6 +272,8 @@
                 (p.usuario ?? "").Contains(textoBusqueda, StringComparison.OrdinalIgnoreCase)
                 ||
                 (p.evento?.titulo ?? "").Contains(textoBusqueda, StringComparison.OrdinalIgnoreCase)
+                ||
+                ObtenerEstadoEvento(p).Contains(textoBusqueda, StringComparison.OrdinalIgnoreCase)
                 ||
                 (p.banco ?? "").Contains(textoBusqueda, StringComparison.OrdinalIgnoreCase)
                 ||
@@ -362,6 +371,60 @@
         estadoFiltro = 0;
 
         await CargarPagos();
+    }
+
+    private string ObtenerEstadoEvento(PagoViewModel pago)
+    {
+        if (pago.evento == null)
+            return "";
+
+        var estadoEvento = ObtenerPropiedadObjeto(
+            pago.evento,
+            "estadoEvento",
+            "EstadoEvento"
+        );
+
+        if (estadoEvento != null)
+        {
+            var estado = ObtenerPropiedadTexto(
+                estadoEvento,
+                "estado",
+                "Estado"
+            );
+
+            if (!string.IsNullOrWhiteSpace(estado))
+                return estado;
+        }
+
+        var idEstadoEvento = ObtenerPropiedadTexto(
+            pago.evento,
+            "FK_idEstadoEvento",
+            "fK_idEstadoEvento",
+            "idEstadoEvento",
+            "IdEstadoEvento"
+        );
+
+        if (!string.IsNullOrWhiteSpace(idEstadoEvento) && idEstadoEvento != "0")
+            return $"Estado #{idEstadoEvento}";
+
+        return "";
+    }
+
+    private object? ObtenerPropiedadObjeto(object objeto, params string[] nombres)
+    {
+        var propiedad = objeto.GetType()
+            .GetProperties()
+            .FirstOrDefault(p => nombres.Any(n =>
+                string.Equals(p.Name, n, StringComparison.OrdinalIgnoreCase)));
+
+        return propiedad?.GetValue(objeto);
+    }
+
+    private string ObtenerPropiedadTexto(object objeto, params string[] nombres)
+    {
+        var valor = ObtenerPropiedadObjeto(objeto, nombres);
+
+        return valor?.ToString() ?? "";
     }
 
     private string FormatearFecha(DateTime? fecha)
