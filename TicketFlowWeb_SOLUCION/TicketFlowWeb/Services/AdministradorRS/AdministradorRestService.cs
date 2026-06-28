@@ -290,5 +290,33 @@ namespace TicketFlowWeb.Services.AdministradorRS
                 $"AdminSolicitudes/filtrar/estado/{idEstado}"
             ) ?? new List<SolicitudViewModel>();
         }
+
+        public async Task<List<PagoViewModel>> ListarPagos()
+        {
+            return await _http.GetFromJsonAsync<List<PagoViewModel>>(
+                "AdminPagos/listar"
+            ) ?? new List<PagoViewModel>();
+        }
+
+        public async Task<List<PagoViewModel>> FiltrarPagosPorEstado(int idEstado)
+        {
+            return await _http.GetFromJsonAsync<List<PagoViewModel>>(
+                $"AdminPagos/filtrar/estado/{idEstado}"
+            ) ?? new List<PagoViewModel>();
+        }
+
+        public async Task<List<PagoViewModel>> FiltrarPagosPorFecha(string fecha)
+        {
+            return await _http.GetFromJsonAsync<List<PagoViewModel>>(
+                $"AdminPagos/filtrar/fecha/{Uri.EscapeDataString(fecha)}"
+            ) ?? new List<PagoViewModel>();
+        }
+
+        public async Task<PagoViewModel?> ObtenerDetallePago(int idPago)
+        {
+            return await _http.GetFromJsonAsync<PagoViewModel>(
+                $"AdminPagos/detalle/{idPago}"
+            );
+        }
     }
 }

@@ -4,9 +4,12 @@ import pe.edu.pucp.ticketflow.IEstadoPagosDAO;
 import pe.edu.pucp.ticketflow.IEventoDAO;
 import pe.edu.pucp.ticketflow.IPagosDAO;
 import pe.edu.pucp.ticketflow.dao.manager.DBManager;
+import pe.edu.pucp.ticketflow.evento.model.Evento;
+import pe.edu.pucp.ticketflow.pago.model.EstadoPago;
 import pe.edu.pucp.ticketflow.pago.model.Pago;
 
 import java.sql.*;
+import java.time.LocalDate;
 import java.util.List;
 import java.util.ArrayList;
 
@@ -37,21 +40,28 @@ public class PagosDAOImpl implements IPagosDAO {
     public Pago read(Integer id){
         String sql = "{CALL sp_read_pagos(?)}";
 
-        try(Connection con = DBManager.getInstance().getConnection();
-            CallableStatement cs = con.prepareCall(sql)){
+        try (Connection con = DBManager.getInstance().getConnection();
+             CallableStatement cs = con.prepareCall(sql)) {
 
             cs.setInt(1, id);
-            try(ResultSet rs = cs.executeQuery()){
-                if(rs.next()){
+
+            try (ResultSet rs = cs.executeQuery()) {
+
+                if (rs.next()) {
                     Pago t = new Pago();
-                    mapear(rs, t);
+                    mapearByAdmin(rs, t);
                     return t;
                 }
             }
+
             return null;
-        }
-        catch (SQLException e){
-            throw new RuntimeException("Error al leer Pago", e);
+
+        } catch (SQLException e) {
+            e.printStackTrace();
+            throw new RuntimeException(
+                    "Error al leer Pago: " + e.getMessage(),
+                    e
+            );
         }
     }
     @Override
@@ -111,6 +121,27 @@ public class PagosDAOImpl implements IPagosDAO {
     }
 
     @Override
+    public List<Pago> listAllByAdmin(){
+        List<Pago> lista = new ArrayList<>();
+        String sql = "{CALL sp_listAll_pagos_Admin()}";
+        try (Connection con = DBManager.getInstance().getConnection();
+             CallableStatement cs = con.prepareCall(sql);
+             ResultSet rs = cs.executeQuery()) {
+
+            while(rs.next()){
+                Pago t = new Pago();
+                mapearByAdmin(rs, t);
+                lista.add(t);
+            }
+            return lista;
+        }
+        catch (SQLException e) {
+            e.printStackTrace();
+            throw new RuntimeException("Error en listar Pago", e);
+        }
+    }
+
+    @Override
     public List<Pago> buscarPorUsuario(String nombre) {
 
         List<Pago> lista = new ArrayList<>();
@@ -155,7 +186,7 @@ public class PagosDAOImpl implements IPagosDAO {
 
                 while (rs.next()) {
                     Pago t = new Pago();
-                    mapear(rs, t);
+                    mapearByAdmin(rs, t);
                     lista.add(t);
                 }
 
@@ -167,6 +198,38 @@ public class PagosDAOImpl implements IPagosDAO {
         }
     }
 
+    @Override
+    public List<Pago> filtrarPorFecha(LocalDate fecha) {
+
+        List<Pago> lista = new ArrayList<>();
+
+        String sql = "{CALL sp_filtrar_pagos_fecha(?)}";
+
+        try (Connection con = DBManager.getInstance().getConnection();
+             CallableStatement cs = con.prepareCall(sql)) {
+
+            cs.setDate(1, java.sql.Date.valueOf(fecha));
+
+            try (ResultSet rs = cs.executeQuery()) {
+
+                while (rs.next()) {
+                    Pago t = new Pago();
+                    mapearByAdmin(rs, t);
+                    lista.add(t);
+                }
+
+                return lista;
+            }
+
+        } catch (SQLException e) {
+            e.printStackTrace();
+            throw new RuntimeException(
+                    "Error al filtrar pagos por fecha: " + e.getMessage(),
+                    e
+            );
+        }
+    }
+
     private void mapear(ResultSet rs, Pago t) throws SQLException{
         t.setIdPago(rs.getInt("idPagos"));
         t.setFechaPago(rs.getDate("fecha_pago").toLocalDate());
@@ -175,6 +238,38 @@ public class PagosDAOImpl implements IPagosDAO {
         t.setComprobante(rs.getString("comprobante"));
         t.setIdEvento(rs.getInt("idEvento"));
         t.setIdEstado(rs.getInt("idEstado"));
+    }
+
+    private void mapearByAdmin(ResultSet rs, Pago t) throws SQLException {
+
+        t.setIdPago(rs.getInt("idPagos"));
+
+        if (rs.getDate("fecha_pago") != null) {
+            t.setFechaPago(rs.getDate("fecha_pago").toLocalDate());
+        }
+
+        if (rs.getDate("fecha_limite_pago") != null) {
+            t.setFechaLimitePago(rs.getDate("fecha_limite_pago").toLocalDate());
+        }
+
+        t.setTotalAPagar(rs.getDouble("total_a_pagar"));
+        t.setComprobante(rs.getString("comprobante"));
+
+        t.setIdEvento(rs.getInt("idEvento"));
+        t.setIdEstado(rs.getInt("idEstado"));
+
+        Evento evento = new Evento();
+        evento.setIdEvento(rs.getInt("idEvento"));
+        evento.setTitulo(rs.getString("evento"));
+        t.setEvento(evento);
+
+        EstadoPago estado = new EstadoPago();
+        estado.setIdEstadoPago(rs.getInt("idEstado"));
+        estado.setEstado(rs.getString("estado_pago"));
+        t.setEstado(estado);
+
+        t.setUsuario(rs.getString("usuario"));
+        t.setBanco(rs.getString("banco"));
     }
 
     @Override

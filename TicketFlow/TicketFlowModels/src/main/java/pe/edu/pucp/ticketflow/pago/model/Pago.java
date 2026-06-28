@@ -13,7 +13,8 @@ public class Pago {
 
     private int idEstado;
     private int idEvento;
-
+    private String usuario;
+    private String banco;
     private EstadoPago estado;
     private Evento evento;
 
@@ -88,6 +89,22 @@ public class Pago {
 
     public void setEvento(Evento evento) {
         this.evento = evento;
+    }
+
+    public String getUsuario() {
+        return usuario;
+    }
+
+    public void setUsuario(String usuario) {
+        this.usuario = usuario;
+    }
+
+    public String getBanco() {
+        return banco;
+    }
+
+    public void setBanco(String banco) {
+        this.banco = banco;
     }
 
     public Pago() {}

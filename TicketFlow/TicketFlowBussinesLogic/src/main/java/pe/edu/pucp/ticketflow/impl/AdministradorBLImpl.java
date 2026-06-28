@@ -4,6 +4,7 @@ import pe.edu.pucp.ticketflow.*;
 import pe.edu.pucp.ticketflow.administrador.model.Administrador;
 import pe.edu.pucp.ticketflow.compra.model.Compra;
 import pe.edu.pucp.ticketflow.evento.model.Evento;
+import pe.edu.pucp.ticketflow.evento.model.categoria_evento;
 import pe.edu.pucp.ticketflow.exception.BusinessLogicException;
 import pe.edu.pucp.ticketflow.pago.model.Pago;
 import pe.edu.pucp.ticketflow.solicitud.model.Solicitud;
@@ -12,6 +13,7 @@ import pe.edu.pucp.ticketflow.usuario.model.EstadoUsuario;
 import pe.edu.pucp.ticketflow.usuario.model.Genero;
 import pe.edu.pucp.ticketflow.usuario.model.Usuario;
 
+import java.time.LocalDate;
 import java.util.Date;
 import java.util.List;
 
@@ -26,8 +28,10 @@ public class AdministradorBLImpl implements IAdministradorBL {
     private final IReporteDAO reportesDAO;
     private final IGeneroDAO generoDAO;
     private final IDistritoDAO distritoDAO;
+    private final ICategoriaEventoDAO categoriaEventoDAO;
 
     public AdministradorBLImpl() {
+        this.categoriaEventoDAO = new CategoriaEventoDAOImpl();
         this.generoDAO = new GeneroDAOImpl();
         this.distritoDAO = new DistritoDAOImpl();
         this.administradorDAO = new AdministradorDAOImpl();
@@ -354,6 +358,15 @@ public class AdministradorBLImpl implements IAdministradorBL {
         return eventoDAO.eliminarEvento(idEvento);
     }
 
+    @Override
+    public List<categoria_evento> listarCategoriasEvento() throws BusinessLogicException {
+        try {
+            return categoriaEventoDAO.listAll();
+        } catch (Exception e) {
+            throw new BusinessLogicException(e);
+        }
+    }
+
     //GESTION DE SOLICITUDES
     @Override
     public List<Solicitud> listarSolicitudes() throws BusinessLogicException {
@@ -459,7 +472,7 @@ public class AdministradorBLImpl implements IAdministradorBL {
     //Gestion de Pagos
     @Override
     public List<Pago> listarPagos() throws BusinessLogicException {
-        return pagosDAO.listAll();
+        return pagosDAO.listAllByAdmin();
     }
 
     @Override
@@ -476,10 +489,29 @@ public class AdministradorBLImpl implements IAdministradorBL {
     public List<Pago> filtrarPagosPorEstado(Integer idEstado) throws BusinessLogicException {
 
         if (idEstado == null || idEstado == 0) {
-            return pagosDAO.listAll();
+            return pagosDAO.listAllByAdmin();
         }
 
         return pagosDAO.filtrarPorEstado(idEstado);
+    }
+
+    @Override
+    public List<Pago> filtrarPagosPorFecha(String fecha) throws BusinessLogicException {
+
+        try {
+            if (fecha == null || fecha.isBlank()) {
+                return pagosDAO.listAllByAdmin();
+            }
+
+            LocalDate fechaConvertida = LocalDate.parse(fecha);
+
+            return pagosDAO.filtrarPorFecha(fechaConvertida);
+
+        } catch (Exception e) {
+            throw new BusinessLogicException(
+                    "Error al filtrar pagos por fecha: " + e.getMessage()
+            );
+        }
     }
 
     @Override

@@ -1,8 +1,12 @@
 ﻿@page "/admin/pagos"
 @using Microsoft.AspNetCore.Authorization
+@using TicketFlowWeb.Models
+@using TicketFlowWeb.Services.AdministradorRS
 
 @attribute [Authorize(Roles = "ADMIN")]
 @layout AdminLayout
+
+@inject AdministradorRestService AdminService
 
 <PageTitle>Panel de Pagos</PageTitle>
 
@@ -20,16 +24,18 @@
         <label>Fecha:</label>
         <input type="date"
                class="form-control filtro-fecha"
-               @bind="fechaFiltro" />
+               value="@fechaFiltro"
+               @onchange="CambiarFiltroFecha" />
 
         <label>Estado:</label>
         <select class="form-select filtro-estado"
-                @bind="estadoFiltro">
-            <option value="">Todos</option>
-            <option value="Pendiente">Pendiente</option>
-            <option value="Pagado">Pagado</option>
-            <option value="Rechazado">Rechazado</option>
-            <option value="Reembolso">Reembolso</option>
+                value="@estadoFiltro"
+                @onchange="CambiarFiltroEstado">
+            <option value="0">Todos</option>
+            <option value="1">Pendiente</option>
+            <option value="2">Pagado</option>
+            <option value="3">Rechazado</option>
+            <option value="4">Reembolso</option>
         </select>
 
         <button class="btn btn-dark" @onclick="LimpiarFiltros">
@@ -40,7 +46,21 @@
 
 <div class="mt-4">
 
-    @if (PagosFiltrados.Any())
+    @if (!string.IsNullOrWhiteSpace(errorCarga))
+    {
+        <div class="alert alert-danger">
+            @errorCarga
+        </div>
+    }
+
+    @if (cargando)
+    {
+        <div class="text-center py-5 border rounded bg-light">
+            <div class="spinner-border" role="status"></div>
+            <p class="mt-3 text-muted">Cargando pagos...</p>
+        </div>
+    }
+    else if (PagosFiltrados.Any())
     {
         <table class="table table-bordered table-hover">
             <thead class="table-primary">
@@ -60,18 +80,19 @@
                 @foreach (var pago in PagosFiltrados)
                 {
                     <tr>
-                        <td>@pago.IdPago</td>
-                        <td>@pago.Usuario</td>
-                        <td>@pago.Evento</td>
-                        <td>@pago.Banco</td>
-                        <td>S/ @pago.Monto</td>
-                        <td>@pago.Fecha.ToString("dd/MM/yyyy")</td>
-                        <td>@pago.Estado</td>
+                        <td>@pago.idPago</td>
+                        <td>@pago.usuario</td>
+                        <td>@pago.evento?.titulo</td>
+                        <td>@pago.banco</td>
+                        <td>S/ @pago.totalAPagar</td>
+                        <td>@FormatearFecha(pago.fechaPago)</td>
+                        <td>@pago.estado?.estado</td>
+
                         <td>
                             <button class="btn btn-outline-dark btn-sm"
                                     data-bs-toggle="modal"
                                     data-bs-target="#detallePagoModal"
-                                    @onclick="() => SeleccionarPago(pago)">
+                                    @onclick="() => VerDetallePago(pago.idPago)">
                                 <i class="bi bi-eye"></i>
                             </button>
                         </td>
@@ -96,8 +117,10 @@
     }
 
 </div>
+
+<!-- MODAL DETALLE PAGO -->
 <div class="modal fade" id="detallePagoModal" tabindex="-1">
-    <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-dialog modal-dialog-centered modal-lg">
         <div class="modal-content">
 
             <div class="modal-header bg-primary text-white">
@@ -105,11 +128,20 @@
                     <i class="bi bi-receipt me-2"></i>
                     Detalle del Pago
                 </h5>
-                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                <button type="button"
+                        class="btn-close btn-close-white"
+                        data-bs-dismiss="modal"></button>
             </div>
 
             <div class="modal-body">
-                @if (pagoSeleccionado != null)
+                @if (cargandoDetalle)
+                {
+                    <div class="text-center py-4">
+                        <div class="spinner-border" role="status"></div>
+                        <p class="mt-3 text-muted">Cargando detalle del pago...</p>
+                    </div>
+                }
+                else if (pagoDetalle != null)
                 {
                     <div class="mb-3">
                         <h6 class="text-muted">Información general</h6>
@@ -118,47 +150,88 @@
 
                     <div class="row mb-2">
                         <div class="col-5 fw-bold">ID Pago:</div>
-                        <div class="col-7">@pagoSeleccionado.IdPago</div>
+                        <div class="col-7">@pagoDetalle.idPago</div>
                     </div>
 
                     <div class="row mb-2">
-                        <div class="col-5 fw-bold">Usuario:</div>
-                        <div class="col-7">@pagoSeleccionado.Usuario</div>
-                    </div>
-
-                    <div class="row mb-2">
-                        <div class="col-5 fw-bold">Evento:</div>
-                        <div class="col-7">@pagoSeleccionado.Evento</div>
+                        <div class="col-5 fw-bold">Usuario / Anfitrión:</div>
+                        <div class="col-7">@pagoDetalle.usuario</div>
                     </div>
 
                     <div class="row mb-2">
                         <div class="col-5 fw-bold">Banco:</div>
-                        <div class="col-7">@pagoSeleccionado.Banco</div>
+                        <div class="col-7">@pagoDetalle.banco</div>
                     </div>
 
                     <div class="row mb-2">
                         <div class="col-5 fw-bold">Monto:</div>
-                        <div class="col-7">S/ @pagoSeleccionado.Monto</div>
+                        <div class="col-7">S/ @pagoDetalle.totalAPagar</div>
                     </div>
 
                     <div class="row mb-2">
-                        <div class="col-5 fw-bold">Fecha:</div>
-                        <div class="col-7">@pagoSeleccionado.Fecha.ToString("dd/MM/yyyy")</div>
+                        <div class="col-5 fw-bold">Fecha de pago:</div>
+                        <div class="col-7">@FormatearFecha(pagoDetalle.fechaPago)</div>
+                    </div>
+
+                    <div class="row mb-2">
+                        <div class="col-5 fw-bold">Fecha límite:</div>
+                        <div class="col-7">@FormatearFecha(pagoDetalle.fechaLimitePago)</div>
+                    </div>
+
+                    <div class="row mb-2">
+                        <div class="col-5 fw-bold">Comprobante:</div>
+                        <div class="col-7">@pagoDetalle.comprobante</div>
                     </div>
 
                     <div class="row mb-2">
                         <div class="col-5 fw-bold">Estado:</div>
                         <div class="col-7">
                             <span class="badge bg-secondary">
-                                @pagoSeleccionado.Estado
+                                @pagoDetalle.estado?.estado
                             </span>
                         </div>
                     </div>
+
+                    <div class="mt-4 mb-3">
+                        <h6 class="text-muted">Información del evento</h6>
+                        <hr />
+                    </div>
+
+                    <div class="row mb-2">
+                        <div class="col-5 fw-bold">ID Evento:</div>
+                        <div class="col-7">@pagoDetalle.idEvento</div>
+                    </div>
+
+                    <div class="row mb-2">
+                        <div class="col-5 fw-bold">Evento:</div>
+                        <div class="col-7">@pagoDetalle.evento?.titulo</div>
+                    </div>
+
+                    <div class="row mb-2">
+                        <div class="col-5 fw-bold">Fecha del evento:</div>
+                        <div class="col-7">@FormatearFechaTexto(pagoDetalle.evento?.fecha)</div>
+                    </div>
+
+                    <div class="row mb-2">
+                        <div class="col-5 fw-bold">Ubicación:</div>
+                        <div class="col-7">@pagoDetalle.evento?.ubicacion</div>
+                    </div>
+
+                    <div class="row mb-2">
+                        <div class="col-5 fw-bold">Establecimiento:</div>
+                        <div class="col-7">@pagoDetalle.evento?.nombre_establecimiento</div>
+                    </div>
+                }
+                else
+                {
+                    <p>No se pudo cargar el detalle del pago.</p>
                 }
             </div>
 
             <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                <button type="button"
+                        class="btn btn-secondary"
+                        data-bs-dismiss="modal">
                     Cerrar
                 </button>
             </div>
@@ -169,57 +242,144 @@
 
 @code {
     private string textoBusqueda = "";
-    private DateTime? fechaFiltro;
-    private string estadoFiltro = "";
+    private string fechaFiltro = "";
+    private int estadoFiltro = 0;
 
-    private Pago? pagoSeleccionado;
+    private bool cargando = true;
+    private bool cargandoDetalle = false;
+    private string errorCarga = "";
 
-    private IEnumerable<Pago> PagosFiltrados =>
-        pagos.Where(p =>
-            (string.IsNullOrWhiteSpace(textoBusqueda) ||
-             p.Usuario.Contains(textoBusqueda, StringComparison.OrdinalIgnoreCase))
+    private List<PagoViewModel> pagos = new();
+    private PagoViewModel? pagoDetalle;
 
-            &&
-
-            (fechaFiltro == null ||
-             p.Fecha.Date == fechaFiltro.Value.Date)
-
-            &&
-
-            (string.IsNullOrWhiteSpace(estadoFiltro) ||
-             p.Estado == estadoFiltro)
-        );
-
-    private List<Pago> pagos = new()
+    protected override async Task OnInitializedAsync()
     {
-        new Pago { IdPago = 1, Usuario = "Juan Carlos", Evento = "Concierto Rock", Banco = "BCP", Monto = 85, Fecha = new DateTime(2026, 6, 15), Estado = "Pagado" },
-        new Pago { IdPago = 2, Usuario = "Andrea Lucía", Evento = "Feria Gastronómica Sabores Limeños", Banco = "BBVA", Monto = 20, Fecha = new DateTime(2026, 6, 11), Estado = "Pendiente" },
-        new Pago { IdPago = 3, Usuario = "Sebastián", Evento = "Obra de Teatro Hamlet", Banco = "Interbank", Monto = 120, Fecha = new DateTime(2026, 7, 4), Estado = "Pagado" },
-        new Pago { IdPago = 4, Usuario = "Valería", Evento = "Maratón Lima 42K", Banco = "BCP", Monto = 60, Fecha = new DateTime(2026, 6, 21), Estado = "Pagado" },
-        new Pago { IdPago = 5, Usuario = "Diego Alonso", Evento = "Festival de Cine Independiente", Banco = "BCP", Monto = 35, Fecha = new DateTime(2026, 7, 1), Estado = "Reembolso" },
-        new Pago { IdPago = 6, Usuario = "Camila Fernanda", Evento = "Noche de Salsa y Sabor", Banco = "BCP", Monto = 45, Fecha = new DateTime(2026, 6, 2), Estado = "Pagado" }
-    };
-
-    private void SeleccionarPago(Pago pago)
-    {
-        pagoSeleccionado = pago;
+        await CargarPagos();
     }
 
-    private void LimpiarFiltros()
+    private IEnumerable<PagoViewModel> PagosFiltrados =>
+        pagos
+            .Where(p =>
+                string.IsNullOrWhiteSpace(textoBusqueda)
+                ||
+                (p.usuario ?? "").Contains(textoBusqueda, StringComparison.OrdinalIgnoreCase)
+                ||
+                (p.evento?.titulo ?? "").Contains(textoBusqueda, StringComparison.OrdinalIgnoreCase)
+                ||
+                (p.banco ?? "").Contains(textoBusqueda, StringComparison.OrdinalIgnoreCase)
+                ||
+                (p.estado?.estado ?? "").Contains(textoBusqueda, StringComparison.OrdinalIgnoreCase)
+            )
+            .Where(p =>
+                estadoFiltro == 0 || p.idEstado == estadoFiltro
+            )
+            .OrderBy(p => p.idPago);
+
+    private async Task CargarPagos()
+    {
+        try
+        {
+            cargando = true;
+            errorCarga = "";
+
+            pagos = await AdminService.ListarPagos();
+        }
+        catch (Exception ex)
+        {
+            errorCarga = "No se pudieron cargar los pagos: " + ex.Message;
+        }
+        finally
+        {
+            cargando = false;
+        }
+    }
+
+    private async Task CambiarFiltroFecha(ChangeEventArgs e)
+    {
+        fechaFiltro = e.Value?.ToString() ?? "";
+        await AplicarFiltros();
+    }
+
+    private async Task CambiarFiltroEstado(ChangeEventArgs e)
+    {
+        int.TryParse(e.Value?.ToString(), out estadoFiltro);
+        await AplicarFiltros();
+    }
+
+    private async Task AplicarFiltros()
+    {
+        try
+        {
+            cargando = true;
+            errorCarga = "";
+
+            if (!string.IsNullOrWhiteSpace(fechaFiltro))
+            {
+                pagos = await AdminService.FiltrarPagosPorFecha(fechaFiltro);
+            }
+            else if (estadoFiltro > 0)
+            {
+                pagos = await AdminService.FiltrarPagosPorEstado(estadoFiltro);
+            }
+            else
+            {
+                pagos = await AdminService.ListarPagos();
+            }
+        }
+        catch (Exception ex)
+        {
+            errorCarga = "No se pudieron aplicar los filtros: " + ex.Message;
+        }
+        finally
+        {
+            cargando = false;
+        }
+    }
+
+    private async Task VerDetallePago(int idPago)
+    {
+        try
+        {
+            cargandoDetalle = true;
+            pagoDetalle = null;
+
+            pagoDetalle = await AdminService.ObtenerDetallePago(idPago);
+        }
+        catch (Exception ex)
+        {
+            errorCarga = "No se pudo cargar el detalle del pago: " + ex.Message;
+        }
+        finally
+        {
+            cargandoDetalle = false;
+        }
+    }
+
+    private async Task LimpiarFiltros()
     {
         textoBusqueda = "";
-        fechaFiltro = null;
-        estadoFiltro = "";
+        fechaFiltro = "";
+        estadoFiltro = 0;
+
+        await CargarPagos();
     }
 
-    public class Pago
+    private string FormatearFecha(DateTime? fecha)
     {
-        public int IdPago { get; set; }
-        public string Usuario { get; set; } = "";
-        public string Evento { get; set; } = "";
-        public string Banco { get; set; } = "";
-        public decimal Monto { get; set; }
-        public DateTime Fecha { get; set; }
-        public string Estado { get; set; } = "";
+        if (fecha == null)
+            return "";
+
+        return fecha.Value.ToString("MM/dd/yyyy");
+    }
+
+    private string FormatearFechaTexto(string? fecha)
+    {
+        if (string.IsNullOrWhiteSpace(fecha))
+            return "";
+
+        if (DateTime.TryParse(fecha, out DateTime fechaConvertida))
+            return fechaConvertida.ToString("dd/MM/yyyy");
+
+        return fecha;
     }
 }

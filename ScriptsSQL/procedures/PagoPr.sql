@@ -108,15 +108,50 @@ DELIMITER ;
 DROP PROCEDURE IF EXISTS sp_read_pagos; 
 
 DELIMITER $$
-CREATE PROCEDURE sp_read_pagos (
+CREATE PROCEDURE sp_read_pagos(
     IN p_idPagos INT
 )
 BEGIN
-SELECT
-    idPagos, fecha_pago, fecha_limite_pago, total_a_pagar,
-    comprobante, idEvento, idEstado
-FROM pagos
-WHERE idPagos = p_idPagos;
+    SELECT
+        p.idPagos,
+        p.fecha_pago,
+        p.fecha_limite_pago,
+        p.total_a_pagar,
+        p.comprobante,
+        p.idEvento,
+        p.idEstado,
+
+        e.titulo AS evento,
+        e.fecha AS fecha_evento,
+        e.ubicacion AS ubicacion_evento,
+        e.nombre_establecimiento AS establecimiento_evento,
+
+        a.idAnfitrion,
+        a.razon_social AS usuario,
+        a.ruc,
+        a.cuenta_bancaria,
+
+        b.idBanco,
+        b.nombre_corto AS banco,
+        b.nombre_largo AS banco_nombre_largo,
+
+        ep.estado AS estado_pago
+
+    FROM pagos p
+
+    INNER JOIN evento e
+        ON p.idEvento = e.idEvento
+
+    INNER JOIN anfitrion a
+        ON e.idAnfitrion = a.idAnfitrion
+
+    LEFT JOIN banco b
+        ON a.idBanco = b.idBanco
+
+    INNER JOIN estado_pagos ep
+        ON p.idEstado = ep.idestado_pagos
+
+    WHERE p.idPagos = p_idPagos;
 END$$
 DELIMITER ;
 
@@ -176,6 +211,48 @@ FROM pagos;
 END$$
 DELIMITER ;
 
+DROP PROCEDURE IF EXISTS sp_listAll_pagos_Admin;
+
+DELIMITER $$
+
+CREATE PROCEDURE sp_listAll_pagos_Admin()
+BEGIN
+    SELECT
+        p.idPagos,
+        p.fecha_pago,
+        p.fecha_limite_pago,
+        p.total_a_pagar,
+        p.comprobante,
+        p.idEvento,
+        p.idEstado,
+
+        e.titulo AS evento,
+
+        a.razon_social AS usuario,
+
+        b.nombre_corto AS banco,
+
+        ep.estado AS estado_pago
+
+    FROM pagos p
+
+    INNER JOIN evento e
+        ON p.idEvento = e.idEvento
+
+    INNER JOIN anfitrion a
+        ON e.idAnfitrion = a.idAnfitrion
+
+    LEFT JOIN banco b
+        ON a.idBanco = b.idBanco
+
+    INNER JOIN estado_pagos ep
+        ON p.idEstado = ep.idestado_pagos
+
+    ORDER BY p.idPagos ASC;
+END$$
+
+DELIMITER ;
+
 -- Listar pagos por anfitrion
 DROP PROCEDURE IF EXISTS sp_listar_pagos_por_anfitrion; 
 
@@ -230,9 +307,86 @@ CREATE PROCEDURE sp_filtrar_pagos_estado(
     IN p_idEstado INT
 )
 BEGIN
-SELECT *
-FROM pagos
-WHERE idEstado = p_idEstado;
+    SELECT
+        p.idPagos,
+        p.fecha_pago,
+        p.fecha_limite_pago,
+        p.total_a_pagar,
+        p.comprobante,
+        p.idEvento,
+        p.idEstado,
+
+        e.titulo AS evento,
+
+        a.razon_social AS usuario,
+
+        b.nombre_corto AS banco,
+
+        ep.estado AS estado_pago
+
+    FROM pagos p
+
+    INNER JOIN evento e
+        ON p.idEvento = e.idEvento
+
+    INNER JOIN anfitrion a
+        ON e.idAnfitrion = a.idAnfitrion
+
+    LEFT JOIN banco b
+        ON a.idBanco = b.idBanco
+
+    INNER JOIN estado_pagos ep
+        ON p.idEstado = ep.idestado_pagos
+
+    WHERE p.idEstado = p_idEstado
+
+    ORDER BY p.idPagos ASC;
+END$$
+
+DELIMITER ;
+
+DROP PROCEDURE IF EXISTS sp_filtrar_pagos_fecha;
+
+DELIMITER $$
+
+CREATE PROCEDURE sp_filtrar_pagos_fecha(
+    IN p_fecha DATE
+)
+BEGIN
+    SELECT
+        p.idPagos,
+        p.fecha_pago,
+        p.fecha_limite_pago,
+        p.total_a_pagar,
+        p.comprobante,
+        p.idEvento,
+        p.idEstado,
+
+        e.titulo AS evento,
+
+        a.razon_social AS usuario,
+
+        b.nombre_corto AS banco,
+
+        ep.estado AS estado_pago
+
+    FROM pagos p
+
+    INNER JOIN evento e
+        ON p.idEvento = e.idEvento
+
+    INNER JOIN anfitrion a
+        ON e.idAnfitrion = a.idAnfitrion
+
+    LEFT JOIN banco b
+        ON a.idBanco = b.idBanco
+
+    INNER JOIN estado_pagos ep
+        ON p.idEstado = ep.idestado_pagos
+
+    WHERE p.fecha_pago = p_fecha
+
+    ORDER BY p.idPagos ASC;
 END$$
 
 DELIMITER ;

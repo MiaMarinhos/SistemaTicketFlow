@@ -17,5 +17,8 @@ namespace TicketFlowWeb.Models
 
         public EstadoPagoViewModel? estado { get; set; }
         public EventoViewModel? evento { get; set; }
+
+        public string? usuario { get; set; }
+        public string? banco { get; set; }
     }
 }
