@@ -11,5 +11,6 @@ public interface IComprasBL{
     List<Compra> listarComprasPorCliente(Integer idCliente) throws BusinessLogicException;
     List<Compra>ListarComprasDeEvento(int idEvento)throws BusinessLogicException;
     void marcarCompraComoEnviado(int idCompra)throws BusinessLogicException;
+    public void marcarCompraComoEnviado2(int idCompra)throws BusinessLogicException;
     void validarIngresoCliente(int idCompra)throws BusinessLogicException;
 }

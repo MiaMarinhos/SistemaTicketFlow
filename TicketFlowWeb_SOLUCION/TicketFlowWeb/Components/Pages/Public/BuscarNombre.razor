@@ -1,17 +1,40 @@
 ﻿@page "/public/descubrir/buscar/{nombre}"
 
 @inject HttpClient Http
-
+@inject NavigationManager Navigation
 @using TicketFlowWeb.Services.EventoRS
-
 @inject EventoRestService EventoService
-
 @using TicketFlowWeb.Models.DTO;
-
 @using Newtonsoft.Json;
 
 <div class="portal-container">
-    <h1 class="main-page-title">Resultados de Busqueda</h1>
+
+    <div class="header-container">
+        <h1 class="main-page-title">Resultados de Busqueda</h1>
+
+        <div class="filter-dropdown">
+            <button class="btn-filter" @onclick="ToggleFilterMenu">
+                <span class="filter-icon">⏳</span> Filtrar por
+            </button>
+
+            @if (mostrarMenuFiltro)
+            {
+                <div class="dropdown-menu-content">
+                    <button class="dropdown-item" @onclick="LimpiarFiltro">Ver todos los precios</button>
+
+                    <div class="dropdown-divider"></div>
+
+                    <div class="price-filter-container">
+                        <label class="price-label">Precio Máximo (S/):</label>
+                        <div class="price-input-group">
+                            <input type="number" class="price-input" min="0" @bind="precioMaximoInput" placeholder="Ej. 100" />
+                            <button class="btn-aplicar-precio" @onclick="AplicarFiltroPrecio">Ok</button>
+                        </div>
+                    </div>
+                </div>
+            }
+        </div>
+    </div>
 
     @if (cargando)
     {
@@ -26,7 +49,10 @@
             {
                 <div class="event-card">
                     <div class="card-image-box">
-                        @evento.titulo
+                        <img src="@evento.img"
+                             alt="@evento.titulo"
+                             class="event-image"
+                             onerror="this.src='/images/no-image.png';" />
                     </div>
                     <div class="card-body">
                         <h3 class="event-name">@evento.titulo</h3>
@@ -76,15 +102,142 @@
         background-color: #ffffff;
     }
 
-    /* Título de la sección */
-    .main-page-title {
-        font-size: 2.8rem;
-        font-weight: bold;
-        color: #0d1b3e; /* Azul oscuro corporativo de TicketFlow */
+    /* Alineación de Título y Filtro */
+    .header-container {
+        display: flex;
+        align-items: center;
+        gap: 25px;
         margin-bottom: 35px;
     }
 
-    /* Grilla de Elementos (Se acomoda a 3 columnas automáticamente) */
+        .header-container .main-page-title {
+            font-size: 2.8rem;
+            font-weight: bold;
+            color: #0d1b3e; /* Azul oscuro corporativo de TicketFlow */
+            margin-bottom: 0; /* Reseteado para alineación */
+        }
+
+    /* Contenedor del Dropdown */
+    .filter-dropdown {
+        position: relative;
+        display: inline-block;
+    }
+
+    /* Botón del Embudo */
+    .btn-filter {
+        background-color: #f3f4f6;
+        color: #0d1b3e;
+        border: 1px solid #d1d5db;
+        padding: 10px 18px;
+        border-radius: 20px;
+        font-weight: bold;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        transition: all 0.2s;
+    }
+
+        .btn-filter:hover {
+            background-color: #12192c;
+            color: #ffffff;
+            border-color: #12192c;
+        }
+
+    /* Menú Desplegable */
+    .dropdown-menu-content {
+        position: absolute;
+        top: 110%;
+        left: 0;
+        background-color: #ffffff;
+        min-width: 220px;
+        box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.12);
+        border-radius: 6px;
+        border: 1px solid #e5e7eb;
+        z-index: 100;
+        overflow: hidden;
+    }
+
+    .dropdown-item {
+        color: #374151;
+        padding: 12px 16px;
+        text-decoration: none;
+        display: block;
+        background: none;
+        border: none;
+        width: 100%;
+        text-align: left;
+        font-size: 0.95rem;
+        cursor: pointer;
+        transition: background-color 0.15s;
+    }
+
+        .dropdown-item:hover {
+            background-color: #f3f4f6;
+            color: #12192c;
+        }
+
+    .dropdown-divider {
+        height: 1px;
+        background-color: #e5e7eb;
+        margin: 4px 0;
+    }
+
+    /* Formulario de Precio Interno */
+    .price-filter-container {
+        padding: 12px 16px;
+        display: flex;
+        flex-direction: column;
+        gap: 6px;
+    }
+
+    .price-label {
+        font-size: 0.85rem;
+        font-weight: bold;
+        color: #4b5563;
+    }
+
+    .price-input-group {
+        display: flex;
+        gap: 6px;
+    }
+
+    .price-input {
+        width: 100%;
+        padding: 6px 10px;
+        border: 1px solid #d1d5db;
+        border-radius: 6px;
+        font-size: 0.9rem;
+        outline: none;
+    }
+
+        .price-input:focus {
+            border-color: #5850ec;
+        }
+
+    .btn-aplicar-precio {
+        background-color: #5850ec;
+        color: #ffffff;
+        border: none;
+        border-radius: 6px;
+        padding: 6px 14px;
+        font-weight: bold;
+        cursor: pointer;
+        font-size: 0.85rem;
+        transition: background-color 0.15s;
+    }
+
+        .btn-aplicar-precio:hover {
+            background-color: #4338ca;
+        }
+
+    .price-input::-webkit-outer-spin-button,
+    .price-input::-webkit-inner-spin-button {
+        -webkit-appearance: none;
+        margin: 0;
+    }
+
+    /* Grilla de Elementos */
     .events-grid {
         display: grid;
         grid-template-columns: repeat(auto-fill, minmax(360px, 1fr));
@@ -95,7 +248,7 @@
     /* Tarjeta de Evento */
     .event-card {
         background-color: #ffffff;
-        border: 3px solid #6ee7b7; /* Borde turquesa claro brillante de los mockups */
+        border: 3px solid #6ee7b7;
         border-radius: 4px;
         overflow: hidden;
         display: flex;
@@ -103,21 +256,20 @@
         box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
     }
 
-    /* Caja del contenedor de imágenes */
     .card-image-box {
         width: 100%;
         height: 200px;
-        background-color: #000;
+        overflow: hidden;
+        background-color: #f3f4f6;
     }
 
-        .card-image-box img {
-            width: 100%;
-            height: 100%;
-            object-fit: cover;
-            opacity: 0.9;
-        }
+    .event-image {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        display: block;
+    }
 
-    /* Cuerpo interno de datos */
     .card-body {
         padding: 20px;
         display: flex;
@@ -144,17 +296,16 @@
         margin: 6px 0;
     }
 
-    /* El botón lila/morado exacto del Mockup */
     .btn-mas-informacion {
         display: block;
-        background-color: #5850ec; /* Tono morado/azul de las capturas */
+        background-color: #5850ec;
         color: #ffffff;
         text-align: center;
         text-decoration: none;
         font-weight: bold;
         font-size: 0.85rem;
         padding: 10px 0;
-        border-radius: 20px; /* Bordes totalmente redondeados u ovalados */
+        border-radius: 20px;
         text-transform: uppercase;
         letter-spacing: 0.5px;
         transition: background-color 0.2s;
@@ -167,7 +318,7 @@
             background-color: #4338ca;
         }
 
-    /* Contenedor inferior de paginación */
+    /* Paginación */
     .pagination-container {
         display: flex;
         justify-content: center;
@@ -212,39 +363,81 @@
     }
 </style>
 
-
 @code {
     private bool cargando = true;
 
     [Parameter]
-    public String nombre { get; set; }
+    public string nombre { get; set; } = string.Empty;
+
+    // Lee el precio desde la URL (?precio=120) sin afectar el parámetro de ruta 'nombre'
+    [Parameter]
+    [SupplyParameterFromQuery(Name = "precio")]
+    public double? PrecioMaximoUrl { get; set; }
+
+    private double? precioMaximoInput;
+    private bool mostrarMenuFiltro = false;
 
     // Variables de paginación
     private int paginaActual = 1;
-    private const int ElementosPorPagina = 6; // Se mostrarán de 6 en 6 (Grilla de 3x2)
-
+    private const int ElementosPorPagina = 6;
     private List<EventoDTO> TodosLosEventos = new List<EventoDTO>();
 
-    // Lógica matemática de paginación con LINQ nativo de C#
+    // Filtramos localmente usando LINQ antes de aplicar la paginación matemática
+    private IEnumerable<EventoDTO> EventosFiltrados =>
+        PrecioMaximoUrl.HasValue && PrecioMaximoUrl > 0
+            ? TodosLosEventos.Where(e => e.precio <= PrecioMaximoUrl.Value)
+            : TodosLosEventos;
+
     private IEnumerable<EventoDTO> EventosPaginados =>
-        TodosLosEventos
+        EventosFiltrados
             .Skip((paginaActual - 1) * ElementosPorPagina)
             .Take(ElementosPorPagina);
 
-    private int TotalPaginas => (int)Math.Ceiling((double)TodosLosEventos.Count / ElementosPorPagina);
+    private int TotalPaginas => (int)Math.Ceiling((double)EventosFiltrados.Count() / ElementosPorPagina);
 
     private void PaginaAnterior() => paginaActual = Math.Max(1, paginaActual - 1);
     private void PaginaSiguiente() => paginaActual = Math.Min(TotalPaginas, paginaActual + 1);
 
+    private void ToggleFilterMenu() => mostrarMenuFiltro = !mostrarMenuFiltro;
+
+    private void AplicarFiltroPrecio()
+    {
+        mostrarMenuFiltro = false;
+        paginaActual = 1; // Reseteamos la página
+
+        if (precioMaximoInput.HasValue && precioMaximoInput > 0)
+        {
+            Navigation.NavigateTo($"/public/descubrir/buscar/{nombre}?precio={precioMaximoInput}");
+        }
+        else
+        {
+            LimpiarFiltro();
+        }
+    }
+
+    private void LimpiarFiltro()
+    {
+        mostrarMenuFiltro = false;
+        precioMaximoInput = null;
+        paginaActual = 1;
+        Navigation.NavigateTo($"/public/descubrir/buscar/{nombre}");
+    }
+
     protected override async Task OnParametersSetAsync()
     {
         cargando = true;
-        TodosLosEventos.Clear();
+
+        // Mantenemos sincronizada la caja de texto con el query string de la URL
+        precioMaximoInput = PrecioMaximoUrl;
 
         try
         {
-            TodosLosEventos =
-                await EventoService.BuscarPorNombreAsync(nombre);
+            // Ejecuta la búsqueda por nombre en tu API
+            TodosLosEventos = await EventoService.BuscarPorNombreAsync(nombre);
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Error al buscar eventos: {ex.Message}");
         }
         finally
         {
@@ -252,4 +445,3 @@
         }
     }
 }
-

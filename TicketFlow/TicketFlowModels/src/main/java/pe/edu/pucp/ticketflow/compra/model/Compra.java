@@ -31,6 +31,8 @@ public class Compra {
     private String horaCompraS;
 
     private boolean recordatorio_enviado=false;
+    private boolean recordatorio2_enviado=false;
+
 
     public String getFechaCompraS() {
         return fechaCompraS;
@@ -216,5 +218,13 @@ public class Compra {
 
     public void setRecordatorio_enviado(boolean recordatorio_enviado) {
         this.recordatorio_enviado = recordatorio_enviado;
+    }
+
+    public boolean isRecordatorio2_enviado() {
+        return recordatorio2_enviado;
+    }
+
+    public void setRecordatorio2_enviado(boolean recordatorio2_enviado) {
+        this.recordatorio2_enviado = recordatorio2_enviado;
     }
 }

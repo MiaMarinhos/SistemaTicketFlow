@@ -312,6 +312,19 @@ public class CompraDAOImpl implements ICompraDAO{
             throw new RuntimeException("Error en marcar notificacion de compra como Enviada", e);
         }
     }
+    public void marcarCompraComoEnviado2(int idCompra) {
+        String sql = "{CALL SP_MARCAR_COMO_ENVIADO_2(?)}";
+
+        try (Connection con = DBManager.getInstance().getConnection();
+             CallableStatement cs = con.prepareCall(sql)) {
+
+            cs.setInt(1, idCompra);
+
+        } catch (SQLException e) {
+            throw new RuntimeException("Error en marcar notificacion de compra como Enviada", e);
+        }
+    }
+
 
     @Override
     public void validarIngreso(int idCompra) {

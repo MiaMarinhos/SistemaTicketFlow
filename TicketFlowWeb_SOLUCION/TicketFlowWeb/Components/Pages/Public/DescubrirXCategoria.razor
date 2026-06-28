@@ -5,8 +5,32 @@
 @inject EventoRestService EventoService
 
 <div class="portal-container">
-    <h1 class="main-page-title">Descubrir: @CategoriaSeleccionada</h1>
+    <div class="header-container">
+        <h1 class="main-page-title">Descubrir: @CategoriaSeleccionada</h1>
 
+        <div class="filter-dropdown">
+            <button class="btn-filter" @onclick="ToggleFilterMenu">
+                <span class="filter-icon">⏳</span> Filtrar por
+            </button>
+
+            @if (mostrarMenuFiltro)
+            {
+                <div class="dropdown-menu-content">
+                    <button class="dropdown-item" @onclick="LimpiarFiltro">Ver todos los precios</button>
+
+                    <div class="dropdown-divider"></div>
+
+                    <div class="price-filter-container">
+                        <label class="price-label">Precio Máximo (S/):</label>
+                        <div class="price-input-group">
+                            <input type="number" class="price-input" min="0" @bind="precioMaximoInput" placeholder="Ej. 100" />
+                            <button class="btn-aplicar-precio" @onclick="AplicarFiltroPrecio">Ok</button>
+                        </div>
+                    </div>
+                </div>
+            }
+        </div>
+    </div>
     @if (cargando)
     {
         <div class="no-events">
@@ -101,7 +125,7 @@
     }
 
     /* Caja del contenedor de imágenes */
-    ..card-image-box {
+    .card-image-box {
         width: 100%;
         height: 200px;
         overflow: hidden;
@@ -208,41 +232,218 @@
         color: #6b7280;
         font-size: 1.2rem;
     }
+    .header-container {
+        display: flex;
+        align-items: center;
+        gap: 25px;
+        margin-bottom: 35px;
+    }
+
+        .header-container .main-page-title {
+            margin-bottom: 0; /* Reseteamos el margen original */
+        }
+
+    /* Contenedor del Dropdown */
+    .filter-dropdown {
+        position: relative;
+        display: inline-block;
+    }
+
+    /* Botón del Embudo */
+    .btn-filter {
+        background-color: #f3f4f6;
+        color: #0d1b3e;
+        border: 1px solid #d1d5db;
+        padding: 10px 18px;
+        border-radius: 20px;
+        font-weight: bold;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        transition: all 0.2s;
+    }
+
+        .btn-filter:hover {
+            background-color: #12192c;
+            color: #ffffff;
+            border-color: #12192c;
+        }
+
+    /* Menú Desplegable */
+    .dropdown-menu-content {
+        position: absolute;
+        top: 110%;
+        left: 0;
+        background-color: #ffffff;
+        min-width: 220px;
+        box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.12);
+        border-radius: 6px;
+        border: 1px solid #e5e7eb;
+        z-index: 100;
+        overflow: hidden;
+    }
+
+    .dropdown-item {
+        color: #374151;
+        padding: 12px 16px;
+        text-decoration: none;
+        display: block;
+        background: none;
+        border: none;
+        width: 100%;
+        text-align: left;
+        font-size: 0.95rem;
+        cursor: pointer;
+        transition: background-color 0.15s;
+    }
+
+        .dropdown-item:hover {
+            background-color: #f3f4f6;
+            color: #12192c;
+        }
+
+    .dropdown-divider {
+        height: 1px;
+        background-color: #e5e7eb;
+        margin: 4px 0;
+    }
+
+    /* Formulario de Precio Interno */
+    .price-filter-container {
+        padding: 12px 16px;
+        display: flex;
+        flex-direction: column;
+        gap: 6px;
+    }
+
+    .price-label {
+        font-size: 0.85rem;
+        font-weight: bold;
+        color: #4b5563;
+    }
+
+    .price-input-group {
+        display: flex;
+        gap: 6px;
+    }
+
+    .price-input {
+        width: 100%;
+        padding: 6px 10px;
+        border: 1px solid #d1d5db;
+        border-radius: 6px;
+        font-size: 0.9rem;
+        outline: none;
+    }
+
+        .price-input:focus {
+            border-color: #5850ec;
+        }
+
+    .btn-aplicar-precio {
+        background-color: #5850ec;
+        color: #ffffff;
+        border: none;
+        border-radius: 6px;
+        padding: 6px 14px;
+        font-weight: bold;
+        cursor: pointer;
+        font-size: 0.85rem;
+        transition: background-color 0.15s;
+    }
+
+        .btn-aplicar-precio:hover {
+            background-color: #4338ca;
+        }
+
+    /* Quitar flechas por defecto del input de número */
+    .price-input::-webkit-outer-spin-button,
+    .price-input::-webkit-inner-spin-button {
+        -webkit-appearance: none;
+        margin: 0;
+    }
+
 </style>
 
 
 @code {
     private bool cargando = true;
 
-    // Parámetro que lee la categoría directamente desde la barra de direcciones del navegador
     [Parameter] public string CategoriaSeleccionada { get; set; } = "Stand up comedy";
+
+    // Captura el precio máximo desde la URL si existe (?precio=150)
+    [Parameter]
+    [SupplyParameterFromQuery(Name = "precio")]
+    public double? PrecioMaximoUrl { get; set; }
+
+    // Variable vinculada al input numérico
+    private double? precioMaximoInput;
+    private bool mostrarMenuFiltro = false;
 
     // Variables de paginación
     private int paginaActual = 1;
-    private const int ElementosPorPagina = 6; // Se mostrarán de 6 en 6 (Grilla de 3x2)
-
+    private const int ElementosPorPagina = 6;
     private List<EventoDTO> TodosLosEventos = new List<EventoDTO>();
 
-    // Lógica matemática de paginación con LINQ nativo de C#
+    // 1. Primero filtramos por precio en memoria (si el parámetro existe)
+    private IEnumerable<EventoDTO> EventosFiltrados =>
+        PrecioMaximoUrl.HasValue && PrecioMaximoUrl > 0
+            ? TodosLosEventos.Where(e => e.precio <= PrecioMaximoUrl.Value)
+            : TodosLosEventos;
+
+    // 2. Luego aplicamos la paginación sobre los eventos que pasaron el filtro de precio
     private IEnumerable<EventoDTO> EventosPaginados =>
-        TodosLosEventos
+        EventosFiltrados
             .Skip((paginaActual - 1) * ElementosPorPagina)
             .Take(ElementosPorPagina);
 
-    private int TotalPaginas => (int)Math.Ceiling((double)TodosLosEventos.Count / ElementosPorPagina);
+    // El total de páginas ahora se calcula dinámicamente con los eventos ya filtrados
+    private int TotalPaginas => (int)Math.Ceiling((double)EventosFiltrados.Count() / ElementosPorPagina);
 
     private void PaginaAnterior() => paginaActual = Math.Max(1, paginaActual - 1);
     private void PaginaSiguiente() => paginaActual = Math.Min(TotalPaginas, paginaActual + 1);
 
+    private void ToggleFilterMenu() => mostrarMenuFiltro = !mostrarMenuFiltro;
+
+    private void AplicarFiltroPrecio()
+    {
+        mostrarMenuFiltro = false;
+        paginaActual = 1; // Reiniciamos a la primera página al filtrar
+
+        if (precioMaximoInput.HasValue && precioMaximoInput > 0)
+        {
+            Navigation.NavigateTo($"/public/descubrir/{CategoriaSeleccionada}?precio={precioMaximoInput}");
+        }
+        else
+        {
+            LimpiarFiltro();
+        }
+    }
+
+    private void LimpiarFiltro()
+    {
+        mostrarMenuFiltro = false;
+        precioMaximoInput = null;
+        paginaActual = 1;
+        Navigation.NavigateTo($"/public/descubrir/{CategoriaSeleccionada}");
+    }
+
     protected override async Task OnParametersSetAsync()
     {
         cargando = true;
-        TodosLosEventos.Clear();
+
+        // Sincroniza el valor del input con el estado actual de la URL
+        precioMaximoInput = PrecioMaximoUrl;
 
         try
         {
-            TodosLosEventos =
-                await EventoService.FiltrarEventosCategoria(CategoriaSeleccionada);
+            // Traemos todos los eventos de esta categoría
+            TodosLosEventos = await EventoService.FiltrarEventosCategoria(CategoriaSeleccionada);
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Error al cargar eventos: {ex.Message}");
         }
         finally
         {

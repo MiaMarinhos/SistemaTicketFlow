@@ -103,6 +103,21 @@ public class ComprasBLImpl implements IComprasBL {
     }
 
     @Override
+    public void marcarCompraComoEnviado2(int idCompra)throws BusinessLogicException{
+        try{
+            compraDAO.marcarCompraComoEnviado2(idCompra);
+        }
+        catch (Exception ex){
+            if (ex instanceof BusinessLogicException) {
+                throw (BusinessLogicException)ex;
+            } else {
+                throw new BusinessLogicException(ex);
+            }
+
+        }
+    }
+
+    @Override
     public void validarIngresoCliente(int idCompra) throws BusinessLogicException{
 
         try {

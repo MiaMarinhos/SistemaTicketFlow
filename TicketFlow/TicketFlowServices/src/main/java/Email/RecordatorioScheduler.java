@@ -52,36 +52,54 @@ public class RecordatorioScheduler {
 
                     System.out.println("Procesando compra ID: " + compra.getIdCompra());
 
-                    if (compra.isRecordatorio_enviado()) {
-                        System.out.println("Ya fue enviado, se omite");
-                        continue;
-                    }
-
-                    boolean debeEnviar = debeEnviar(fechaEvento);
-
-                    System.out.println("Debe enviar?: " + debeEnviar);
-
-                    if (!debeEnviar) {
-                        continue;
-                    }
-
                     Usuario u = usuarioBL.verPerfil(compra.getIdCliente());
 
-                    System.out.println("Enviando a: " + u.getCorreoElectronico());
+                    // =======================
+                    // Recordatorio 24 horas
+                    // =======================
+                    if (!compra.isRecordatorio_enviado()
+                            && debeEnviar24Horas(fechaEvento)) {
 
-                    boolean enviado = EmailSender.enviar(
-                            u.getCorreoElectronico(),
-                            "TICKET FLOW - Recordatorio de evento",
-                            "Tu evento '" + e.getTitulo()
-                                    + "' es el" + e.getFecha() + " a las "
-                                    + e.getHora_inicio()
-                    );
+                        System.out.println("Enviando recordatorio de 24 horas a: "
+                                + u.getCorreoElectronico());
 
-                    if (enviado) {
-                        comprasBL.marcarCompraComoEnviado(compra.getIdCompra());
-                        System.out.println("✔ Compra marcada como enviada");
-                    } else {
-                        System.out.println("❌ Falló envío de correo");
+                        boolean enviado = EmailSender.enviar(
+                                u.getCorreoElectronico(),
+                                "TICKET FLOW - Recordatorio de evento",
+                                "¡Faltan 24 horas para tu evento!\n\n"
+                                        + "Evento: " + e.getTitulo()
+                                        + "\nFecha: " + e.getFecha()
+                                        + "\nHora: " + e.getHora_inicio()
+                        );
+
+                        if (enviado) {
+                            comprasBL.marcarCompraComoEnviado(compra.getIdCompra());
+                            System.out.println("✔ Recordatorio 24h enviado");
+                        }
+                    }
+
+                    // =======================
+                    // Recordatorio 3 horas
+                    // =======================
+                    if (!compra.isRecordatorio2_enviado()
+                            && debeEnviar3Horas(fechaEvento)) {
+
+                        System.out.println("Enviando recordatorio de 3 horas a: "
+                                + u.getCorreoElectronico());
+
+                        boolean enviado = EmailSender.enviar(
+                                u.getCorreoElectronico(),
+                                "TICKET FLOW - Recordatorio de evento",
+                                "¡Tu evento comienza en menos de 3 horas!\n\n"
+                                        + "Evento: " + e.getTitulo()
+                                        + "\nFecha: " + e.getFecha()
+                                        + "\nHora: " + e.getHora_inicio()
+                        );
+
+                        if (enviado) {
+                            comprasBL.marcarCompraComoEnviado2(compra.getIdCompra());
+                            System.out.println("✔ Recordatorio 3h enviado");
+                        }
                     }
                 }
             }
@@ -94,11 +112,26 @@ public class RecordatorioScheduler {
         System.out.println("===== Scheduler finalizado =====");
     }
 
-    private boolean debeEnviar(LocalDateTime fechaEvento) {
+    private boolean debeEnviar24Horas(LocalDateTime fechaEvento) {
 
         LocalDateTime ahora = LocalDateTime.now();
 
-        return fechaEvento.isAfter(ahora)
-                && fechaEvento.isBefore(ahora.plusHours(24));
+        Duration diferencia = Duration.between(ahora, fechaEvento);
+
+        long minutos = diferencia.toMinutes();
+
+        return minutos > (24 * 60 - 2)
+                && minutos <= 24 * 60;
+    }
+    private boolean debeEnviar3Horas(LocalDateTime fechaEvento) {
+
+        LocalDateTime ahora = LocalDateTime.now();
+
+        Duration diferencia = Duration.between(ahora, fechaEvento);
+
+        long minutos = diferencia.toMinutes();
+
+        return minutos > (3 * 60 - 2)
+                && minutos <= 3 * 60;
     }
 }
