@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Authorization;
 using Microsoft.AspNetCore.Components.Server;
 using Servicios.compra;
+using TicketFlow.Services.ReporteRS;
 using TicketFlowWeb.Components;
 using TicketFlowWeb.Models;
 using TicketFlowWeb.Services;
@@ -39,7 +40,8 @@ builder.Services.AddHttpClient<AdministradorRestService>(client =>
     client.BaseAddress = new Uri("http://localhost:8080/TicketFlow/api/");
 });
 
-builder.Services.AddScoped<TicketFlow.Services.ReporteRS.ReporteService>();
+builder.Services.AddScoped<ReporteService>();
+builder.Services.AddScoped<DatosExcelService>();
 
 builder.Services.AddScoped<CompraRS>();
 

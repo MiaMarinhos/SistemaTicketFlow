@@ -41,7 +41,6 @@ public class ReporteServices {
             }
 
             // Convertir List<Object[]> a List<Map<String, Object>>
-            // Las claves deben coincidir con los nombres de campo en el .jrxml
             List<Map<String, ?>> listaMapas = new ArrayList<>();
             for (Object[] fila : datos) {
                 Map<String, Object> mapa = new HashMap<>();
@@ -108,7 +107,6 @@ public class ReporteServices {
             }
 
             // Convertir List<Object[]> a List<Map<String, Object>>
-            // Las claves deben coincidir con los nombres de campo en el .jrxml
             List<Map<String, ?>> listaMapas = new ArrayList<>();
             for (Object[] fila : datos) {
                 Map<String, Object> mapa = new HashMap<>();
@@ -180,7 +178,6 @@ public class ReporteServices {
             }
 
             // Convertir List<Object[]> a List<Map<String, Object>>
-            // Las claves deben coincidir con los nombres de campo en el .jrxml
             List<Map<String, ?>> listaMapas = new ArrayList<>();
             for (Object[] fila : datos) {
                 Map<String, Object> mapa = new HashMap<>();
