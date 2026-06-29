@@ -1,9 +1,6 @@
 package Administrador;
 
-import jakarta.ws.rs.GET;
-import jakarta.ws.rs.Path;
-import jakarta.ws.rs.PathParam;
-import jakarta.ws.rs.Produces;
+import jakarta.ws.rs.*;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
 
@@ -124,6 +121,78 @@ public class AdminPagosService {
                             ? e.getMessage()
                             : "Error interno del servidor"))
                     .build();
+        }
+    }
+
+    @POST
+    @Path("/generarPagosFinalizados")
+    @Produces(MediaType.APPLICATION_JSON)
+    public Response generarPagosEventosFinalizados() {
+        try {
+            int cantidad = administradorBL.generarPagosEventosFinalizados();
+
+            return Response.ok("Pagos generados correctamente. Registros afectados: " + cantidad).build();
+
+        } catch (BusinessLogicException e) {
+            return Response
+                    .status(Response.Status.BAD_REQUEST)
+                    .entity(e.getMessage())
+                    .build();
+
+        } catch (Exception e) {
+            return Response
+                    .status(Response.Status.INTERNAL_SERVER_ERROR)
+                    .entity("Error al generar pagos de eventos finalizados")
+                    .build();
+        }
+    }
+
+    @PUT
+    @Path("/confirmarTransferencia/{idPago}")
+    @Consumes(MediaType.APPLICATION_JSON)
+    @Produces(MediaType.APPLICATION_JSON)
+    public Response confirmarTransferencia(
+            @PathParam("idPago") Integer idPago,
+            ConfirmarTransferenciaRequest request) {
+        try {
+            if (request == null) {
+                return Response
+                        .status(Response.Status.BAD_REQUEST)
+                        .entity("Debe enviar el comprobante de la transferencia.")
+                        .build();
+            }
+
+            Pago pago = administradorBL.confirmarTransferenciaPago(
+                    idPago,
+                    request.getComprobante()
+            );
+
+            return Response.ok(pago).build();
+
+        } catch (BusinessLogicException e) {
+            return Response
+                    .status(Response.Status.BAD_REQUEST)
+                    .entity(e.getMessage())
+                    .build();
+
+        } catch (Exception e) {
+            return Response
+                    .status(Response.Status.INTERNAL_SERVER_ERROR)
+                    .entity("Error al confirmar la transferencia bancaria")
+                    .build();
+        }
+    }
+
+    public static class ConfirmarTransferenciaRequest {
+
+        private String comprobante;
+
+        public String getComprobante() {
+            return comprobante;
+        }
+
+        public void setComprobante(String comprobante) {
+            this.comprobante = comprobante;
         }
     }
 }

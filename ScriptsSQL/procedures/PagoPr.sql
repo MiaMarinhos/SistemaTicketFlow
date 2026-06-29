@@ -416,3 +416,98 @@ END$$
 
 DELIMITER ;
 
+
+-- Confirmar Transferencia a Anfitrión
+ALTER TABLE pagos
+MODIFY comprobante VARCHAR(450) NOT NULL;
+
+DROP PROCEDURE IF EXISTS sp_confirmar_transferencia_pago;
+
+DELIMITER $$
+
+CREATE PROCEDURE sp_confirmar_transferencia_pago(
+    IN p_idPagos INT,
+    IN p_comprobante VARCHAR(450)
+)
+BEGIN
+    DECLARE v_existePago INT DEFAULT 0;
+    DECLARE v_idEstadoPagado INT DEFAULT NULL;
+    DECLARE v_estadoEvento VARCHAR(45);
+    DECLARE v_estadoPagoActual VARCHAR(45);
+
+    SELECT COUNT(*)
+    INTO v_existePago
+    FROM pagos
+    WHERE idPagos = p_idPagos;
+
+    IF v_existePago = 0 THEN
+        SIGNAL SQLSTATE '45000'
+        SET MESSAGE_TEXT = 'No se encontró el pago seleccionado.';
+    END IF;
+
+    SELECT idestado_pagos
+    INTO v_idEstadoPagado
+    FROM estado_pagos
+    WHERE UPPER(estado) = 'PAGADO'
+    LIMIT 1;
+
+    IF v_idEstadoPagado IS NULL THEN
+        SIGNAL SQLSTATE '45000'
+        SET MESSAGE_TEXT = 'No existe el estado PAGADO en estado_pagos.';
+    END IF;
+
+    SELECT
+        ee.estado,
+        ep.estado
+    INTO
+        v_estadoEvento,
+        v_estadoPagoActual
+    FROM pagos p
+    INNER JOIN evento e
+        ON p.idEvento = e.idEvento
+    INNER JOIN estado_evento ee
+        ON e.idEstado_evento = ee.idEstado_evento
+    INNER JOIN estado_pagos ep
+        ON p.idEstado = ep.idestado_pagos
+    WHERE p.idPagos = p_idPagos;
+
+    IF UPPER(v_estadoPagoActual) = 'PAGADO' THEN
+        SIGNAL SQLSTATE '45000'
+        SET MESSAGE_TEXT = 'Este pago ya fue confirmado.';
+    END IF;
+
+    IF UPPER(v_estadoEvento) <> 'FINALIZADO' THEN
+        SIGNAL SQLSTATE '45000'
+        SET MESSAGE_TEXT = 'Solo se puede confirmar la transferencia de eventos finalizados.';
+    END IF;
+
+    UPDATE pagos
+    SET
+        idEstado = v_idEstadoPagado,
+        fecha_pago = CURDATE(),
+        comprobante = p_comprobante
+    WHERE idPagos = p_idPagos;
+END$$
+
+DELIMITER ;
+
+INSERT INTO pagos(
+    idPagos,
+    fecha_pago,
+    fecha_limite_pago,
+    total_a_pagar,
+    comprobante,
+    idEvento,
+    idEstado
+)
+VALUES
+(
+    4,
+    '2026-06-14',
+    '2026-06-28',
+    350.00,
+    'COMP-003.pdf',
+    8,
+    3
+);
+

@@ -243,6 +243,9 @@ public class PagosDAOImpl implements IPagosDAO {
 
     private void mapearByAdmin(ResultSet rs, Pago t) throws SQLException {
 
+        // =========================
+        // PAGO
+        // =========================
         t.setIdPago(rs.getInt("idPagos"));
 
         if (rs.getDate("fecha_pago") != null) {
@@ -259,30 +262,80 @@ public class PagosDAOImpl implements IPagosDAO {
         t.setIdEvento(rs.getInt("idEvento"));
         t.setIdEstado(rs.getInt("idEstado"));
 
+        // =========================
+        // EVENTO
+        // =========================
         Evento evento = new Evento();
+
         evento.setIdEvento(rs.getInt("idEvento"));
         evento.setTitulo(rs.getString("evento"));
+
+        if (existeColumna(rs, "capacidad_entradas")) {
+            evento.setCapacidad_entradas(rs.getInt("capacidad_entradas"));
+        }
+
+        if (existeColumna(rs, "entradas_disponibles")) {
+            evento.setEntradas_disponibles(rs.getInt("entradas_disponibles"));
+        }
+
+        if (existeColumna(rs, "precio")) {
+            evento.setPrecio(rs.getDouble("precio"));
+        }
+
+        if (existeColumna(rs, "idDistrito")) {
+            evento.setFK_idDistrito(rs.getInt("idDistrito"));
+        }
+
+        if (existeColumna(rs, "idAnfitrion")) {
+            evento.setIdAnfitrion(rs.getInt("idAnfitrion"));
+        }
+
+        if (existeColumna(rs, "idCategoria_evento")) {
+            evento.setFK_idCategoria_evento(rs.getInt("idCategoria_evento"));
+        }
+
+        if (existeColumna(rs, "idEstado_publicacion")) {
+            evento.setFK_idEstadoPublicacion(rs.getInt("idEstado_publicacion"));
+        }
 
         if (existeColumna(rs, "idEstadoEvento")) {
             evento.setFK_idEstadoEvento(rs.getInt("idEstadoEvento"));
 
             EstadoEvento estadoEvento = new EstadoEvento();
             estadoEvento.setIdEstado_evento(rs.getInt("idEstadoEvento"));
-            estadoEvento.setEstado(rs.getString("estado_evento"));
+
+            if (existeColumna(rs, "estado_evento")) {
+                estadoEvento.setEstado(rs.getString("estado_evento"));
+            }
 
             evento.setEstadoEvento(estadoEvento);
         }
 
         t.setEvento(evento);
 
+        // =========================
+        // ESTADO DEL PAGO
+        // =========================
         EstadoPago estadoPago = new EstadoPago();
+
         estadoPago.setIdEstadoPago(rs.getInt("idEstado"));
-        estadoPago.setEstado(rs.getString("estado_pago"));
+
+        if (existeColumna(rs, "estado_pago")) {
+            estadoPago.setEstado(rs.getString("estado_pago"));
+        }
 
         t.setEstado(estadoPago);
 
-        t.setUsuario(rs.getString("usuario"));
-        t.setBanco(rs.getString("banco"));
+        // =========================
+        // DATOS DEL ANFITRIÓN / BANCO
+        // =========================
+        if (existeColumna(rs, "usuario")) {
+            t.setUsuario(rs.getString("usuario"));
+        }
+
+        if (existeColumna(rs, "banco")) {
+            t.setBanco(rs.getString("banco"));
+        }
     }
 
     private boolean existeColumna(ResultSet rs, String nombreColumna) throws SQLException {
@@ -320,6 +373,38 @@ public class PagosDAOImpl implements IPagosDAO {
 
         } catch (SQLException e) {
             throw new RuntimeException("Error en listar Pagos por Anfitrión", e);
+        }
+    }
+
+    @Override
+    public void confirmarTransferencia(Integer idPago, String comprobante) {
+
+        String sql = "{CALL sp_confirmar_transferencia_pago(?, ?)}";
+
+        try (Connection con = DBManager.getInstance().getConnection();
+             CallableStatement cs = con.prepareCall(sql)) {
+
+            cs.setInt(1, idPago);
+            cs.setString(2, comprobante);
+
+            cs.executeUpdate();
+
+        } catch (SQLException e) {
+            throw new RuntimeException("Error al confirmar la transferencia bancaria", e);
+        }
+    }
+
+    @Override
+    public int generarPagosEventosFinalizados() {
+        String sql = "{CALL sp_generar_pagos_eventos_finalizados()}";
+
+        try (Connection con = DBManager.getInstance().getConnection();
+             CallableStatement cs = con.prepareCall(sql)) {
+
+            return cs.executeUpdate();
+
+        } catch (SQLException e) {
+            throw new RuntimeException("Error al generar pagos de eventos finalizados", e);
         }
     }
 }

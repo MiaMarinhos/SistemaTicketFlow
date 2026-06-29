@@ -341,5 +341,41 @@ namespace TicketFlowWeb.Services.AdministradorRS
                 $"AdminCompras/detalle/{idCompra}"
             );
         }
+
+        public async Task<string> GenerarPagosEventosFinalizados()
+        {
+            var response = await _http.PostAsync(
+                "AdminPagos/generarPagosFinalizados",
+                null
+            );
+
+            var contenido = await response.Content.ReadAsStringAsync();
+
+            if (!response.IsSuccessStatusCode)
+                throw new Exception(contenido);
+
+            return contenido;
+        }
+
+        public async Task<PagoViewModel?> ConfirmarTransferenciaPago(int idPago, string comprobante)
+        {
+            var request = new
+            {
+                comprobante = comprobante
+            };
+
+            var response = await _http.PutAsJsonAsync(
+                $"AdminPagos/confirmarTransferencia/{idPago}",
+                request
+            );
+
+            var contenido = await response.Content.ReadAsStringAsync();
+
+            if (!response.IsSuccessStatusCode)
+                throw new Exception(contenido);
+
+            return await response.Content.ReadFromJsonAsync<PagoViewModel>();
+        }
+
     }
 }

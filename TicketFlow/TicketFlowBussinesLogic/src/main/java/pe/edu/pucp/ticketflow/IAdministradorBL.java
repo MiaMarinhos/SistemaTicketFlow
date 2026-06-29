@@ -63,6 +63,8 @@ public interface IAdministradorBL {
     List<Pago> filtrarPagosPorEstado(Integer idEstado) throws BusinessLogicException;
     List<Pago> filtrarPagosPorFecha(String fecha) throws BusinessLogicException;
     Pago detallePago(Integer idPago) throws BusinessLogicException;
+    Pago confirmarTransferenciaPago(Integer idPago, String comprobante) throws BusinessLogicException;
+    int generarPagosEventosFinalizados() throws BusinessLogicException;
 
     //GESTION DE COMPRAS
     List<Compra> listarCompras() throws BusinessLogicException;

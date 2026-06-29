@@ -53,6 +53,13 @@
         </div>
     }
 
+    @if (!string.IsNullOrWhiteSpace(mensajeGeneral))
+    {
+        <div class="alert alert-success">
+            @mensajeGeneral
+        </div>
+    }
+
     @if (cargando)
     {
         <div class="text-center py-5 border rounded bg-light">
@@ -84,19 +91,31 @@
                         <td>@pago.idPago</td>
                         <td>@pago.usuario</td>
                         <td>@pago.evento?.titulo</td>
-                        <td>@ObtenerEstadoEvento(pago)</td>
+                        <td>@ObtenerEstadoEvento(pago).ToUpper()</td>
                         <td>@pago.banco</td>
                         <td>S/ @pago.totalAPagar</td>
                         <td>@FormatearFecha(pago.fechaPago)</td>
-                        <td>@pago.estado?.estado</td>
+                        <td>@MostrarTexto(pago.estado?.estado).ToUpper()</td>
 
                         <td>
                             <button class="btn btn-outline-dark btn-sm"
+                                    title="Ver detalle"
                                     data-bs-toggle="modal"
                                     data-bs-target="#detallePagoModal"
                                     @onclick="() => VerDetallePago(pago.idPago)">
                                 <i class="bi bi-eye"></i>
                             </button>
+
+                            @if (PuedeConfirmarPago(pago))
+                            {
+                                <button class="btn btn-outline-success btn-sm ms-1"
+                                        title="Confirmar transferencia"
+                                        data-bs-toggle="modal"
+                                        data-bs-target="#confirmarPagoModal"
+                                        @onclick="() => PrepararConfirmacionPago(pago)">
+                                    <i class="bi bi-check-circle"></i>
+                                </button>
+                            }
                         </td>
                     </tr>
                 }
@@ -113,7 +132,7 @@
             </h5>
 
             <p class="text-muted">
-                Intente modificar los filtros de búsqueda.
+                Solo se muestran pagos de eventos finalizados.
             </p>
         </div>
     }
@@ -182,14 +201,25 @@
 
                     <div class="row mb-2">
                         <div class="col-5 fw-bold">Comprobante:</div>
-                        <div class="col-7">@pagoDetalle.comprobante</div>
+                        <div class="col-7">
+                            @if (!string.IsNullOrWhiteSpace(pagoDetalle.comprobante))
+                            {
+                                <a href="@pagoDetalle.comprobante" target="_blank">
+                                    Ver comprobante
+                                </a>
+                            }
+                            else
+                            {
+                                <span>-</span>
+                            }
+                        </div>
                     </div>
 
                     <div class="row mb-2">
                         <div class="col-5 fw-bold">Estado Pago:</div>
                         <div class="col-7">
                             <span class="badge bg-secondary">
-                                @pagoDetalle.estado?.estado
+                                @MostrarTexto(pagoDetalle.estado?.estado).ToUpper()
                             </span>
                         </div>
                     </div>
@@ -211,7 +241,7 @@
 
                     <div class="row mb-2">
                         <div class="col-5 fw-bold">Estado Evento:</div>
-                        <div class="col-7">@ObtenerEstadoEvento(pagoDetalle)</div>
+                        <div class="col-7">@ObtenerEstadoEvento(pagoDetalle).ToUpper()</div>
                     </div>
 
                     <div class="row mb-2">
@@ -247,6 +277,125 @@
     </div>
 </div>
 
+<!-- MODAL CONFIRMAR PAGO -->
+<div class="modal fade" id="confirmarPagoModal" tabindex="-1">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+
+            <div class="modal-header bg-success text-white">
+                <h5 class="modal-title">
+                    <i class="bi bi-check-circle me-2"></i>
+                    Confirmar transferencia bancaria
+                </h5>
+                <button type="button"
+                        class="btn-close btn-close-white"
+                        data-bs-dismiss="modal"></button>
+            </div>
+
+            <div class="modal-body">
+                @if (pagoParaConfirmar != null)
+                {
+                    <div class="mb-3">
+                        <h6 class="text-muted">Datos del pago</h6>
+                        <hr />
+                    </div>
+
+                    <div class="row mb-2">
+                        <div class="col-5 fw-bold">ID Pago:</div>
+                        <div class="col-7">@pagoParaConfirmar.idPago</div>
+                    </div>
+
+                    <div class="row mb-2">
+                        <div class="col-5 fw-bold">Anfitrión:</div>
+                        <div class="col-7">@pagoParaConfirmar.usuario</div>
+                    </div>
+
+                    <div class="row mb-2">
+                        <div class="col-5 fw-bold">Evento:</div>
+                        <div class="col-7">@pagoParaConfirmar.evento?.titulo</div>
+                    </div>
+
+                    <div class="row mb-2">
+                        <div class="col-5 fw-bold">Banco:</div>
+                        <div class="col-7">@pagoParaConfirmar.banco</div>
+                    </div>
+
+                    <div class="row mb-2">
+                        <div class="col-5 fw-bold">Estado Evento:</div>
+                        <div class="col-7">@ObtenerEstadoEvento(pagoParaConfirmar).ToUpper()</div>
+                    </div>
+
+                    <div class="row mb-2">
+                        <div class="col-5 fw-bold">Estado Pago:</div>
+                        <div class="col-7">@MostrarTexto(pagoParaConfirmar.estado?.estado).ToUpper()</div>
+                    </div>
+
+                    <div class="row mb-3">
+                        <div class="col-5 fw-bold">Monto a pagar:</div>
+                        <div class="col-7">S/ @pagoParaConfirmar.totalAPagar</div>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label fw-bold">Link del comprobante JPG:</label>
+                        <input type="text"
+                               class="form-control"
+                               placeholder="Ejemplo: /uploads/comprobantes/pago_1.jpg"
+                               @bind="comprobanteConfirmacion"
+                               @bind:event="oninput" />
+
+                        <div class="form-text">
+                            Ingresa la ruta o URL del comprobante en formato .jpg o .jpeg.
+                        </div>
+                    </div>
+
+                    @if (!string.IsNullOrWhiteSpace(errorConfirmacion))
+                    {
+                        <div class="alert alert-danger">
+                            @errorConfirmacion
+                        </div>
+                    }
+
+                    @if (!string.IsNullOrWhiteSpace(mensajeConfirmacion))
+                    {
+                        <div class="alert alert-success">
+                            @mensajeConfirmacion
+                        </div>
+                    }
+                }
+                else
+                {
+                    <p>No se seleccionó ningún pago para confirmar.</p>
+                }
+            </div>
+
+            <div class="modal-footer">
+                <button type="button"
+                        class="btn btn-secondary"
+                        data-bs-dismiss="modal">
+                    Cancelar
+                </button>
+
+                <button type="button"
+                        class="btn btn-success"
+                        disabled="@confirmandoPago"
+                        @onclick="ConfirmarPago">
+                    @if (confirmandoPago)
+                    {
+                        <span class="spinner-border spinner-border-sm me-2"></span>
+                        <span>Confirmando...</span>
+                    }
+                    else
+                    {
+                        <i class="bi bi-check-circle me-1"></i>
+                        <span>Confirmar pago</span>
+                    }
+                </button>
+            </div>
+
+        </div>
+    </div>
+</div>
+
 @code {
     private string textoBusqueda = "";
     private string fechaFiltro = "";
@@ -254,10 +403,17 @@
 
     private bool cargando = true;
     private bool cargandoDetalle = false;
+    private bool confirmandoPago = false;
+
     private string errorCarga = "";
+    private string mensajeGeneral = "";
+    private string errorConfirmacion = "";
+    private string mensajeConfirmacion = "";
+    private string comprobanteConfirmacion = "";
 
     private List<PagoViewModel> pagos = new();
     private PagoViewModel? pagoDetalle;
+    private PagoViewModel? pagoParaConfirmar;
 
     protected override async Task OnInitializedAsync()
     {
@@ -266,6 +422,9 @@
 
     private IEnumerable<PagoViewModel> PagosFiltrados =>
         pagos
+            .Where(p =>
+                ObtenerEstadoEvento(p).Equals("FINALIZADO", StringComparison.OrdinalIgnoreCase)
+            )
             .Where(p =>
                 string.IsNullOrWhiteSpace(textoBusqueda)
                 ||
@@ -290,6 +449,9 @@
         {
             cargando = true;
             errorCarga = "";
+            mensajeGeneral = "";
+
+            await AdminService.GenerarPagosEventosFinalizados();
 
             pagos = await AdminService.ListarPagos();
         }
@@ -322,6 +484,8 @@
             cargando = true;
             errorCarga = "";
 
+            await AdminService.GenerarPagosEventosFinalizados();
+
             if (!string.IsNullOrWhiteSpace(fechaFiltro))
             {
                 pagos = await AdminService.FiltrarPagosPorFecha(fechaFiltro);
@@ -351,6 +515,7 @@
         {
             cargandoDetalle = true;
             pagoDetalle = null;
+            errorCarga = "";
 
             pagoDetalle = await AdminService.ObtenerDetallePago(idPago);
         }
@@ -362,6 +527,88 @@
         {
             cargandoDetalle = false;
         }
+    }
+
+    private void PrepararConfirmacionPago(PagoViewModel pago)
+    {
+        pagoParaConfirmar = pago;
+        comprobanteConfirmacion = "";
+        errorConfirmacion = "";
+        mensajeConfirmacion = "";
+        mensajeGeneral = "";
+    }
+
+    private async Task ConfirmarPago()
+    {
+        try
+        {
+            errorConfirmacion = "";
+            mensajeConfirmacion = "";
+            mensajeGeneral = "";
+
+            if (pagoParaConfirmar == null)
+            {
+                errorConfirmacion = "Debe seleccionar un pago.";
+                return;
+            }
+
+            if (string.IsNullOrWhiteSpace(comprobanteConfirmacion))
+            {
+                errorConfirmacion = "Debe ingresar el link del comprobante.";
+                return;
+            }
+
+            if (!EsComprobanteJpg(comprobanteConfirmacion))
+            {
+                errorConfirmacion = "El comprobante debe ser un archivo JPG o JPEG.";
+                return;
+            }
+
+            confirmandoPago = true;
+
+            var pagoActualizado = await AdminService.ConfirmarTransferenciaPago(
+                pagoParaConfirmar.idPago,
+                comprobanteConfirmacion.Trim()
+            );
+
+            if (pagoActualizado != null)
+            {
+                pagoParaConfirmar = pagoActualizado;
+                pagoDetalle = pagoActualizado;
+            }
+
+            mensajeConfirmacion = "Pago confirmado correctamente.";
+            mensajeGeneral = "Pago confirmado correctamente.";
+
+            await AplicarFiltros();
+        }
+        catch (Exception ex)
+        {
+            errorConfirmacion = ex.Message;
+        }
+        finally
+        {
+            confirmandoPago = false;
+        }
+    }
+
+    private bool PuedeConfirmarPago(PagoViewModel pago)
+    {
+        var estadoPago = pago.estado?.estado ?? "";
+        var estadoEvento = ObtenerEstadoEvento(pago);
+
+        return estadoEvento.Equals("FINALIZADO", StringComparison.OrdinalIgnoreCase)
+               && estadoPago.Equals("PENDIENTE", StringComparison.OrdinalIgnoreCase);
+    }
+
+    private bool EsComprobanteJpg(string comprobante)
+    {
+        var valor = comprobante.Trim().ToLower();
+
+        return valor.EndsWith(".jpg")
+               || valor.EndsWith(".jpeg")
+               || valor.Contains(".jpg?")
+               || valor.Contains(".jpeg?");
     }
 
     private async Task LimpiarFiltros()
@@ -444,5 +691,10 @@
             return fechaConvertida.ToString("dd/MM/yyyy");
 
         return fecha;
+    }
+
+    private string MostrarTexto(string? texto)
+    {
+        return string.IsNullOrWhiteSpace(texto) ? "-" : texto;
     }
 }

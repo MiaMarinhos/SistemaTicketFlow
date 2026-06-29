@@ -472,6 +472,7 @@ public class AdministradorBLImpl implements IAdministradorBL {
     //Gestion de Pagos
     @Override
     public List<Pago> listarPagos() throws BusinessLogicException {
+        pagosDAO.generarPagosEventosFinalizados();
         return pagosDAO.listAllByAdmin();
     }
 
@@ -528,6 +529,58 @@ public class AdministradorBLImpl implements IAdministradorBL {
         }
 
         return pago;
+    }
+
+    @Override
+    public Pago confirmarTransferenciaPago(Integer idPago, String comprobante) throws BusinessLogicException {
+
+        if (idPago == null || idPago <= 0) {
+            throw new BusinessLogicException("Debe seleccionar un pago válido.");
+        }
+
+        if (comprobante == null || comprobante.trim().isEmpty()) {
+            throw new BusinessLogicException("Debe registrar el comprobante de la transferencia.");
+        }
+
+        String comprobanteLimpio = comprobante.trim();
+
+        if (!comprobanteLimpio.toLowerCase().contains(".jpg")
+                && !comprobanteLimpio.toLowerCase().contains(".jpeg")) {
+            throw new BusinessLogicException("El comprobante debe ser una imagen JPG.");
+        }
+
+        Pago pago = pagosDAO.read(idPago);
+
+        if (pago == null) {
+            throw new BusinessLogicException("No se encontró el pago seleccionado.");
+        }
+
+        if (pago.getEstado() != null
+                && pago.getEstado().getEstado() != null
+                && pago.getEstado().getEstado().equalsIgnoreCase("PAGADO")) {
+            throw new BusinessLogicException("Este pago ya fue confirmado.");
+        }
+
+        if (pago.getEvento() == null
+                || pago.getEvento().getEstadoEvento() == null
+                || pago.getEvento().getEstadoEvento().getEstado() == null) {
+            throw new BusinessLogicException("No se pudo validar el estado del evento.");
+        }
+
+        String estadoEvento = pago.getEvento().getEstadoEvento().getEstado();
+
+        if (!estadoEvento.equalsIgnoreCase("FINALIZADO")) {
+            throw new BusinessLogicException("Solo se puede confirmar la transferencia de eventos finalizados.");
+        }
+
+        pagosDAO.confirmarTransferencia(idPago, comprobanteLimpio);
+
+        return pagosDAO.read(idPago);
+    }
+
+    @Override
+    public int generarPagosEventosFinalizados() throws BusinessLogicException {
+        return pagosDAO.generarPagosEventosFinalizados();
     }
 
     //GESTION DE COMPRAS

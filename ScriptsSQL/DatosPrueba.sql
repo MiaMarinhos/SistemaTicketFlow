@@ -401,7 +401,7 @@ VALUES
 'Festival playero con DJs invitados',
 800,800,'2027-01-23','16:00:00','02:00:00',
 'Playa Asia','Asia Beach','beach.jpg',
-80.00,1,2,6,1,1);
+80.00,1,2,6,1,1); 
 
 -- =====================================
 -- PUNTOS_BONUS

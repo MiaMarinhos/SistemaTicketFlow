@@ -46,7 +46,6 @@ CREATE TABLE IF NOT EXISTS `ticket_flow`.`distrito` (
   `nombre` VARCHAR(45) NOT NULL,
   `idRegion` INT NOT NULL,
   PRIMARY KEY (`idDistrito`),
-  UNIQUE INDEX `Region_idRegion_UNIQUE` (`idRegion` ASC) VISIBLE,
   INDEX `fk_Distrito_Region_idx` (`idRegion` ASC) VISIBLE,
   CONSTRAINT `fk_Distrito_Region`
     FOREIGN KEY (`idRegion`)

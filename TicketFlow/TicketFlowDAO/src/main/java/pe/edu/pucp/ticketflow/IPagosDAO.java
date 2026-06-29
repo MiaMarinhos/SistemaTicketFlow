@@ -12,4 +12,6 @@ public interface IPagosDAO extends IBaseDAO<Pago, Integer> {
     List<Pago> listAllByAdmin();
     List<Pago> filtrarPorEstado(Integer idEstado);
     List<Pago> filtrarPorFecha(LocalDate fecha);
+    void confirmarTransferencia(Integer idPago, String comprobante);
+    int generarPagosEventosFinalizados();
 }
