@@ -12,6 +12,7 @@
 @inject AnfitrionRestService AnfitrionService
 @inject AuthenticationStateProvider AuthStateProvider
 @inject UbicacionRestService UbicacionService
+@inject CategoriaRestService CategoriaService
 
 <PageTitle>TicketFlow - Crear Evento</PageTitle>
 
@@ -45,8 +46,19 @@
                         <input type="text" class="custom-input custom-titulo-input" placeholder="Título" @bind="eventoModel.titulo" required />
                     </div>
 
+                    <div class="fila-formulario-derecha">
+                        <span class="etiqueta-fija">Categoría</span>
+                        <select class="custom-input custom-select" @bind="idCategoriaSeleccionada" required>
+                            <option value="0" disabled selected>Selecciona una categoría</option>
+                            @foreach (var c in listaCategorias)
+                            {
+                                <option value="@c.idCategoria_evento">@c.nombre</option>
+                            }
+                        </select>
+                    </div>
+
                     <div class="input-contenedor-full flex-grow-1 d-flex flex-column">
-                        <textarea class="custom-input custom-textarea flex-grow-1" rows="8" placeholder="Descripcion..." @bind="eventoModel.descripcion" required></textarea>
+                        <textarea class="custom-input custom-textarea flex-grow-1" rows="6" placeholder="Descripcion..." @bind="eventoModel.descripcion" required></textarea>
                     </div>
 
                     <div class="d-flex gap-3 mt-2">
@@ -100,7 +112,6 @@
 
                     <div class="fila-formulario-derecha">
                         <span class="etiqueta-fija">Distrito</span>
-                        @* SELECT DINÁMICO QUE USA LOS DATOS DE LA BASE DE DATOS *@
                         <select class="custom-input custom-select" @bind="idDistritoSeleccionado" required>
                             <option value="0" disabled selected>Selecciona un distrito</option>
                             @foreach (var d in listaDistritos)
@@ -112,7 +123,6 @@
 
                     <div class="fila-formulario-derecha">
                         <span class="etiqueta-fija">Region</span>
-                        @* CAMBIO A READONLY CON LIMA METROPOLITANA *@
                         <input type="text" class="custom-input bg-bloqueado" value="Lima Metropolitana" readonly />
                     </div>
 
@@ -132,7 +142,7 @@
 </div>
 
 <style>
-    /* Estilos base existentes */
+    /* Mismos estilos que ya tenías... */
     .crear-evento-page {
         background-color: #121212;
         font-family: system-ui, -apple-system, sans-serif;
@@ -144,14 +154,12 @@
         border: 1px solid rgba(255, 255, 255, 0.1);
     }
 
-    /* Estilo para el campo bloqueado */
     .bg-bloqueado {
         background-color: rgba(255, 255, 255, 0.05) !important;
         cursor: not-allowed;
         color: rgba(255, 255, 255, 0.5) !important;
     }
 
-    /* Estilo para el select desplegable */
     .custom-select option {
         background-color: #100f57;
         color: white;
@@ -270,26 +278,33 @@
     private bool estaGuardando = false;
     private string mensajeError = "";
 
-    // Lista dinámica obtenida desde el backend
     private List<Distrito> listaDistritos = new();
     private int idDistritoSeleccionado = 0;
 
-    // Variables para capturar lo que el usuario escribe (amigable)
+    // NUEVO: Variables para Categoría
+    private List<Categoria> listaCategorias = new();
+    private int idCategoriaSeleccionada = 0;
+
     private string fechaUI = DateTime.Today.ToString("dd/MM/yyyy");
     private string horaInicioUI = string.Empty;
     private string horaFinUI = string.Empty;
 
-    // MÉTODO QUE SE EJECUTA AL CARGAR LA PÁGINA
     protected override async Task OnInitializedAsync()
     {
         try
         {
-            // Consultamos los distritos al backend a través de UbicacionRestService
-            listaDistritos = await UbicacionService.ListarDistritosAsync();
+            // Consultamos distritos y categorías en paralelo
+            var taskDistritos = UbicacionService.ListarDistritosAsync();
+            var taskCategorias = CategoriaService.ListarCategoriasAsync();
+
+            await Task.WhenAll(taskDistritos, taskCategorias);
+
+            listaDistritos = await taskDistritos;
+            listaCategorias = await taskCategorias;
         }
         catch (Exception ex)
         {
-            mensajeError = "No se pudieron cargar los distritos: " + ex.Message;
+            mensajeError = "No se pudieron cargar los datos iniciales: " + ex.Message;
         }
     }
 
@@ -320,6 +335,12 @@
             return;
         }
 
+        if (idCategoriaSeleccionada == 0)
+        {
+            mensajeError = "Por favor, selecciona una categoría.";
+            return;
+        }
+
         estaGuardando = true;
 
         try
@@ -336,15 +357,14 @@
                     eventoModel.idAnfitrion = idAnfitrionLogueado;
                     eventoModel.anfitrion = new Anfitrion { idUsuario = idAnfitrionLogueado };
 
-                    // ASIGNAMOS EL DISTRITO SELECCIONADO
                     eventoModel.FK_idDistrito = idDistritoSeleccionado;
 
-                    // OTROS DEFAULTS NECESARIOS PARA JAVA
-                    eventoModel.FK_idCategoria_evento = 1;
+                    // ASIGNAMOS LA CATEGORÍA SELECCIONADA
+                    eventoModel.FK_idCategoria_evento = idCategoriaSeleccionada;
+
                     eventoModel.FK_idEstadoPublicacion = 1;
                     eventoModel.FK_idEstadoEvento = 1;
 
-                    // TRADUCCIÓN DE FECHAS Y HORAS
                     if (DateTime.TryParseExact(fechaUI, "dd/MM/yyyy", null, System.Globalization.DateTimeStyles.None, out DateTime fechaParsed))
                         eventoModel.fecha = fechaParsed.ToString("yyyy-MM-dd");
 
@@ -354,7 +374,6 @@
                     if (DateTime.TryParse(horaFinUI, out DateTime hFin))
                         eventoModel.hora_fin = hFin.ToString("HH:mm:ss");
 
-                    // 4. Mandamos al Backend
                     eventoModel.entradas_disponibles = NumeroEntradasValidado;
                     await AnfitrionService.CrearEventoAsync(eventoModel);
                     NavigationManager.NavigateTo("/anfitrion/gestionar-evento");

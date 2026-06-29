@@ -173,4 +173,39 @@ public class CategoriaEventoDAOImpl implements ICategoriaEventoDAO {
             throw new RuntimeException(e);
         }
     }
+
+    @Override
+    public List<categoria_evento> listarCategorias() throws Exception {
+        List<categoria_evento> categorias = new ArrayList<>();
+        Connection con = null;
+        CallableStatement cs = null;
+        ResultSet rs = null;
+
+        try {
+            // Obtenemos la conexión (ajusta esto si tu DBManager funciona distinto)
+            con = DBManager.getInstance().getConnection();
+
+            // Llamamos a tu procedimiento almacenado
+            cs = con.prepareCall("{call SP_LISTAR_CATEGORIA_EVENTOS()}");
+            rs = cs.executeQuery();
+
+            while (rs.next()) {
+                categoria_evento categoria = new categoria_evento();
+
+                // Mapeamos las columnas exactas de tu tabla categoria_evento
+                categoria.setIdCategoria_evento(rs.getInt("idCategoria_evento"));
+                categoria.setNombre(rs.getString("nombre"));
+                // categoria.setDiasParaPublicacion(rs.getInt("dias_para_publicacion")); // Opcional si lo necesitas
+
+                categorias.add(categoria);
+            }
+        } finally {
+            // Cerramos las conexiones para evitar fugas de memoria
+            if (rs != null) rs.close();
+            if (cs != null) cs.close();
+            if (con != null) con.close();
+        }
+
+        return categorias;
+    }
 }
