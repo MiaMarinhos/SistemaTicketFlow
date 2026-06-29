@@ -46,19 +46,31 @@ public class CompraService {
     @Path("/registrar")
     public Response registrarCompra(Compra compraRequest) {
         try {
-            // El cliente desde C# solo enviará: idCliente, idEvento, entradasCompradas, metodoPago, idpuntoBonus
             Compra compraProcesada = compraBL.registrarCompra(compraRequest);
-
-            // Retornamos HTTP 200 con todo el objeto calculado
             return Response.ok(compraProcesada).build();
 
         } catch (IllegalArgumentException | IllegalStateException e) {
+            // Errores de validación de datos enviados desde el frontend
             return Response.status(Response.Status.BAD_REQUEST)
-                    .entity("{\"error\":\"" + e.getMessage() + "\"}").build();
-        } catch (Exception e) {
-            return Response.status(Response.Status.INTERNAL_SERVER_ERROR)
-                    .entity("{\"error\":\"Error interno en el servidor: " + e.getMessage() + "\"}").build();
+                    .entity("{\"success\": false, \"error\":\"" + e.getMessage() + "\"}").build();
 
+        } catch (Exception e) {
+            // Extraemos el mensaje real ("Disponibilidad insuficiente...")
+            String mensajeError = e.getMessage() != null ? e.getMessage() : "Error desconocido.";
+
+            // Limpiamos rastros de nombres de clases de excepciones si Java los añade automáticamente
+            mensajeError = mensajeError.replace("java.lang.RuntimeException: ", "")
+                    .replace("com.ticketflow.exception.BusinessLogicException: ", "");
+
+            // Si el mensaje contiene palabras clave de tu SP, sabemos que es un error de negocio del cliente
+            if (mensajeError.contains("Disponibilidad insuficiente") || mensajeError.contains("Acceso Denegado")) {
+                return Response.status(Response.Status.BAD_REQUEST)
+                        .entity("{\"success\": false, \"error\":\"" + mensajeError + "\"}").build();
+            }
+
+            // Si es un verdadero error del sistema (NullPointer, fallo de conexión de red, etc.), se va a 500
+            return Response.status(Response.Status.INTERNAL_SERVER_ERROR)
+                    .entity("{\"success\": false, \"error\":\"Error interno en el servidor: " + mensajeError + "\"}").build();
         }
     }
 

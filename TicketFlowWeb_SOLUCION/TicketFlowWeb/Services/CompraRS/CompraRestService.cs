@@ -19,14 +19,12 @@ namespace TicketFlowWeb.Services.CompraRS
         {
             try
             {
-                // Configuración maestra del serializador nativo
                 var opcionesSerializador = new JsonSerializerOptions
                 {
-                    PropertyNameCaseInsensitive = true, // Ignora diferencias de mayúsculas/minúsculas de Java
+                    PropertyNameCaseInsensitive = true,
                     NumberHandling = JsonNumberHandling.AllowReadingFromString | JsonNumberHandling.WriteAsString
                 };
 
-                // Añadimos nuestro convertidor seguro corregido
                 opcionesSerializador.Converters.Add(new SafeTimeOnlyConverter());
 
                 var response = await _httpClient.PostAsJsonAsync($"{_baseUrl}/registrar", compraReq, opcionesSerializador);
@@ -37,15 +35,27 @@ namespace TicketFlowWeb.Services.CompraRS
                 }
                 else
                 {
-                    var errorMsg = await response.Content.ReadAsStringAsync();
-                    Console.WriteLine($"Error de Negocio en Java: {errorMsg}");
-                    return null;
+                    var errorResult = await response.Content.ReadFromJsonAsync<JsonElement>();
+                    string mensajeDesdeJava = "Ocurrió un error inesperado al procesar la compra.";
+
+                    if (errorResult.TryGetProperty("error", out var errorProp))
+                    {
+                        mensajeDesdeJava = errorProp.GetString() ?? mensajeDesdeJava;
+                    }
+
+                    // 🛑 LANZAMOS EL ERROR: Así viaja el mensaje directo hacia la pantalla .razor
+                    throw new ApplicationException(mensajeDesdeJava);
                 }
+            }
+            catch (ApplicationException)
+            {
+                // Re-lanzamos nuestra propia excepción de negocio para que la reciba la pantalla
+                throw;
             }
             catch (Exception ex)
             {
                 Console.WriteLine($"Error crítico en RegistrarCompraAsync: {ex.Message}");
-                return null;
+                throw new Exception("No se pudo conectar con el servidor de pasarela.");
             }
         }
 

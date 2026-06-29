@@ -116,12 +116,11 @@
                 </div>
 
                 <div class="acciones">
-                    @* Volver te regresa a la pasarela de compra manteniendo el ID *@
+                    
                     <a href="@($"/cliente/compra/{Id}")" class="btn-volver">
                         Volver
                     </a>
 
-                    @* Botón de confirmación ejecuta método en C# para registrar en BD antes de ir a descargar *@
                     <button type="button"
                             @onclick="ProcesarRegistroCompra"
                             class="btn-confirmar"
@@ -129,6 +128,12 @@
                         @(procesandoPago ? "Procesando..." : "Confirmar pago")
                     </button>
                 </div>
+                @if (!string.IsNullOrEmpty(mensajeError))
+                {
+                    <div class="alert alert-danger" role="alert" style="margin-top: 15px; font-weight: bold;">
+                        ⚠️ @mensajeError
+                    </div>
+                }
 
             </div>
         </div>
@@ -136,6 +141,7 @@
 </div>
 
 @code {
+    private string mensajeError = string.Empty;
 
     [Parameter] public int Id { get; set; }
     [Parameter] public int Cantidad { get; set; }
