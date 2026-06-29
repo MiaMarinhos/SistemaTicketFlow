@@ -1,11 +1,15 @@
 package pe.edu.pucp.ticketflow.impl;
 
 import pe.edu.pucp.ticketflow.IAnfitrionBL;
+import pe.edu.pucp.ticketflow.Infrastructure.AsyncExecutor;
+import pe.edu.pucp.ticketflow.Infrastructure.EmailService;
 import pe.edu.pucp.ticketflow.evento.model.Evento;
 import pe.edu.pucp.ticketflow.compra.model.Compra;
 import pe.edu.pucp.ticketflow.pago.model.Pago;
 import pe.edu.pucp.ticketflow.exception.BusinessLogicException;
 import pe.edu.pucp.ticketflow.usuario.model.Anfitrion;
+import pe.edu.pucp.ticketflow.usuario.model.Cliente;
+import pe.edu.pucp.ticketflow.usuario.model.Usuario;
 
 import java.util.List;
 
@@ -13,15 +17,17 @@ public class AnfitrionBLImpl extends UsuarioBLImpl implements IAnfitrionBL {
 
     private final AnfitrionDAOImpl anfitrionDAO;
     private final EventoDAOImpl eventoDAO;
-
+    private final ClienteDAOImpl clienteDAO;
     private final CompraDAOImpl compraDAO;
     private final PagosDAOImpl pagoDAO;
-
+    private final EmailService emailService;
     public AnfitrionBLImpl() {
         this.anfitrionDAO = new AnfitrionDAOImpl();
         this.eventoDAO = new EventoDAOImpl();
         this.compraDAO = new CompraDAOImpl();
         this.pagoDAO = new PagosDAOImpl();
+        this.clienteDAO = new ClienteDAOImpl();
+        this.emailService = new EmailService();
     }
 
     @Override
@@ -164,7 +170,87 @@ public class AnfitrionBLImpl extends UsuarioBLImpl implements IAnfitrionBL {
                 throw new BusinessLogicException("El ID del evento debe ser válido.");
             }
 
+            Evento evento =  eventoDAO.read(idEvento);
+
             eventoDAO.delete(idEvento);
+
+            AsyncExecutor.ejecutar(()->{
+                List<Compra> compras = compraDAO.ListarComprasDeEvento(idEvento);
+                for(Compra compra : compras) {
+                    try{
+                    Cliente cliente = clienteDAO.read(compra.getIdCliente());
+                    String htmlCancelacion = """
+                                            <html>
+                                            <body style="font-family: Arial; background:#f4f6f8; padding:20px;">
+                                            
+                                                <div style="max-width:600px; margin:auto; background:white; border-radius:10px; overflow:hidden;">
+                                            
+                                                    <div style="background:#e74c3c; padding:20px; text-align:center;">
+                                                        <h2 style="color:white; margin:0;">❌ Evento Cancelado</h2>
+                                                        <p style="color:#fceaea;">Lamentamos informarte esta noticia.</p>
+                                                    </div>
+                                            
+                                                    <div style="padding:25px;">
+                                            
+                                                        <p>Hola <b>%s %s</b>,</p>
+                                            
+                                                        <p>
+                                                            Te informamos que el siguiente evento ha sido
+                                                            <b>cancelado por el organizador</b>.
+                                                        </p>
+                                            
+                                                        <div style="background:#ecf0f1; padding:15px; border-radius:8px;">
+                                            
+                                                            <p><b>🎟 Evento:</b> %s</p>
+                                                            <p><b>📅 Fecha del evento:</b> %s</p>
+                                                            <p><b>🕒 Hora:</b> %s</p>
+                                                            <p><b>📍 Lugar:</b> %s</p>
+                                            
+                                                        </div>
+                                            
+                                                        <p style="margin-top:20px; color:#555;">
+                                                            Sabemos que esta situación puede resultar inconveniente y
+                                                            lamentamos cualquier molestia ocasionada.
+                                                        </p>
+                                            
+                                                        <p style="color:#555;">
+                                                            Si realizaste una compra para este evento,
+                                                            <b>el reembolso será procesado automáticamente</b>
+                                                            utilizando el mismo método de pago empleado en la compra.
+                                                        </p>
+                                            
+                                                        <p style="color:#555;">
+                                                            Si tienes alguna consulta, nuestro equipo de soporte estará
+                                                            encantado de ayudarte.
+                                                        </p>
+                                            
+                                                    </div>
+                                            
+                                                    <div style="background:#f1f1f1; text-align:center; padding:10px;">
+                                                        <small>© TicketFlow - Gracias por tu comprensión.</small>
+                                                    </div>
+                                            
+                                                </div>
+                                            
+                                            </body>
+                                            </html>
+                                            """.formatted(
+                                                cliente.getNombre(),
+                                                cliente.getApellidoPaterno(),
+                                                evento.getTitulo(),
+                                                evento.getFecha(),
+                                                evento.getHora_inicio(),
+                                                evento.getNombre_establecimiento()
+                                        );
+
+                        emailService.enviarCorreo(cliente.getCorreoElectronico(),"TICKETFLOW | AVISO: EVENTO CANCELADO",htmlCancelacion);
+                    }
+                    catch(Exception ex){
+                        ex.printStackTrace();
+                    }
+                }
+            }
+            );
 
         } catch (BusinessLogicException e) {
             throw e;

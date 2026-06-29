@@ -542,9 +542,9 @@ idDistrito,idAnfitrion,idCategoria_evento,
 idEstado_publicacion,idEstado_evento)
 VALUES
 -- DEPORTES
-(102,'La final mas facil de la historia',
+(100,'La final mas facil de la historia',
 'Cristal hace lo suyo y se retira',
-600,600,'2026-06-29','16:00:00','18:00:00',
+600,600,'2026-06-29','13:00:00','15:00',
 'Estadio Matute','Estadio Matute','https://i.ytimg.com/vi/pd7TFWGLtEw/oar2.jpg?sqp=-oaymwEYCMAEENAFSFqQAgHyq4qpAwcIARUAAIhC&rs=AOn4CLAUP7faMRzuS6kUjYQi0k2r8XyKkA',
 45.00,1,2,1,1,1);
 

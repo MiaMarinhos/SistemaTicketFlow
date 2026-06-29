@@ -15,6 +15,7 @@
         <module>TicketFlowDBManager</module>
         <module>TicketFlowBussinesLogic</module>
         <module>TicketFlowServices</module>
+        <module>TicketFlowInfrastructure</module>
     </modules>
 
     <dependencies>

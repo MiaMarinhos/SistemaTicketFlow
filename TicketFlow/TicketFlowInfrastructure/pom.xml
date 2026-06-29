@@ -9,7 +9,7 @@
         <version>1.0-SNAPSHOT</version>
     </parent>
 
-    <artifactId>TicketFlowBussinesLogic</artifactId>
+    <artifactId>TicketFlowInfrastructure</artifactId>
 
     <properties>
         <maven.compiler.source>25</maven.compiler.source>
@@ -18,23 +18,10 @@
     </properties>
     <dependencies>
         <dependency>
-            <groupId>pe.edu.pucp.ticketflow</groupId>
-            <artifactId>TicketFlowModels</artifactId>
-            <version>1.0-SNAPSHOT</version>
-            <scope>compile</scope>
-        </dependency>
-        <dependency>
-            <groupId>pe.edu.pucp.ticketflow</groupId>
-            <artifactId>TicketFlowDAO</artifactId>
-            <version>1.0-SNAPSHOT</version>
-            <scope>compile</scope>
-        </dependency>
-        <dependency>
-            <groupId>pe.edu.pucp.ticketflow</groupId>
-            <artifactId>TicketFlowInfrastructure</artifactId>
-            <version>1.0-SNAPSHOT</version>
-            <scope>compile</scope>
+            <groupId>jakarta.platform</groupId>
+            <artifactId>jakarta.jakartaee-api</artifactId>
+            <version>11.0.0</version>
+            <scope>provided</scope>
         </dependency>
     </dependencies>
-
 </project>

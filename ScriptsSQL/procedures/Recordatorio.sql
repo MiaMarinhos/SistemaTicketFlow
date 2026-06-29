@@ -36,11 +36,14 @@ DROP PROCEDURE IF EXISTS SP_MARCAR_COMO_ENVIADO;
 
 DELIMITER //
 
-CREATE PROCEDURE SP_MARCAR_COMO_ENVIADO(in idCompra int)
+CREATE PROCEDURE SP_MARCAR_COMO_ENVIADO(IN p_idCompra INT)
 BEGIN
-update compras
-set recordatorio_enviado=true;
-end//
+    SELECT p_idCompra;
+
+    UPDATE compras
+    SET recordatorio_enviado = TRUE
+    WHERE idCompras = p_idCompra;
+END//
 
 DELIMITER ;
 
@@ -48,10 +51,12 @@ DROP PROCEDURE IF EXISTS SP_MARCAR_COMO_ENVIADO_2;
 
 DELIMITER //
 
-CREATE PROCEDURE SP_MARCAR_COMO_ENVIADO_2(in idCompra int)
+CREATE PROCEDURE SP_MARCAR_COMO_ENVIADO_2(IN p_idCompra INT)
 BEGIN
-update compras
-set recordatorio2_enviado=true;
-end//
+    UPDATE compras
+    SET recordatorio2_enviado = TRUE
+    WHERE idCompras = p_idCompra;
+END//
 
+DELIMITER ;
 

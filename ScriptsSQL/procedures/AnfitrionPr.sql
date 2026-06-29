@@ -87,3 +87,38 @@ BEGIN
     LEFT JOIN banco b ON a.idBanco = b.idBanco;
 END //
 DELIMITER ;
+
+DROP PROCEDURE IF EXISTS SP_LISTAR_MIS_EVENTOS ;
+
+DELIMITER //
+CREATE PROCEDURE SP_LISTAR_MIS_EVENTOS(in p_idAnfitrio int)
+begin
+	SELECT
+    e.idEvento,
+    e.titulo,
+    e.descripcion,
+    e.capacidad_entradas,
+    e.fecha,
+    e.hora_inicio,
+    e.hora_fin,
+    e.ubicacion,
+    e.nombre_establecimiento,
+    e.img,
+    e.precio,
+    e.idAnfitrion,
+    e.idEstado_publicacion,
+    e.idEstado_evento,
+    e.idDistrito,
+
+    c.nombre AS categoria,
+
+    ep.estado AS estado_publicacion
+
+	FROM evento e
+	INNER JOIN categoria_evento c
+		ON e.idCategoria_evento = c.idCategoria_evento
+	INNER JOIN estado_publicacion ep
+		ON e.idEstado_publicacion = ep.idEstado_publicacion;
+end//
+
+DELIMITER ;

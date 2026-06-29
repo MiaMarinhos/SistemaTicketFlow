@@ -9,6 +9,8 @@
     <file url="file://$PROJECT_DIR$/TicketFlowDAO/src/main/resources" charset="UTF-8" />
     <file url="file://$PROJECT_DIR$/TicketFlowDBManager/src/main/java" charset="UTF-8" />
     <file url="file://$PROJECT_DIR$/TicketFlowDBManager/src/main/resources" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/TicketFlowInfrastructure/src/main/java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/TicketFlowInfrastructure/src/main/resources" charset="UTF-8" />
     <file url="file://$PROJECT_DIR$/TicketFlowModels/src/main/java" charset="UTF-8" />
     <file url="file://$PROJECT_DIR$/TicketFlowModels/src/main/resources" charset="UTF-8" />
     <file url="file://$PROJECT_DIR$/TicketFlowServices/src/main/java" charset="UTF-8" />

@@ -67,8 +67,9 @@ public class EventoBLImpl implements IEventoBL {
     }
 
     @Override
-    public Evento ocultarEvento(Evento evento, Integer id) throws BusinessLogicException {
+    public Evento ocultarEvento(Integer id) throws BusinessLogicException {
         try {
+            Evento evento=this.verDetalleEvento(id);
             evento.setActivo(false);
             return editarEvento(evento, id);
         }

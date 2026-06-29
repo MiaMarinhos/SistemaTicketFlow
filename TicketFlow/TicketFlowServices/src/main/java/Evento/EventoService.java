@@ -187,10 +187,10 @@ public class EventoService {
     @Path("{id}/ocultar")
     public Response ocultarEvento(@PathParam("id") Integer idEvento) {
         try{
-            List<Evento> eventos = eventoBL.verTodosLosEventos();
+            Evento evento = eventoBL.ocultarEvento(idEvento);
 
             return Response.ok(
-                    Map.of("cantidad", eventos.size())
+                    "Evento oculto correctamente"
             ).build();
         }
         catch (pe.edu.pucp.ticketflow.exception.BusinessLogicException e) {

@@ -89,7 +89,7 @@ bloque_compra: BEGIN
 END //
 
 DELIMITER ;
-------------------------------
+-- ----------------------------
 
 DELIMITER $$
 
@@ -223,7 +223,7 @@ END$$
 
 DELIMITER ;
 
---Listar compras por anfitrion
+-- Listar compras por anfitrion
 DELIMITER $$
 
 DROP PROCEDURE IF EXISTS sp_listar_compras_por_anfitrion $$
@@ -238,7 +238,7 @@ WHERE e.idAnfitrion = p_idAnfitrion;
 END$$
 DELIMITER ;
 
---Listar compras por cliente
+-- Listar compras por cliente
 DELIMITER $$
 
 DROP PROCEDURE IF EXISTS sp_listar_compras_por_cliente $$

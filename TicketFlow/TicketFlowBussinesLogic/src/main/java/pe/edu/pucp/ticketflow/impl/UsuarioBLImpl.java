@@ -1,6 +1,7 @@
 package pe.edu.pucp.ticketflow.impl;
 
 import pe.edu.pucp.ticketflow.*;
+import pe.edu.pucp.ticketflow.Infrastructure.EmailService;
 import pe.edu.pucp.ticketflow.administrador.model.Administrador;
 import pe.edu.pucp.ticketflow.evento.model.Evento;
 import pe.edu.pucp.ticketflow.exception.BusinessLogicException;
@@ -12,6 +13,7 @@ import java.util.Date;
 import java.util.List;
 
 public class UsuarioBLImpl implements IUsuarioBL {
+    private EmailService emailService=new EmailService();
 
     private IDistritoDAO distritoDAO = new DistritoDAOImpl();
     private IUsuarioDAO usuarioDAO = new UsuarioDAOImpl();
@@ -76,6 +78,57 @@ public class UsuarioBLImpl implements IUsuarioBL {
             cliente.setPuntosBonus(50); //puntos gratis por ser new
             clienteDAO.create(cliente);
 
+            String html3h = """
+    <html>
+    <body style="font-family: Arial; background:#f4f6f8; padding:20px;">
+
+        <div style="max-width:600px; margin:auto; background:white; border-radius:10px; overflow:hidden;">
+
+            <div style="background:#3498db; padding:20px; text-align:center;">
+                <h2 style="color:white; margin:0;">🎟 Bienvenido a TicketFlow</h2>
+                <p style="color:#ecf0f1;">Tu cuenta de cliente ha sido creada</p>
+            </div>
+
+            <div style="padding:25px;">
+
+                <p>Hola <b>%s %s</b>,</p>
+
+                <p>Gracias por registrarte como <b>Cliente</b> en TicketFlow.</p>
+
+                <div style="background:#ecf0f1; padding:15px; border-radius:8px;">
+                    <p><b>📧 Correo:</b> %s</p>
+                    <p><b>📅 Fecha de registro:</b> %s</p>
+                    <p><b>🎁 Puntos bonus iniciales:</b> %d</p>
+                </div>
+
+                <p style="margin-top:15px; color:#555;">
+                    Ahora puedes comprar entradas y recibir recordatorios automáticos de tus eventos.
+                </p>
+
+            </div>
+
+            <div style="background:#f1f1f1; text-align:center; padding:10px;">
+                <small>© TicketFlow - Cliente</small>
+            </div>
+
+        </div>
+
+    </body>
+    </html>
+    """.formatted(
+                    cliente.getNombre(),
+                    cliente.getApellidoPaterno(),
+                    cliente.getCorreoElectronico(),
+                    cliente.getFechaRegistro(),
+                    cliente.getPuntosBonus()
+            );
+
+            emailService.enviarCorreoAsync(
+                    cliente.getCorreoElectronico(),
+                    "TICKET FLOW - Último recordatorio",
+                    html3h
+            );
+
             return "Cliente registrado correctamente";
 
 
@@ -90,6 +143,8 @@ public class UsuarioBLImpl implements IUsuarioBL {
     public Anfitrion registrarAnfitrion(Anfitrion anfitrion) throws BusinessLogicException {
         try {
             registrarUsuario(anfitrion);
+
+
 
             return anfitrionDAO.create(anfitrion);
         }
