@@ -3,11 +3,14 @@
 @using System.ComponentModel.DataAnnotations
 @using TicketFlowWeb.Models
 @using TicketFlowWeb.Services.AnfitrionRS
+@using TicketFlowWeb.Services
 
 @attribute [Authorize(Roles = "ANFITRION")]
 
 @inject NavigationManager NavigationManager
 @inject AnfitrionRestService AnfitrionService
+@inject UbicacionRestService UbicacionService
+@inject CategoriaRestService CategoriaService
 
 <PageTitle>TicketFlow - Editar Evento</PageTitle>
 
@@ -56,8 +59,19 @@
                             <input type="text" class="custom-input custom-titulo-input" placeholder="Título" @bind="eventoModel.titulo" required />
                         </div>
 
+                        <div class="fila-formulario-derecha">
+                            <span class="etiqueta-fija">Categoría</span>
+                            <select class="custom-input custom-select" @bind="idCategoriaSeleccionada" required>
+                                <option value="0" disabled>Selecciona una categoría</option>
+                                @foreach (var c in listaCategorias)
+                                {
+                                    <option value="@c.idCategoria_evento">@c.nombre</option>
+                                }
+                            </select>
+                        </div>
+
                         <div class="input-contenedor-full flex-grow-1 d-flex flex-column">
-                            <textarea class="custom-input custom-textarea flex-grow-1" rows="8" placeholder="Descripcion..." @bind="eventoModel.descripcion" required></textarea>
+                            <textarea class="custom-input custom-textarea flex-grow-1" rows="6" placeholder="Descripcion..." @bind="eventoModel.descripcion" required></textarea>
                         </div>
 
                         <div class="d-flex gap-3 mt-2">
@@ -111,12 +125,18 @@
 
                         <div class="fila-formulario-derecha">
                             <span class="etiqueta-fija">Distrito</span>
-                            <input type="text" class="custom-input" placeholder="Miraflores" @bind="distritoEdit" required />
+                            <select class="custom-input custom-select" @bind="idDistritoSeleccionado" required>
+                                <option value="0" disabled>Selecciona un distrito</option>
+                                @foreach (var d in listaDistritos)
+                                {
+                                    <option value="@d.idDistrito">@d.nombre</option>
+                                }
+                            </select>
                         </div>
 
                         <div class="fila-formulario-derecha">
                             <span class="etiqueta-fija">Region</span>
-                            <input type="text" class="custom-input" placeholder="Lima" @bind="regionEdit" required />
+                            <input type="text" class="custom-input bg-bloqueado" value="Lima Metropolitana" readonly />
                         </div>
 
                     </div>
@@ -135,7 +155,7 @@
 </div>
 
 <style>
-    /* Los estilos se mantienen exactamente igual que antes */
+    /* Estilos mantenidos sin cambios para conservar tu diseño */
     .crear-evento-page {
         background-color: #121212;
         font-family: system-ui, -apple-system, sans-serif;
@@ -145,6 +165,17 @@
         background: linear-gradient(145deg, #070724 0%, #100f57 45%, #18239c 100%);
         max-width: 1200px;
         border: 1px solid rgba(255, 255, 255, 0.1);
+    }
+
+    .bg-bloqueado {
+        background-color: rgba(255, 255, 255, 0.05) !important;
+        cursor: not-allowed;
+        color: rgba(255, 255, 255, 0.5) !important;
+    }
+
+    .custom-select option {
+        background-color: #100f57;
+        color: white;
     }
 
     .subtitulo-explicativo {
@@ -259,30 +290,50 @@
     [Parameter] public int Id { get; set; }
 
     private EventoViewModel eventoModel = new EventoViewModel();
+    private List<Distrito> listaDistritos = new();
+    private int idDistritoSeleccionado = 0;
 
-    private string distritoEdit = "";
-    private string regionEdit = "Lima";
+    // NUEVO: Variables para Categoría en edición
+    private List<Categoria> listaCategorias = new();
+    private int idCategoriaSeleccionada = 0;
 
     private bool cargando = true;
     private bool guardando = false;
     private string mensajeErrorGeneral = "";
     private string mensajeErrorActualizacion = "";
 
-    // Cambiamos a OnInitializedAsync para hacer la petición a la BD
     protected override async Task OnInitializedAsync()
     {
         try
         {
             cargando = true;
 
-            // Consultamos tu backend Java a través de C#
+            // 1. Cargamos listas de catálogos en paralelo para mayor fluidez
+            var taskDistritos = UbicacionService.ListarDistritosAsync();
+            var taskCategorias = CategoriaService.ListarCategoriasAsync();
+
+            await Task.WhenAll(taskDistritos, taskCategorias);
+
+            listaDistritos = await taskDistritos;
+            listaCategorias = await taskCategorias;
+
+            // 2. Obtenemos el evento desde la BD
             var eventoDesdeBd = await AnfitrionService.ObtenerEventoAsync(Id);
 
             if (eventoDesdeBd != null)
             {
                 eventoModel = eventoDesdeBd;
-                // Si tienes los datos del distrito en el objeto, los extraemos
-                distritoEdit = eventoModel.distrito?.nombre ?? "Miraflores";
+
+                // Recuperamos las claves foráneas (Distrito y Categoría)
+                idDistritoSeleccionado = eventoModel.FK_idDistrito;
+                idCategoriaSeleccionada = eventoModel.FK_idCategoria_evento;
+
+                // Fallback por si la BD nos trae el objeto pero no el ID directo
+                if (idDistritoSeleccionado == 0 && eventoModel.distrito != null && !string.IsNullOrEmpty(eventoModel.distrito.nombre))
+                {
+                    var match = listaDistritos.FirstOrDefault(d => d.nombre.Equals(eventoModel.distrito.nombre, StringComparison.OrdinalIgnoreCase));
+                    if (match != null && match.idDistrito != 0) idDistritoSeleccionado = match.idDistrito;
+                }
             }
             else
             {
@@ -319,11 +370,26 @@
     private async Task ActualizarEvento()
     {
         mensajeErrorActualizacion = "";
-        guardando = true;
 
+        if (idDistritoSeleccionado == 0)
+        {
+            mensajeErrorActualizacion = "Por favor, selecciona un distrito.";
+            return;
+        }
+
+        if (idCategoriaSeleccionada == 0)
+        {
+            mensajeErrorActualizacion = "Por favor, selecciona una categoría.";
+            return;
+        }
+
+        guardando = true;
         try
         {
-            // Ejecutamos el método PUT de tu servicio
+            // Asignamos las selecciones al modelo antes de enviarlo a persistir
+            eventoModel.FK_idDistrito = idDistritoSeleccionado;
+            eventoModel.FK_idCategoria_evento = idCategoriaSeleccionada;
+
             bool exito = await AnfitrionService.ActualizarEventoAsync(Id, eventoModel);
 
             if (exito)

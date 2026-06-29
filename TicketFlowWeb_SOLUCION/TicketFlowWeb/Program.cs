@@ -43,6 +43,17 @@ builder.Services.AddScoped<TicketFlow.Services.ReporteRS.ReporteService>();
 
 builder.Services.AddScoped<CompraRS>();
 
+builder.Services.AddHttpClient<UbicacionRestService>(client =>
+{
+    client.BaseAddress = new Uri("http://localhost:8080/TicketFlow/api/");
+});
+
+builder.Services.AddHttpClient<CategoriaRestService>(client =>
+{
+    // Usa la misma URL que configuraste para UbicacionRestService
+    client.BaseAddress = new Uri("http://localhost:8080/TicketFlow/api/");
+});
+
 //Builder General
 builder.Services.AddScoped(sp => new HttpClient
 {

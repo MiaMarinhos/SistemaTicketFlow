@@ -3,22 +3,55 @@ USE ticket_flow;
 -- =====================================
 -- REGION
 -- =====================================
-INSERT INTO region(idRegion, nombre) VALUES (1, 'Lima');
-INSERT INTO region(nombre) VALUES
-('Lima'),
-('Arequipa'),
-('Cusco');
+INSERT INTO region(idRegion, nombre) VALUES (1, 'Lima Metropolitana');
 
 -- =====================================
 -- DISTRITO
 -- =====================================
-INSERT INTO distrito(idDistrito, nombre, idRegion) VALUES (1, 'San Miguel', 1);
-
-INSERT INTO distrito(nombre, idRegion) VALUES
-
-('San Isidro',2),
-('Miraflores',3),
-('Santiago',4);
+INSERT INTO distrito(idDistrito, nombre, idRegion) VALUES 
+(1, 'Ancón', 1),
+(2, 'Ate', 1),
+(3, 'Barranco', 1),
+(4, 'Breña', 1),
+(5, 'Carabayllo', 1),
+(6, 'Chaclacayo', 1),
+(7, 'Chorrillos', 1),
+(8, 'Cieneguilla', 1),
+(9, 'Comas', 1),
+(10, 'El Agustino', 1),
+(11, 'Independencia', 1),
+(12, 'Jesús María', 1),
+(13, 'La Molina', 1),
+(14, 'La Victoria', 1),
+(15, 'Lima', 1),
+(16, 'Lince', 1),
+(17, 'Los Olivos', 1),
+(18, 'Lurigancho', 1),
+(19, 'Lurín', 1),
+(20, 'Magdalena del Mar', 1),
+(21, 'Miraflores', 1),
+(22, 'Pachacámac', 1),
+(23, 'Pucusana', 1),
+(24, 'Pueblo Libre', 1),
+(25, 'Puente Piedra', 1),
+(26, 'Punta Hermosa', 1),
+(27, 'Punta Negra', 1),
+(28, 'Rímac', 1),
+(29, 'San Bartolo', 1),
+(30, 'San Borja', 1),
+(31, 'San Isidro', 1),
+(32, 'San Juan de Lurigancho', 1),
+(33, 'San Juan de Miraflores', 1),
+(34, 'San Luis', 1),
+(35, 'San Martín de Porres', 1),
+(36, 'San Miguel', 1),
+(37, 'Santa Anita', 1),
+(38, 'Santa María del Mar', 1),
+(39, 'Santa Rosa', 1),
+(40, 'Santiago de Surco', 1),
+(41, 'Surquillo', 1),
+(42, 'Villa El Salvador', 1),
+(43, 'Villa María del Triunfo', 1);
 
 -- =====================================
 -- GENERO
