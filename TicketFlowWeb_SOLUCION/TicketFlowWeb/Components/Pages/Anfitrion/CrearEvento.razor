@@ -82,7 +82,7 @@
 
                     <div class="fila-formulario-derecha">
                         <span class="etiqueta-fija">Imagen URL</span>
-                        <input type="text" class="custom-input" placeholder="Ej: https://mi-imagen.com/foto.jpg" @bind="eventoModel.img" />
+                        <input type="text" class="custom-input" placeholder="Ej: https://drive/d/id" @bind="eventoModel.img" />
                     </div>
 
                     <div class="fila-formulario-derecha">
@@ -375,6 +375,25 @@
                         eventoModel.hora_fin = hFin.ToString("HH:mm:ss");
 
                     eventoModel.entradas_disponibles = NumeroEntradasValidado;
+                    if (!string.IsNullOrEmpty(eventoModel.img))
+                    {
+                        var regexDrive = new System.Text.RegularExpressions.Regex(@"/d/([a-zA-Z0-9-_]+)");
+                        var matchDrive = regexDrive.Match(eventoModel.img);
+
+                        if (matchDrive.Success)
+                        {
+                            string idDrive = matchDrive.Groups[1].Value;
+
+                            eventoModel.img = $"https://lh3.googleusercontent.com/d/{idDrive}";
+                        }
+                        else if (!eventoModel.img.Contains("googleusercontent.com"))
+                        {
+                            mensajeError = "El formato del enlace de Google Drive no es válido.";
+                            estaGuardando = false;
+                            return;
+                        }
+                    }
+                    //------------
                     await AnfitrionService.CrearEventoAsync(eventoModel);
                     NavigationManager.NavigateTo("/anfitrion/gestionar-evento");
                 }

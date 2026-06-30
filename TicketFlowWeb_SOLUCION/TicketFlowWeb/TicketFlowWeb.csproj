@@ -26,10 +26,4 @@
     <PackageReference Include="QuestPDF" Version="2026.6.1" />
   </ItemGroup>
 
-
-  <ItemGroup>
-    <ProjectReference Include="..\Models\Models.csproj" />
-    <ProjectReference Include="..\Servicios\Servicios.csproj" />
-  </ItemGroup>
-
 </Project>

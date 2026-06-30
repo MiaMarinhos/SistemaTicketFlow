@@ -154,7 +154,7 @@
                         {
                             <div class="show-card">
                                 <div class="show-img show-img-uno">
-                                    <span>@evento.titulo</span>
+                                    <img src="@evento.img" alt="Afiche del evento" class="img-evento" />
                                 </div>
 
                                 <div class="show-info">
@@ -331,10 +331,16 @@
         display: flex;
         align-items: center;
         justify-content: center;
-        color: white;
-        font-size: 36px;
-        font-weight: bold;
-        text-align: center;
+        overflow: hidden; /* Evita que la imagen se salga del contenedor */
+        width: 100%;
+        height: 300px; /* O el alto que tenga tu tarjeta/contenedor */
+    }
+
+    /* Nueva regla para controlar la imagen por dentro */
+    .img-evento {
+        width: 100%;
+        height: 100%;
+        object-fit: cover; /* Hace que la imagen llene el espacio sin deformarse */
     }
 
     .show-img-uno {

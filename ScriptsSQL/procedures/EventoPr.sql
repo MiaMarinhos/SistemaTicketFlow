@@ -307,12 +307,61 @@ BEGIN
     INNER JOIN estado_evento ee
         ON e.idEstado_evento = ee.idEstado_evento
 
-    WHERE e.fecha >= CURDATE()
-
     ORDER BY e.fecha ASC, e.hora_inicio ASC;
 END //
 
 DELIMITER ;
+-- --------------------------------------------------------------------------------
+
+
+-- LIST ultimos eventos
+DROP PROCEDURE IF EXISTS SP_LISTAR_EVENTOS_ACTIVOS_APROBADOS;
+DELIMITER //
+
+CREATE PROCEDURE SP_LISTAR_EVENTOS_ACTIVOS_APROBADOS()
+BEGIN
+    SELECT
+        e.idEvento,
+        e.titulo,
+        e.descripcion,
+        e.capacidad_entradas,
+        e.fecha,
+        e.hora_inicio,
+        e.hora_fin,
+        e.ubicacion,
+        e.nombre_establecimiento,
+        e.img,
+        e.precio,
+        e.idDistrito,
+        e.idAnfitrion,
+
+        ce.idCategoria_evento,
+        ce.nombre AS categoria,
+
+        ep.idEstado_publicacion,
+        ep.estado AS estado_publicacion,
+
+        ee.idEstado_evento,
+        ee.estado AS estado_evento
+
+    FROM evento e
+
+    INNER JOIN categoria_evento ce
+        ON e.idCategoria_evento = ce.idCategoria_evento
+
+    INNER JOIN estado_publicacion ep
+        ON e.idEstado_publicacion = ep.idEstado_publicacion
+
+    INNER JOIN estado_evento ee
+        ON e.idEstado_evento = ee.idEstado_evento
+
+    WHERE e.fecha >= CURDATE() and e.idEstado_evento=1 and e.idEstado_publicacion=2
+    ORDER BY e.fecha ASC, e.hora_inicio ASC;
+END //
+
+DELIMITER ;
+
+--  ---------------------------------------------------------------------------------------
 
 DROP PROCEDURE IF EXISTS SP_LISTAR_EVENTOS_ORDEN_ID;
 DELIMITER //
@@ -453,7 +502,7 @@ BEGIN
         e.idEstado_publicacion,
         e.idEstado_evento
     FROM evento e, categoria_evento ce
-	WHERE ce.nombre = p_categoria and ce.idCategoria_evento = e.idCategoria_evento and e.fecha >= CURDATE()
+	WHERE ce.nombre = p_categoria and ce.idCategoria_evento = e.idCategoria_evento and e.fecha >= CURDATE() and e.idEstado_evento=1 and e.idEstado_publicacion=2
 
     ORDER BY e.idEvento;
 END //

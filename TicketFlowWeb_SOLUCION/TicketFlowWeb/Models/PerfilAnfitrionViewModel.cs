@@ -1,5 +1,4 @@
 ﻿using System;
-using Models.banco;
 
 namespace TicketFlowWeb.Models
 {

@@ -85,7 +85,7 @@ public class EventoBLImpl implements IEventoBL {
     @Override
     public List<Evento> verTodosLosEventos() throws BusinessLogicException {
         try {
-            return eventoDAO.listAll();
+            return eventoDAO.listAllActivosAprobados();
         }
         catch (Exception ex){
             if (ex instanceof BusinessLogicException) {

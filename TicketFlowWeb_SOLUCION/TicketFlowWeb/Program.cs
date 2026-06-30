@@ -2,7 +2,7 @@ using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Authorization;
 using Microsoft.AspNetCore.Components.Server;
-using Servicios.compra;
+using System.ComponentModel;
 using TicketFlow.Services.ReporteRS;
 using TicketFlowWeb.Components;
 using TicketFlowWeb.Models;
@@ -12,6 +12,7 @@ using TicketFlowWeb.Services.AnfitrionRS;
 using TicketFlowWeb.Services.CompraRS;
 using TicketFlowWeb.Services.EventoRS;
 using TicketFlowWeb.Services.UsuarioRS;
+
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -43,7 +44,7 @@ builder.Services.AddHttpClient<AdministradorRestService>(client =>
 builder.Services.AddScoped<ReporteService>();
 builder.Services.AddScoped<DatosExcelService>();
 
-builder.Services.AddScoped<CompraRS>();
+builder.Services.AddScoped<TicketFlowWeb.Services.CompraRS.CompraRestService>();
 
 builder.Services.AddHttpClient<UbicacionRestService>(client =>
 {

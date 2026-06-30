@@ -7,6 +7,7 @@ import java.util.List;
 
 public interface IEventoDAO extends IBaseDAO<Evento, Integer> {
     public List<Evento> listAllOrdenID();
+    public List<Evento> listAllActivosAprobados();
     Evento createByAdmin(Evento eve);
     List<Evento> buscarPorTitulo(String titulo);
     List<Evento> filtrarPorEstado(Integer idEstadoEvento);
@@ -16,4 +17,4 @@ public interface IEventoDAO extends IBaseDAO<Evento, Integer> {
     Evento eliminarEvento(Integer idEvento);
     List<Evento> ListarEventosProximos();
     List<Evento> listarEventosPorAnfitrion(Integer idAnfitrion);
-    }
+}

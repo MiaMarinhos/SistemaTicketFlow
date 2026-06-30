@@ -222,6 +222,32 @@ public class EventoDAOImpl implements IEventoDAO {
     }
 
     @Override
+    public List<Evento> listAllActivosAprobados() {
+        String sql = "{CALL SP_LISTAR_EVENTOS_ACTIVOS_APROBADOS()}";
+
+        try (Connection connection = DBManager.getInstance().getConnection();
+             CallableStatement cs = connection.prepareCall(sql)) {
+
+            try (ResultSet rs = cs.executeQuery()) {
+
+                List<Evento> eventos = new ArrayList<>();
+
+                while (rs.next()) {
+
+                    Evento evento = new Evento();
+                    mapearEventoListar(rs, evento);
+                    eventos.add(evento);
+                }
+
+                return eventos;
+            }
+
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    @Override
     public List<Evento> buscarPorTitulo(String titulo) {
 
         List<Evento> eventos = new ArrayList<>();
