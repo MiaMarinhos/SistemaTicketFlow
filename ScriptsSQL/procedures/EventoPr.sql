@@ -422,8 +422,7 @@ CREATE PROCEDURE SP_BUSCAR_EVENTO_TITULO(
 BEGIN
     SELECT e.*
     FROM evento e
-    WHERE e.titulo LIKE CONCAT('%', p_titulo, '%') and  e.fecha >= CURDATE()
-;
+    WHERE e.titulo LIKE CONCAT('%', p_titulo, '%') and  e.fecha >= CURDATE() and idEstado_publicacion = 2;
 END //
 DELIMITER ;
 
