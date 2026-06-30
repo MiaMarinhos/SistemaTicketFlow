@@ -22,23 +22,23 @@ builder.Services.AddRazorComponents()
 //--------------------------------
 builder.Services.AddHttpClient<EventoRestService>(client =>
 {
-    client.BaseAddress = new Uri("http://localhost:8080/TicketFlow/api/");
+    client.BaseAddress = new Uri("http://34.202.176.10:8080/TicketFlow/api/");
 });
 builder.Services.AddHttpClient<UsuarioRestService>(client =>
 {
-    client.BaseAddress = new Uri("http://localhost:8080/TicketFlow/api/");
+    client.BaseAddress = new Uri("http://34.202.176.10:8080/TicketFlow/api/");
 });
 builder.Services.AddHttpClient<CompraRestService>(client =>
 {
-    client.BaseAddress = new Uri("http://localhost:8080/TicketFlow/api/");
+    client.BaseAddress = new Uri("http://34.202.176.10:8080/TicketFlow/api/");
 });
 builder.Services.AddHttpClient<AnfitrionRestService>(client =>
 {
-    client.BaseAddress = new Uri("http://localhost:8080/TicketFlow/api/");
+    client.BaseAddress = new Uri("http://34.202.176.10:8080/TicketFlow/api/");
 });
 builder.Services.AddHttpClient<AdministradorRestService>(client =>
 {
-    client.BaseAddress = new Uri("http://localhost:8080/TicketFlow/api/");
+    client.BaseAddress = new Uri("http://34.202.176.10:8080/TicketFlow/api/");
 });
 
 builder.Services.AddScoped<ReporteService>();
@@ -48,21 +48,21 @@ builder.Services.AddScoped<TicketFlowWeb.Services.CompraRS.CompraRestService>();
 
 builder.Services.AddHttpClient<UbicacionRestService>(client =>
 {
-    client.BaseAddress = new Uri("http://localhost:8080/TicketFlow/api/");
+    client.BaseAddress = new Uri("http://34.202.176.10:8080/TicketFlow/api/");
 });
 
 builder.Services.AddHttpClient<CategoriaRestService>(client =>
 {
     // Usa la misma URL que configuraste para UbicacionRestService
-    client.BaseAddress = new Uri("http://localhost:8080/TicketFlow/api/");
+    client.BaseAddress = new Uri("http://34.202.176.10:8080/TicketFlow/api/");
 });
 
-//Builder General
-builder.Services.AddScoped(sp => new HttpClient
-{
-    BaseAddress = new Uri("http://localhost:8080/CosysServices/cosys/")
-});
-//----------------------------------------------------------
+////Builder General
+//builder.Services.AddScoped(sp => new HttpClient
+//{
+//    BaseAddress = new Uri("http://localhost:8080/CosysServices/cosys/")
+//});
+////----------------------------------------------------------
 
 builder.Services.AddScoped<IServicioSesionAuth, ServicioSesionAuth>();
 builder.Services.AddHttpContextAccessor();

@@ -6,7 +6,7 @@ namespace TicketFlow.Services.ReporteRS
     {
         private readonly HttpClient _httpClient;
         private readonly IJSRuntime _jsRuntime;
-        private const string BaseUrl = "http://localhost:8080/TicketFlow/api/DatosExcelRS/";
+        private const string BaseUrl = "http://34.202.176.10:8080/TicketFlow/api/DatosExcelRS/";
 
         // Tipo MIME del formato .xlsx
         private const string XlsxType =

@@ -8,7 +8,7 @@ namespace TicketFlowWeb.Services.CompraRS
     public class CompraRestService
     {
         private readonly HttpClient _httpClient;
-        private readonly string _baseUrl = "http://localhost:8080/TicketFlow/api/CompraRS";
+        private readonly string _baseUrl = "http://34.202.176.10:8080/TicketFlow/api/CompraRS";
 
         public CompraRestService(HttpClient httpClient)
         {

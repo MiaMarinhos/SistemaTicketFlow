@@ -105,7 +105,7 @@ namespace TicketFlowWeb.Components.Pages.Cliente
             try
             {
                 
-                string urlValidacion = $"http://localhost:8080/TicketFlow/api/CompraRS/validarIngreso/{entrada.idCompra}";
+                string urlValidacion = $"http://34.202.176.10:8080/TicketFlow/api/CompraRS/validarIngreso/{entrada.idCompra}";
 
                 using (QRCodeGenerator qrGenerator = new QRCodeGenerator())
                 {
